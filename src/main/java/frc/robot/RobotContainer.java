@@ -12,6 +12,12 @@ public class RobotContainer {
     configureBindings();
   }
 
+  private void addReal() {}
+
+  private void addSim() {}
+
+  private void addReplay() {}
+
   private void configureBindings() {}
 
   public Command getAutonomousCommand() {
