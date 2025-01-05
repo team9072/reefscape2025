@@ -20,7 +20,7 @@ public class RobotRunner extends LoggedRobot {
 
   public RobotRunner() {
     // Record metadata
-    Logger.recordMetadata("ProjectName", "9072-reefscape-2025");
+    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
