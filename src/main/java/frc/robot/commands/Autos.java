@@ -48,6 +48,13 @@ public class Autos extends SubsystemBase {
 
   private AutoChooser buildAutoChooser() {
     AutoChooser autoChooser = new AutoChooser();
+
+    autoChooser.addCmd("Forward 180", this::forward180Auto);
+
     return autoChooser;
+  }
+
+  private Command forward180Auto() {
+    return autoFactory.trajectoryCmd("Forward 180");
   }
 }
