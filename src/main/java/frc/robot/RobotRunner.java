@@ -4,17 +4,22 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-public class RobotRunner extends TimedRobot {
+public class RobotRunner extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final Robot m_robotContainer;
 
   public RobotRunner() {
-    /*// Record metadata
+    // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -55,7 +60,7 @@ public class RobotRunner extends TimedRobot {
     }
 
     // Start AdvantageKit logger
-    Logger.start();*/
+    Logger.start();
 
     m_robotContainer = new Robot();
   }
