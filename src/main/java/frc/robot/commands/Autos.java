@@ -3,6 +3,7 @@ package frc.robot.commands;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import org.littletonrobotics.junction.LogTable;
@@ -55,6 +56,7 @@ public class Autos extends SubsystemBase {
   }
 
   private Command forward180Auto() {
-    return autoFactory.trajectoryCmd("Forward 180");
+    return Commands.sequence(
+        autoFactory.resetOdometry("Forward 180"), autoFactory.trajectoryCmd("Forward 180"));
   }
 }
