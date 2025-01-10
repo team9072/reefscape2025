@@ -1,5 +1,7 @@
 package frc.robot.subsystems.generic.roller;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -15,4 +17,8 @@ public interface RollerIO {
   public default void updateInputs(RollerIOInputs inputs) {}
 
   public default void setVoltage(Voltage voltage) {}
+
+  public default void stop() {
+    setVoltage(Volts.zero());
+  }
 }

@@ -1,9 +1,14 @@
 package frc.robot.subsystems.coralplacer;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.generic.roller.RollerConstants;
 import frc.robot.util.CanID;
 
 public class CoralPlacerConstants {
+  public static final Voltage intakeVoltage = Volts.of(3);
+
   public static final String canBus = "";
 
   public static final int beamBreakDioId = 0;

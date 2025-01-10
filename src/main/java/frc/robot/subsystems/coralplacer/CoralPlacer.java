@@ -1,5 +1,7 @@
 package frc.robot.subsystems.coralplacer;
 
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIOInputsAutoLogged;
@@ -25,13 +27,32 @@ public class CoralPlacer extends SubsystemBase {
 
   @Override
   public void periodic() {
-    rightRollerIO.updateInputs(rightRollerInputs);
-    Logger.processInputs("Coral Placer/Left Roller", rightRollerInputs);
-
     leftRollerIO.updateInputs(leftRollerInputs);
     Logger.processInputs("Coral Placer/Right Roller", rightRollerInputs);
 
+    rightRollerIO.updateInputs(rightRollerInputs);
+    Logger.processInputs("Coral Placer/Left Roller", rightRollerInputs);
+
     beamBreakIO.updateInputs(beamBreakInputs);
     Logger.processInputs("Coral Placer/Beam Break", beamBreakInputs);
+  }
+
+  private void setVoltage(Voltage voltage) {
+    leftRollerIO.setVoltage(voltage);
+    rightRollerIO.setVoltage(voltage);
+  }
+
+  private void stop() {
+    leftRollerIO.stop();
+    rightRollerIO.stop();
+  }
+
+  private Command runVoltage(Voltage voltage) {
+    return this.runEnd(() -> setVoltage(voltage), this::stop);
+  }
+
+  public Command intake() {
+    return runVoltage(CoralPlacerConstants.intakeVoltage)
+        .until(() -> beamBreakInputs.objectDetected);
   }
 }
