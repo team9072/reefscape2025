@@ -9,6 +9,9 @@ import frc.robot.util.CanID;
 public class CoralPlacerConstants {
   public static final Voltage intakeVoltage = Volts.of(3);
 
+  public static final Voltage extendVoltage = Volts.of(3);
+  public static final Voltage retractVoltage = Volts.of(-3);
+
   public static final String canBus = "";
 
   public static final int beamBreakDioId = 0;

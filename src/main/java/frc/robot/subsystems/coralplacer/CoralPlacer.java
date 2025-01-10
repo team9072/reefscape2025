@@ -55,4 +55,14 @@ public class CoralPlacer extends SubsystemBase {
     return runVoltage(CoralPlacerConstants.intakeVoltage)
         .until(() -> beamBreakInputs.objectDetected);
   }
+
+  public Command extend() {
+    return runVoltage(CoralPlacerConstants.extendVoltage)
+        .until(() -> !beamBreakInputs.objectDetected);
+  }
+
+  public Command retract() {
+    return runVoltage(CoralPlacerConstants.retractVoltage)
+        .until(() -> beamBreakInputs.objectDetected);
+  }
 }
