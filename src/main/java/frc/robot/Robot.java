@@ -12,16 +12,25 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.coralplacer.CoralPlacer;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIODio;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIONull;
+import frc.robot.subsystems.generic.roller.RollerIO;
+import frc.robot.subsystems.generic.roller.RollerIOSim;
+import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
 
 public class Robot {
   // Subsystems
   private final Drive drive;
+  private final CoralPlacer coralPlacer;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -40,6 +49,12 @@ public class Robot {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        coralPlacer =
+            new CoralPlacer(
+                new RollerIOTalonFX(CoralPlacerConstants.leftRoller),
+                new RollerIOTalonFX(CoralPlacerConstants.rightRoller),
+                new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
         break;
 
       case SIM:
@@ -51,6 +66,12 @@ public class Robot {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+        coralPlacer =
+            new CoralPlacer(
+                new RollerIOSim(CoralPlacerConstants.leftRoller),
+                new RollerIOSim(CoralPlacerConstants.rightRoller),
+                new BeamBreakIONull());
         break;
 
       default:
@@ -62,6 +83,9 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        coralPlacer = new CoralPlacer(new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
+
         break;
     }
 
