@@ -30,7 +30,8 @@ public class RollerIOSim implements RollerIO {
 
     sim =
         new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getCIM(1), 0.004, constants.motorReduction),
+            LinearSystemId.createDCMotorSystem(
+                DCMotor.getKrakenX60(1), 0.004, constants.motorReduction),
             DCMotor.getCIM(1));
   }
 
