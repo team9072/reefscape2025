@@ -5,6 +5,7 @@ import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIOInputsAutoLogged;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralPlacer extends SubsystemBase {
   private final RollerIO leftRollerIO;
@@ -20,5 +21,17 @@ public class CoralPlacer extends SubsystemBase {
     this.leftRollerIO = leftRollerIO;
     this.rightRollerIO = rightRollerIO;
     this.beamBreakIO = beamBreakIO;
+  }
+
+  @Override
+  public void periodic() {
+    rightRollerIO.updateInputs(rightRollerInputs);
+    Logger.processInputs("Coral Placer/Left Roller", rightRollerInputs);
+
+    leftRollerIO.updateInputs(leftRollerInputs);
+    Logger.processInputs("Coral Placer/Right Roller", rightRollerInputs);
+
+    beamBreakIO.updateInputs(beamBreakInputs);
+    Logger.processInputs("Coral Placer/Beam Break", beamBreakInputs);
   }
 }
