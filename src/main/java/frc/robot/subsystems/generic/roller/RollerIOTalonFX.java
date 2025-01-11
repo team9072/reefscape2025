@@ -29,16 +29,20 @@ import edu.wpi.first.units.measure.Voltage;
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
  */
 public class RollerIOTalonFX implements RollerIO {
-  private TalonFX roller;
-  private final StatusSignal<Angle> positionRot = roller.getPosition();
-  private final StatusSignal<AngularVelocity> velocityRotPerSec = roller.getVelocity();
-  private final StatusSignal<Voltage> appliedVolts = roller.getMotorVoltage();
-  private final StatusSignal<Current> currentAmps = roller.getSupplyCurrent();
+  private final TalonFX roller;
+  private final StatusSignal<Angle> positionRot;
+  private final StatusSignal<AngularVelocity> velocityRotPerSec;
+  private final StatusSignal<Voltage> appliedVolts;
+  private final StatusSignal<Current> currentAmps;
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0);
 
   public RollerIOTalonFX(RollerConstants constants) {
     roller = constants.canId.getTalon();
+    positionRot = roller.getPosition();
+    velocityRotPerSec = roller.getVelocity();
+    appliedVolts = roller.getMotorVoltage();
+    currentAmps = roller.getSupplyCurrent();
 
     var config = new TalonFXConfiguration();
 

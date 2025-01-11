@@ -15,14 +15,18 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
-  private TalonFX motor;
-  private final StatusSignal<Angle> positionRot = motor.getPosition();
-  private final StatusSignal<AngularVelocity> velocityRotPerSec = motor.getVelocity();
-  private final StatusSignal<Voltage> appliedVolts = motor.getMotorVoltage();
-  private final StatusSignal<Current> currentAmps = motor.getSupplyCurrent();
+  private final TalonFX motor;
+  private final StatusSignal<Angle> positionRot;
+  private final StatusSignal<AngularVelocity> velocityRotPerSec;
+  private final StatusSignal<Voltage> appliedVolts;
+  private final StatusSignal<Current> currentAmps;
 
   public ElevatorIOTalonFX() {
     motor = ElevatorConstants.motorCanId.getTalon();
+    positionRot = motor.getPosition();
+    velocityRotPerSec = motor.getVelocity();
+    appliedVolts = motor.getMotorVoltage();
+    currentAmps = motor.getSupplyCurrent();
 
     var config = new TalonFXConfiguration();
 
