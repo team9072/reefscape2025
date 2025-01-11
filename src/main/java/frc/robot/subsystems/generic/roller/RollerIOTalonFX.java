@@ -20,7 +20,6 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -58,10 +57,10 @@ public class RollerIOTalonFX implements RollerIO {
   public void updateInputs(RollerIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.positionRad = Units.rotationsToRadians(positionRot.getValueAsDouble());
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocityRotPerSec.getValueAsDouble());
-    inputs.appliedVolts = appliedVolts.getValueAsDouble();
-    inputs.currentAmps = currentAmps.getValueAsDouble();
+    inputs.position = positionRot.getValue();
+    inputs.velocity = velocityRotPerSec.getValue();
+    inputs.appliedVoltage = appliedVolts.getValue();
+    inputs.current = currentAmps.getValue();
   }
 
   @Override
