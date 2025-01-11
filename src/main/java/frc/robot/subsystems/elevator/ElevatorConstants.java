@@ -2,8 +2,8 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Angle;
@@ -20,9 +20,9 @@ public class ElevatorConstants {
   public static Angle maxDistance = Degrees.of(0);
 
   public static final Mass elevatorMass = Kilograms.zero();
-  public static final Distance drumRadius = Meters.zero();
+  public static final Distance drumRadius = Inches.of(1.432 / 2);
 
-  public static double motorReduction = 1.0;
+  public static double motorReduction = Math.pow(4, 3);
 
   public static final String canBus = "";
   public static CanID motorCanId = new CanID(0, canBus);
