@@ -20,6 +20,10 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIODio;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIONull;
@@ -31,6 +35,7 @@ public class Robot {
   // Subsystems
   private final Drive drive;
   private final CoralPlacer coralPlacer;
+  private final Elevator elevator;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -40,7 +45,7 @@ public class Robot {
 
   public Robot() {
     switch (Constants.currentMode) {
-      case REAL:
+      case REAL -> {
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -55,9 +60,11 @@ public class Robot {
                 new RollerIOTalonFX(CoralPlacerConstants.leftRoller),
                 new RollerIOTalonFX(CoralPlacerConstants.rightRoller),
                 new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
-        break;
 
-      case SIM:
+        elevator = new Elevator(new ElevatorIOTalonFX());
+      }
+
+      case SIM -> {
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -72,9 +79,11 @@ public class Robot {
                 new RollerIOSim(CoralPlacerConstants.leftRoller),
                 new RollerIOSim(CoralPlacerConstants.rightRoller),
                 new BeamBreakIONull());
-        break;
 
-      default:
+        elevator = new Elevator(new ElevatorIOSim());
+      }
+
+      default -> {
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -86,7 +95,8 @@ public class Robot {
 
         coralPlacer = new CoralPlacer(new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
 
-        break;
+        elevator = new Elevator(new ElevatorIO() {});
+      }
     }
 
     autos = new Autos(drive);
