@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class ElevatorConstants {
@@ -24,8 +25,8 @@ public class ElevatorConstants {
 
   public static double motorReduction = Math.pow(4, 3);
 
-  public static final String canBus = "";
-  public static CanID motorCanId = new CanID(0, canBus);
+  public static final String canBus = TunerConstants.kCANBus.getName();
+  public static CanID motorCanId = new CanID(11, canBus);
 
   public static Voltage homingVoltage = Volts.of(3);
 }

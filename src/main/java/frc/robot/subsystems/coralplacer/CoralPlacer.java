@@ -39,7 +39,7 @@ public class CoralPlacer extends SubsystemBase {
 
   private void setVoltage(Voltage voltage) {
     leftRollerIO.setVoltage(voltage);
-    rightRollerIO.setVoltage(voltage);
+    rightRollerIO.setVoltage(voltage.unaryMinus());
   }
 
   private void stop() {
@@ -57,8 +57,8 @@ public class CoralPlacer extends SubsystemBase {
   }
 
   public Command extend() {
-    return runVoltage(CoralPlacerConstants.extendVoltage)
-        .until(() -> !beamBreakInputs.objectDetected);
+    return runVoltage(CoralPlacerConstants.extendVoltage);
+    // .until(() -> !beamBreakInputs.objectDetected);
   }
 
   public Command retract() {
