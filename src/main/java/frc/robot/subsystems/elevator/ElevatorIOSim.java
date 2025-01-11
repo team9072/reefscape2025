@@ -17,8 +17,8 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.util.UnitCalculations.drumRotationToDistance;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -33,14 +33,11 @@ public class ElevatorIOSim implements ElevatorIO {
 
   public ElevatorIOSim() {
     DCMotor motor = DCMotor.getKrakenX60(1);
+
     Distance minHeight =
-        ElevatorConstants.minDistance
-            .div(Rotations.one())
-            .times(ElevatorConstants.drumCircumfrence);
+        drumRotationToDistance(ElevatorConstants.minDistance, ElevatorConstants.drumRadius);
     Distance maxHeight =
-        ElevatorConstants.maxDistance
-            .div(Rotations.one())
-            .times(ElevatorConstants.drumCircumfrence);
+        drumRotationToDistance(ElevatorConstants.maxDistance, ElevatorConstants.drumRadius);
 
     elevatorSim =
         new ElevatorSim(

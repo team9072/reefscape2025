@@ -1,6 +1,8 @@
 package frc.robot.subsystems.elevator;
 
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
+import static frc.robot.util.UnitCalculations.drumRotationToDistance;
+import static frc.robot.util.UnitCalculations.drumVelocityToLinearVelocity;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -28,6 +30,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+    config.Feedback.SensorToMechanismRatio = ElevatorConstants.motorReduction;
+
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -39,8 +43,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.position = positionRot.getValue();
-    inputs.velocity = velocityRotPerSec.getValue();
+    inputs.position = drumRotationToDistance(positionRot.getValue(), ElevatorConstants.drumRadius);
+    inputs.velocity =
+        drumVelocityToLinearVelocity(velocityRotPerSec.getValue(), ElevatorConstants.drumRadius);
     inputs.appliedVoltage = appliedVolts.getValue();
     inputs.current = currentAmps.getValue();
   }

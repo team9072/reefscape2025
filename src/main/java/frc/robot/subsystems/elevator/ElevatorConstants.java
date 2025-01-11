@@ -21,7 +21,6 @@ public class ElevatorConstants {
 
   public static final Mass elevatorMass = Kilograms.zero();
   public static final Distance drumRadius = Meters.zero();
-  public static final Distance drumCircumfrence = drumRadius.times(2 * Math.PI);
 
   public static double motorReduction = 1.0;
 
