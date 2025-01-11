@@ -31,7 +31,6 @@ public class RollerIOSim implements RollerIO {
   private final MutVoltage appliedVoltage = Volts.mutable(0);
 
   public RollerIOSim(RollerConstants constants) {
-
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
