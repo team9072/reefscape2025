@@ -2,7 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -34,7 +34,7 @@ public class ElevatorConstants {
 
   public static double kP = 100;
 
-  public static final Mass elevatorMass = Kilograms.zero();
+  public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.432 / 2);
 
   public static double motorReduction = Math.pow(4, 3);

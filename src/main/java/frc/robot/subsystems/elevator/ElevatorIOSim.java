@@ -60,8 +60,7 @@ public class ElevatorIOSim implements ElevatorIO {
             minHeight.in(Meters),
             maxHeight.in(Meters),
             false,
-            minHeight.in(Meters),
-            null);
+            minHeight.in(Meters));
   }
 
   private void setVoltageClamped(double voltage) {
