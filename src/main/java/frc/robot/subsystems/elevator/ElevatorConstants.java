@@ -15,6 +15,18 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class ElevatorConstants {
+  public enum ElevatorPosition {
+    intakePosition(Rotations.of(0)),
+    reefL2Position(Rotations.of(2)),
+    reefL3Position(Rotations.of(4));
+
+    public Angle angle;
+
+    ElevatorPosition(Angle angle) {
+      this.angle = angle;
+    }
+  }
+
   public static Current currentLimit = Amps.of(40);
 
   public static Angle minDistance = Rotations.of(0);

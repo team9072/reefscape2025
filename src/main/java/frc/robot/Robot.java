@@ -21,6 +21,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -114,6 +115,13 @@ public class Robot {
 
     controller.b().whileTrue(coralPlacer.intake());
     controller.a().whileTrue(coralPlacer.extend());
+
+    controller.povDown().onTrue(elevator.setPosition(ElevatorPosition.intakePosition));
+    controller
+        .povLeft()
+        .or(controller.povRight())
+        .onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
+    controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
 
     // Reset gyro to 0° when start button is pressed
     controller
