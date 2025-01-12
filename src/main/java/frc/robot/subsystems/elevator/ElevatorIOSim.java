@@ -17,21 +17,29 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.elevator.ElevatorCalculations.distanceToDrumRotation;
 import static frc.robot.subsystems.elevator.ElevatorCalculations.drumRotationToDistance;
 import static frc.robot.subsystems.elevator.ElevatorCalculations.linearVelocityToDrumVelocity;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
 public class ElevatorIOSim implements ElevatorIO {
   private final ElevatorSim elevatorSim;
 
   private final MutVoltage appliedVoltage = Volts.mutable(0);
+
+  private PIDController angleController = new PIDController(ElevatorConstants.kP, 0, 0);
+  private boolean usePid = false;
 
   public ElevatorIOSim() {
     DCMotor motor = DCMotor.getKrakenX60(1);
@@ -56,19 +64,41 @@ public class ElevatorIOSim implements ElevatorIO {
             null);
   }
 
+  private void setVoltageClamped(double voltage) {
+    appliedVoltage.mut_replace(MathUtil.clamp(voltage, -12.0, 12.0), Volts);
+  }
+
   @Override
   public void updateInputs(ElevatorIOInputs inputs) {
+    Angle drumRotation = distanceToDrumRotation(inputs.position, ElevatorConstants.drumRadius);
+
+    if (usePid) {
+      setVoltageClamped(angleController.calculate(drumRotation.in(Rotations)));
+    }
+
     elevatorSim.setInputVoltage(appliedVoltage.in(Volts));
     elevatorSim.update(0.02);
 
     inputs.position = Meters.of(elevatorSim.getPositionMeters());
     inputs.velocity = MetersPerSecond.of(elevatorSim.getVelocityMetersPerSecond());
 
-    inputs.rotation = distanceToDrumRotation(inputs.position, ElevatorConstants.drumRadius);
+    inputs.rotation = drumRotation;
     inputs.angularVelocity =
         linearVelocityToDrumVelocity(inputs.velocity, ElevatorConstants.drumRadius);
 
     inputs.appliedVoltage = appliedVoltage.copy();
     inputs.current = Amps.of(elevatorSim.getCurrentDrawAmps());
+  }
+
+  @Override
+  public void setVoltage(Voltage voltage) {
+    setVoltageClamped(voltage.in(Volts));
+    usePid = false;
+  }
+
+  @Override
+  public void setPosition(Angle position) {
+    angleController.setSetpoint(position.in(Rotations));
+    usePid = true;
   }
 }

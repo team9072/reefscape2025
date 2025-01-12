@@ -79,5 +79,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   @Override
-  public void setVoltage() {}
+  public void setVoltage(Voltage voltage) {
+    motor.setControl(voltageRequest.withOutput(voltage));
+  }
+
+  @Override
+  public void setPosition(Angle position) {
+    motor.setControl(positionRequest.withPosition(position));
+  }
 }

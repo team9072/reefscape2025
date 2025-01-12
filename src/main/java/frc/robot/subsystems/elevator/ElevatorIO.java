@@ -32,7 +32,7 @@ public interface ElevatorIO {
 
   public default void setHomePosition() {}
 
-  public default void setVoltage() {}
+  public default void setVoltage(Voltage voltage) {}
 
-  public default void setPosition() {}
+  public default void setPosition(Angle position) {}
 }
