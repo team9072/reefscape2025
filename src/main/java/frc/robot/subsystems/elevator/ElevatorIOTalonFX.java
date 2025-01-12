@@ -1,12 +1,17 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.drumRotationToDistance;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.drumVelocityToLinearVelocity;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
-import static frc.robot.util.UnitCalculations.drumRotationToDistance;
-import static frc.robot.util.UnitCalculations.drumVelocityToLinearVelocity;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -21,6 +26,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
+
+  private final VoltageOut voltageRequest = new VoltageOut(Volts.of(0));
+  private final PositionVoltage positionRequest = new PositionVoltage(Rotations.of(0));
 
   public ElevatorIOTalonFX() {
     motor = ElevatorConstants.motorCanId.getTalon();
@@ -39,6 +47,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Invert the motor
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    var pidConfig = new Slot0Configs();
+    pidConfig.kP = ElevatorConstants.kP;
+
+    config.withSlot0(pidConfig);
+
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -50,10 +63,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void updateInputs(ElevatorIOInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.position = drumRotationToDistance(positionRot.getValue(), ElevatorConstants.drumRadius);
+    inputs.rotation = positionRot.getValue();
+    inputs.angularVelocity = velocityRotPerSec.getValue();
+
+    inputs.position = drumRotationToDistance(inputs.rotation, ElevatorConstants.drumRadius);
     inputs.velocity =
-        drumVelocityToLinearVelocity(velocityRotPerSec.getValue(), ElevatorConstants.drumRadius);
+        drumVelocityToLinearVelocity(inputs.angularVelocity, ElevatorConstants.drumRadius);
     inputs.appliedVoltage = appliedVolts.getValue();
     inputs.current = currentAmps.getValue();
   }
+
+  @Override
+  public void setVoltage() {}
 }

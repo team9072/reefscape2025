@@ -18,7 +18,9 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.util.UnitCalculations.drumRotationToDistance;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.distanceToDrumRotation;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.drumRotationToDistance;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.linearVelocityToDrumVelocity;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -61,6 +63,11 @@ public class ElevatorIOSim implements ElevatorIO {
 
     inputs.position = Meters.of(elevatorSim.getPositionMeters());
     inputs.velocity = MetersPerSecond.of(elevatorSim.getVelocityMetersPerSecond());
+
+    inputs.rotation = distanceToDrumRotation(inputs.position, ElevatorConstants.drumRadius);
+    inputs.angularVelocity =
+        linearVelocityToDrumVelocity(inputs.velocity, ElevatorConstants.drumRadius);
+
     inputs.appliedVoltage = appliedVoltage.copy();
     inputs.current = Amps.of(elevatorSim.getCurrentDrawAmps());
   }
