@@ -9,6 +9,7 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -47,10 +48,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Invert the motor
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    var pidConfig = new Slot0Configs();
-    pidConfig.kP = ElevatorConstants.kP;
+    config.withSlot0(new Slot0Configs().withKP(ElevatorConstants.kP));
 
-    config.withSlot0(pidConfig);
+    config.withSoftwareLimitSwitch(
+        new SoftwareLimitSwitchConfigs()
+            .withForwardSoftLimitThreshold(ElevatorConstants.maxDistance)
+            .withReverseSoftLimitThreshold(ElevatorConstants.minDistance)
+            .withForwardSoftLimitEnable(true)
+            .withReverseSoftLimitEnable(true));
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
 
