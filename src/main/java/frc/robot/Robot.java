@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
@@ -24,6 +25,9 @@ public class Robot {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+
+  // Autonomous
+  private final Autos autos;
 
   public Robot() {
     switch (Constants.currentMode) {
@@ -61,6 +65,7 @@ public class Robot {
         break;
     }
 
+    autos = new Autos(drive);
     configureBindings();
   }
 
@@ -99,6 +104,6 @@ public class Robot {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autos.getSelectedAuto();
   }
 }
