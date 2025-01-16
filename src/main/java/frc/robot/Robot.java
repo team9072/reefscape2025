@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
@@ -120,15 +117,7 @@ public class Robot {
     controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
 
     // Reset gyro to 0° when start button is pressed
-    controller
-        .start()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+    controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
   }
 
   public Command getAutonomousCommand() {
