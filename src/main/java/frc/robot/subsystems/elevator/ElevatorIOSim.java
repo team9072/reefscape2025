@@ -24,9 +24,10 @@ import static frc.robot.subsystems.elevator.ElevatorCalculations.drumRotationToD
 import static frc.robot.subsystems.elevator.ElevatorCalculations.linearVelocityToDrumVelocity;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.MutVoltage;
@@ -38,7 +39,13 @@ public class ElevatorIOSim implements ElevatorIO {
 
   private final MutVoltage appliedVoltage = Volts.mutable(0);
 
-  private PIDController angleController = new PIDController(ElevatorConstants.kP, 0, 0);
+  private ProfiledPIDController angleController =
+      new ProfiledPIDController(
+          ElevatorConstants.kP,
+          0,
+          0,
+          new TrapezoidProfile.Constraints(
+              ElevatorConstants.rampAcceleration, ElevatorConstants.rampAcceleration));
   private boolean usePid = false;
 
   public ElevatorIOSim() {
@@ -97,7 +104,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
   @Override
   public void setPosition(Angle position) {
-    angleController.setSetpoint(position.in(Rotations));
+    angleController.setGoal(position.in(Rotations));
     usePid = true;
   }
 }

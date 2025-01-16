@@ -8,10 +8,11 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -29,7 +30,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   private final StatusSignal<Current> currentAmps;
 
   private final VoltageOut voltageRequest = new VoltageOut(Volts.of(0));
-  private final PositionVoltage positionRequest = new PositionVoltage(Rotations.of(0));
+  private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(Rotations.of(0));
 
   public ElevatorIOTalonFX() {
     motor = ElevatorConstants.motorCanId.getTalon();
@@ -48,7 +49,16 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Invert the motor
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.withSlot0(new Slot0Configs().withKP(ElevatorConstants.kP));
+    config.withSlot0(
+        new Slot0Configs()
+            .withKP(ElevatorConstants.kP)
+            .withKV(ElevatorConstants.kV)
+            .withKG(ElevatorConstants.kG));
+
+    config.withMotionMagic(
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(ElevatorConstants.rampVelocity)
+            .withMotionMagicAcceleration(ElevatorConstants.rampAcceleration));
 
     config.withSoftwareLimitSwitch(
         new SoftwareLimitSwitchConfigs()
