@@ -225,16 +225,17 @@ public class Drive extends SubsystemBase {
 
   /** Follow a choreo trajectory atthe provided sample point */
   public void followTrajectory(SwerveSample sample) {
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
+
     Pose2d pose = getPose();
 
-    ChassisSpeeds speeds =
-        new ChassisSpeeds(
-            sample.vx + xController.calculate(pose.getX(), sample.x),
-            sample.vy + yController.calculate(pose.getY(), sample.y),
-            sample.omega
-                + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
+    ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
+    targetSpeeds.vxMetersPerSecond += xController.calculate(pose.getX(), sample.x);
+    targetSpeeds.vyMetersPerSecond += xController.calculate(pose.getY(), sample.y);
+    targetSpeeds.omegaRadiansPerSecond +=
+        headingController.calculate(pose.getRotation().getRadians(), sample.heading);
 
-    runVelocity(speeds);
+    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getRotation()));
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

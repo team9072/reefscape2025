@@ -2,7 +2,11 @@ package frc.robot.commands;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.drive.Drive;
 import org.littletonrobotics.junction.LogTable;
@@ -22,7 +26,11 @@ public class Autos extends SubsystemBase {
 
     @Override
     public void toLog(LogTable table) {
-      table.put("Selected", autoChooser.selectedCommand().getName());
+      String name = autoChooser.selectedCommand().getName();
+
+      if (name == "InstantCommand") name = "Nothing";
+
+      table.put("Selected", name);
     }
 
     @Override
@@ -49,12 +57,18 @@ public class Autos extends SubsystemBase {
   private AutoChooser buildAutoChooser() {
     AutoChooser autoChooser = new AutoChooser();
 
-    autoChooser.addCmd("Forward 180", this::forward180Auto);
+    autoChooser.addRoutine("Forward 180", this::forward180Auto);
 
+    SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;
   }
 
-  private Command forward180Auto() {
-    return autoFactory.trajectoryCmd("Forward 180");
+  private AutoRoutine forward180Auto() {
+    AutoRoutine routine = autoFactory.newRoutine("Forward 180");
+    AutoTrajectory trajectory = routine.trajectory("Forward 180");
+
+    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
+
+    return routine;
   }
 }
