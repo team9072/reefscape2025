@@ -110,8 +110,14 @@ public class Robot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.b().whileTrue(coralPlacer.intake());
     controller.a().whileTrue(coralPlacer.extend());
+
+    controller
+        .b()
+        .onTrue(
+            elevator
+                .setPosition(ElevatorPosition.intakePosition)
+                .andThen(coralPlacer.intake().onlyWhile(controller.b())));
 
     controller.povDown().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
     controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));

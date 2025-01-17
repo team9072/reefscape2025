@@ -1,6 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import org.littletonrobotics.junction.Logger;
@@ -20,6 +21,8 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command setPosition(ElevatorPosition position) {
-    return runOnce(() -> elevatorIO.setPosition(position.angle));
+    return Commands.sequence(
+        runOnce(() -> elevatorIO.setPosition(position.angle)),
+        Commands.waitUntil(() -> position.withinTolerance(elevatorInputs.rotation)));
   }
 }

@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.subsystems.elevator.ElevatorCalculations.distanceToDrumRotation;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -20,10 +21,17 @@ public class ElevatorConstants {
     reefL2Position(Rotations.of(0)),
     reefL3Position(Rotations.of(3.7));
 
+    public static final Distance linearTolerance = Inches.of(1);
+    public static final Angle tolerance = distanceToDrumRotation(linearTolerance, drumRadius);
+
     public Angle angle;
 
     ElevatorPosition(Angle angle) {
       this.angle = angle;
+    }
+
+    public boolean withinTolerance(Angle angle) {
+      return this.angle.isNear(angle, tolerance);
     }
   }
 
