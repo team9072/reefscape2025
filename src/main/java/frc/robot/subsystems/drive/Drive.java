@@ -231,7 +231,7 @@ public class Drive extends SubsystemBase {
 
     ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
     targetSpeeds.vxMetersPerSecond += xController.calculate(pose.getX(), sample.x);
-    targetSpeeds.vyMetersPerSecond += xController.calculate(pose.getY(), sample.y);
+    targetSpeeds.vyMetersPerSecond += yController.calculate(pose.getY(), sample.y);
     targetSpeeds.omegaRadiansPerSecond +=
         headingController.calculate(pose.getRotation().getRadians(), sample.heading);
 
