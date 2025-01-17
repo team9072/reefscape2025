@@ -58,6 +58,7 @@ public class Autos extends SubsystemBase {
     AutoChooser autoChooser = new AutoChooser();
 
     autoChooser.addRoutine("Forward 180", this::forward180Auto);
+    autoChooser.addRoutine("Around Reef", this::aroundReefAuto);
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;
@@ -66,6 +67,15 @@ public class Autos extends SubsystemBase {
   private AutoRoutine forward180Auto() {
     AutoRoutine routine = autoFactory.newRoutine("Forward 180");
     AutoTrajectory trajectory = routine.trajectory("Forward 180");
+
+    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
+
+    return routine;
+  }
+
+  private AutoRoutine aroundReefAuto() {
+    AutoRoutine routine = autoFactory.newRoutine("Around Reef");
+    AutoTrajectory trajectory = routine.trajectory("Around Reef");
 
     routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
 
