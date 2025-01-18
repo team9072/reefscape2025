@@ -18,6 +18,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,8 +27,9 @@ import org.photonvision.PhotonCamera;
 
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
-  protected final PhotonCamera camera;
+  protected final PhotonCamera photonCamera;
   protected final Transform3d robotToCamera;
+  protected final String cameraName;
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -35,19 +37,21 @@ public class VisionIOPhotonVision implements VisionIO {
    * @param name The configured name of the camera.
    * @param rotationSupplier The 3D position of the camera relative to the robot.
    */
-  public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
-    camera = new PhotonCamera(name);
-    this.robotToCamera = robotToCamera;
+  public VisionIOPhotonVision(CameraData camera) {
+    photonCamera = new PhotonCamera(camera.cameraName);
+    robotToCamera = camera.robotToCamera;
+    cameraName = camera.cameraName;
   }
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    inputs.connected = camera.isConnected();
+    inputs.connected = photonCamera.isConnected();
+    inputs.cameraName = cameraName;
 
     // Read new camera observations
     Set<Short> tagIds = new HashSet<>();
     List<PoseObservation> poseObservations = new LinkedList<>();
-    for (var result : camera.getAllUnreadResults()) {
+    for (var result : photonCamera.getAllUnreadResults()) {
       // Update latest target observation
       if (result.hasTargets()) {
         inputs.latestTargetObservation =

@@ -28,10 +28,16 @@ import frc.robot.subsystems.generic.beambreak.BeamBreakIONull;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOSim;
 import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants.CameraData;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 public class Robot {
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
   private final CoralPlacer coralPlacer;
   private final Elevator elevator;
 
@@ -53,6 +59,10 @@ public class Robot {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
+        vision =
+            new Vision(
+                drive::addVisionMeasurement, new VisionIOPhotonVision(CameraData.LeftCamera));
+
         coralPlacer =
             new CoralPlacer(
                 new RollerIOTalonFX(CoralPlacerConstants.leftRoller),
@@ -72,6 +82,11 @@ public class Robot {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));
+
         coralPlacer =
             new CoralPlacer(
                 new RollerIOSim(CoralPlacerConstants.leftRoller),
@@ -90,6 +105,8 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         coralPlacer = new CoralPlacer(new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
 
