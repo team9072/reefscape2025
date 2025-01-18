@@ -50,7 +50,7 @@ public class ElevatorConstants {
   public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.432 / 2);
 
-  public static double motorReduction = Math.pow(4, 3);
+  public static double motorReduction = 4 * 4 * 3;
 
   public static final String canBus = TunerConstants.kCANBus.getName();
   public static final CanID motorCanId = new CanID(11, canBus);
