@@ -17,7 +17,7 @@ public class Autos extends SubsystemBase {
   private final AutoFactory autoFactory;
   private final AutoInputs inputs;
 
-  private class AutoInputs implements LoggableInputs {
+  private static class AutoInputs implements LoggableInputs {
     final AutoChooser autoChooser;
 
     public AutoInputs(AutoChooser autoChooser) {
