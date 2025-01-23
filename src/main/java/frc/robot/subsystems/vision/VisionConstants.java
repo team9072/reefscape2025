@@ -13,24 +13,48 @@
 
 package frc.robot.subsystems.vision;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import java.util.HashMap;
+import java.util.Optional;
 
 public class VisionConstants {
+  public enum CameraData {
+    LeftCamera(
+        "BW3",
+        new Transform3d(
+            new Translation3d(Inches.of(-3.5), Inches.of(10), Inches.of(16)),
+            new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.of(-15))));
+
+    private static final HashMap<String, CameraData> _map = new HashMap<>();
+
+    public final String cameraName;
+    public final Transform3d robotToCamera;
+    public final double stdDevFactor;
+
+    public static Optional<CameraData> getNamed(String name) {
+      return Optional.ofNullable(_map.get(name));
+    }
+
+    CameraData(String cameraName, Transform3d robotToCamera, double stdDevFactor) {
+      this.cameraName = cameraName;
+      this.robotToCamera = robotToCamera;
+      this.stdDevFactor = stdDevFactor;
+    }
+
+    CameraData(String cameraName, Transform3d robotToCamera) {
+      this(cameraName, robotToCamera, 1);
+    }
+  }
+
   public static AprilTagFieldLayout aprilTagLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-
-  public static String camera0Name = "camera_0";
-  public static String camera1Name = "camera_1";
-
-  // Robot to camera transforms
-  // (Not used by Limelight, configure in web UI instead)
-  public static Transform3d robotToCamera0 =
-      new Transform3d(0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, 0.0));
-  public static Transform3d robotToCamera1 =
-      new Transform3d(-0.2, 0.0, 0.2, new Rotation3d(0.0, -0.4, Math.PI));
 
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
@@ -40,12 +64,4 @@ public class VisionConstants {
   // (Adjusted automatically based on distance and # of tags)
   public static double linearStdDevBaseline = 0.02; // Meters
   public static double angularStdDevBaseline = 0.06; // Radians
-
-  // Standard deviation multipliers for each camera
-  // (Adjust to trust some cameras more than others)
-  public static double[] cameraStdDevFactors =
-      new double[] {
-        1.0, // Camera 0
-        1.0 // Camera 1
-      };
 }

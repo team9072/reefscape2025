@@ -49,6 +49,11 @@ public class DriveCommands {
 
   private DriveCommands() {}
 
+  private static boolean getIsFlipped() {
+    return DriverStation.getAlliance().isPresent()
+        && DriverStation.getAlliance().get() == Alliance.Red;
+  }
+
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
     // Apply deadband
     double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
@@ -89,13 +94,11 @@ public class DriveCommands {
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                   omega * drive.getMaxAngularSpeedRadPerSec());
-          boolean isFlipped =
-              DriverStation.getAlliance().isPresent()
-                  && DriverStation.getAlliance().get() == Alliance.Red;
+
           drive.runVelocity(
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   speeds,
-                  isFlipped
+                  getIsFlipped()
                       ? drive.getRotation().plus(new Rotation2d(Math.PI))
                       : drive.getRotation()));
         },
@@ -140,13 +143,11 @@ public class DriveCommands {
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                       omega);
-              boolean isFlipped =
-                  DriverStation.getAlliance().isPresent()
-                      && DriverStation.getAlliance().get() == Alliance.Red;
+
               drive.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       speeds,
-                      isFlipped
+                      getIsFlipped()
                           ? drive.getRotation().plus(new Rotation2d(Math.PI))
                           : drive.getRotation()));
             },
@@ -154,6 +155,23 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  /**
+   * @param drive
+   * @return
+   */
+  public static Command zeroGyro(Drive drive) {
+
+    return Commands.runOnce(
+        () -> {
+          Translation2d translation = drive.getPose().getTranslation();
+          Rotation2d rotation =
+              getIsFlipped() ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0);
+
+          drive.setPose(new Pose2d(translation, rotation));
+        },
+        drive);
   }
 
   /**

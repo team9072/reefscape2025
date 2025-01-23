@@ -19,7 +19,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -52,15 +51,6 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
-  }
-
-  /**
-   * Returns the X angle to the best target, which can be used for simple servoing with vision.
-   *
-   * @param cameraIndex The index of the camera to use.
-   */
-  public Rotation2d getTargetX(int cameraIndex) {
-    return inputs[cameraIndex].latestTargetObservation.tx();
   }
 
   @Override
@@ -130,9 +120,12 @@ public class Vision extends SubsystemBase {
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
 
-        if (cameraIndex < cameraStdDevFactors.length) {
-          linearStdDev *= cameraStdDevFactors[cameraIndex];
-          angularStdDev *= cameraStdDevFactors[cameraIndex];
+        var optionalCamera = CameraData.getNamed(inputs[cameraIndex].cameraName);
+        if (optionalCamera.isPresent()) {
+          CameraData camera = optionalCamera.get();
+
+          linearStdDev *= camera.stdDevFactor;
+          angularStdDev *= camera.stdDevFactor;
         }
 
         // Send vision observation

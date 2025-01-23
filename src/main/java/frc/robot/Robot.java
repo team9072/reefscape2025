@@ -4,24 +4,42 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.coralplacer.CoralPlacer;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIODio;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIONull;
+import frc.robot.subsystems.generic.roller.RollerIO;
+import frc.robot.subsystems.generic.roller.RollerIOSim;
+import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants.CameraData;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 public class Robot {
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
+  private final CoralPlacer coralPlacer;
+  private final Elevator elevator;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -31,7 +49,7 @@ public class Robot {
 
   public Robot() {
     switch (Constants.currentMode) {
-      case REAL:
+      case REAL -> {
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
@@ -40,9 +58,21 @@ public class Robot {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        break;
 
-      case SIM:
+        vision =
+            new Vision(
+                drive::addVisionMeasurement, new VisionIOPhotonVision(CameraData.LeftCamera));
+
+        coralPlacer =
+            new CoralPlacer(
+                new RollerIOTalonFX(CoralPlacerConstants.leftRoller),
+                new RollerIOTalonFX(CoralPlacerConstants.rightRoller),
+                new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
+
+        elevator = new Elevator(new ElevatorIOTalonFX());
+      }
+
+      case SIM -> {
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -51,9 +81,22 @@ public class Robot {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        break;
 
-      default:
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));
+
+        coralPlacer =
+            new CoralPlacer(
+                new RollerIOSim(CoralPlacerConstants.leftRoller),
+                new RollerIOSim(CoralPlacerConstants.rightRoller),
+                new BeamBreakIONull());
+
+        elevator = new Elevator(new ElevatorIOSim());
+      }
+
+      default -> {
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -62,7 +105,13 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        break;
+
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+
+        coralPlacer = new CoralPlacer(new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
+
+        elevator = new Elevator(new ElevatorIO() {});
+      }
     }
 
     autos = new Autos(drive);
@@ -78,29 +127,20 @@ public class Robot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    // Lock to 0° when A button is held
-    controller
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
-                () -> new Rotation2d()));
+    controller.a().whileTrue(coralPlacer.extend());
 
-    // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
     controller
         .b()
         .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
-                .ignoringDisable(true));
+            elevator
+                .setPosition(ElevatorPosition.intakePosition)
+                .andThen(coralPlacer.intake().onlyWhile(controller.b())));
+
+    controller.rightBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
+    controller.leftBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
+
+    // Reset gyro to 0° when start button is pressed
+    controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
   }
 
   public Command getAutonomousCommand() {
