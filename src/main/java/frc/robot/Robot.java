@@ -136,8 +136,8 @@ public class Robot {
                 .setPosition(ElevatorPosition.intakePosition)
                 .andThen(coralPlacer.intake().onlyWhile(controller.b())));
 
-    controller.povDown().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
-    controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
+    controller.rightBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
+    controller.leftBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
 
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
