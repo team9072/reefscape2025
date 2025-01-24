@@ -49,7 +49,7 @@ public class ElevatorIOSim implements ElevatorIO {
   private boolean usePid = false;
 
   public ElevatorIOSim() {
-    DCMotor motor = DCMotor.getKrakenX60(1);
+    DCMotor motor = DCMotor.getKrakenX60(2);
 
     Distance minHeight =
         drumRotationToDistance(ElevatorConstants.minDistance, ElevatorConstants.drumRadius);
