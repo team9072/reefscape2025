@@ -30,7 +30,7 @@ public class VisionConstants {
         "BW3",
         new Transform3d(
             new Translation3d(Inches.of(-3.5), Inches.of(10), Inches.of(16)),
-            new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.of(-15))));
+            new Rotation3d(Degrees.zero(), Degrees.zero(), Degrees.of(-20))));
 
     private static final HashMap<String, CameraData> _map = new HashMap<>();
 
