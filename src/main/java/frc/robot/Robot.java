@@ -109,7 +109,13 @@ public class Robot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    /*controller.a().whileTrue(coralPlacer.extend());
+    /*controller
+        .leftTrigger()
+        .whileTrue(
+            ReefAlignment.driveReefAligned(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+
+    controller.a().whileTrue(coralPlacer.extend());
 
     controller
         .b()

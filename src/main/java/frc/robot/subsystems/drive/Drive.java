@@ -91,6 +91,8 @@ public class Drive extends SubsystemBase {
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
+
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -223,10 +225,37 @@ public class Drive extends SubsystemBase {
     stop();
   }
 
+  /**
+   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified translation. Useful
+   * for merging human and pid control
+   */
+  public void addTranslationCorrection(ChassisSpeeds speeds, Translation2d targetTranslation) {
+    Pose2d pose = getPose();
+    speeds.vxMetersPerSecond += xController.calculate(pose.getX(), targetTranslation.getX());
+    speeds.vyMetersPerSecond += yController.calculate(pose.getY(), targetTranslation.getY());
+  }
+
+  /**
+   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified heading. Useful for
+   * merging human and pid control
+   */
+  public void addHeadingCorrection(ChassisSpeeds speeds, Rotation2d targetRotaion) {
+    speeds.omegaRadiansPerSecond +=
+        headingController.calculate(
+            getPose().getRotation().getRadians(), targetRotaion.getRadians());
+  }
+
+  /**
+   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified position and rotation
+   * (pose). Useful for merging human and pid control
+   */
+  public void addPoseCorrection(ChassisSpeeds speeds, Pose2d targetPose) {
+    addTranslationCorrection(speeds, targetPose.getTranslation());
+    addHeadingCorrection(speeds, targetPose.getRotation());
+  }
+
   /** Follow a choreo trajectory atthe provided sample point */
   public void followTrajectory(SwerveSample sample) {
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
-
     Pose2d pose = getPose();
 
     ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
