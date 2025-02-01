@@ -1,5 +1,8 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
@@ -24,5 +27,11 @@ public class Intake extends SubsystemBase {
 
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Intake/Roller", rollerInputs);
+  }
+
+  public Command intake() {
+    return runEnd(
+        () -> rollerIO.setVoltage(IntakeConstants.intakeVoltage),
+        () -> rollerIO.setVoltage(Volts.zero()));
   }
 }

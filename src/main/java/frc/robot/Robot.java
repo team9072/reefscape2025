@@ -129,6 +129,8 @@ public class Robot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
+    controller.a().whileTrue(intake.intake());
+
     /*controller
         .leftTrigger()
         .whileTrue(
