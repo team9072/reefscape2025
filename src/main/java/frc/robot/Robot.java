@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
@@ -126,6 +127,12 @@ public class Robot {
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
+    controller
+        .leftTrigger()
+        .whileTrue(
+            ReefAlignment.driveReefAligned(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
     controller.a().whileTrue(coralPlacer.extend());
 
