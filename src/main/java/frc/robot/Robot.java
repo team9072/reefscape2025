@@ -15,10 +15,19 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.generic.roller.RollerIO;
+import frc.robot.subsystems.generic.roller.RollerIOSim;
+import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.PivotIO;
+import frc.robot.subsystems.intake.PivotIOSim;
+import frc.robot.subsystems.intake.PivotIOTalonFX;
 
 public class Robot {
   // Subsystems
   private final Drive drive;
+  private final Intake intake;
   /*private final Vision vision;
   private final CoralPlacer coralPlacer;
   private final Elevator elevator;*/
@@ -40,6 +49,11 @@ public class Robot {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        intake =
+            new Intake(
+                new PivotIOTalonFX(IntakeConstants.pivot),
+                new RollerIOTalonFX(IntakeConstants.roller));
 
         /*vision =
             new Vision(
@@ -64,6 +78,10 @@ public class Robot {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
+        intake =
+            new Intake(
+                new PivotIOSim(IntakeConstants.pivot), new RollerIOSim(IntakeConstants.roller));
+
         /*vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -87,6 +105,8 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        intake = new Intake(new PivotIO() {}, new RollerIO() {});
 
         /*vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
