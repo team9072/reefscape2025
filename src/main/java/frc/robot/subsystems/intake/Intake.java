@@ -13,9 +13,13 @@ public class Intake extends SubsystemBase {
   private final RollerIO rollerIO;
   private final RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
-  public Intake(PivotIO pivotIO, RollerIO rollerIO) {
+  private final RollerIO passthroughIO;
+  private final RollerIOInputsAutoLogged passthroughInputs = new RollerIOInputsAutoLogged();
+
+  public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
+    this.passthroughIO = passthroughIO;
   }
 
   @Override
@@ -25,13 +29,21 @@ public class Intake extends SubsystemBase {
 
     rollerIO.updateInputs(rollerInputs);
     Logger.processInputs("Intake/Roller", rollerInputs);
+
+    passthroughIO.updateInputs(passthroughInputs);
+    Logger.processInputs("Intake/Passthrough", passthroughInputs);
+  }
+
+  private void stopRollers() {}
+
+  private void intakeRollers() {
+    rollerIO.setTorque(IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
+
+    passthroughIO.setTorque(
+        IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
   }
 
   public Command intake() {
-    return runEnd(
-        () ->
-            rollerIO.setTorque(
-                IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle),
-        () -> rollerIO.stop());
+    return runEnd(this::intakeRollers, this::stopRollers);
   }
 }
