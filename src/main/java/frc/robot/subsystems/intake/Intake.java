@@ -34,7 +34,10 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake/Passthrough", passthroughInputs);
   }
 
-  private void stopRollers() {}
+  private void stopRollers() {
+    rollerIO.stop();
+    passthroughIO.stop();
+  }
 
   private void intakeRollers() {
     rollerIO.setTorque(IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
