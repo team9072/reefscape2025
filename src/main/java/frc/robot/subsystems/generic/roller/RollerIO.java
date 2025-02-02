@@ -24,6 +24,12 @@ public interface RollerIO {
 
   public default void setVoltage(Voltage voltage) {}
 
+  public default void setTorque(Current current, double maxDutyCycle) {}
+
+  public default void setTorque(Current current) {
+    setTorque(current, 1);
+  }
+
   public default void stop() {
     setVoltage(Volts.zero());
   }

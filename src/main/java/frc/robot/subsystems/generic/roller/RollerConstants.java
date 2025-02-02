@@ -1,13 +1,20 @@
 package frc.robot.subsystems.generic.roller;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Time;
 import frc.robot.util.CanID;
 
 public class RollerConstants {
-  public Current currentLimit = Amps.of(40);
+  public Current baseCurrentLimit = Amps.of(40);
+  public Current spikeCurrentLimit = Amps.of(40);
+  public Time spikeTime = Seconds.of(1);
+
+  public Current statorCurrentLimit = Amps.of(120);
+
   public NeutralModeValue neutralMode = NeutralModeValue.Brake;
   public double motorReduction = 1.0;
 
@@ -17,8 +24,19 @@ public class RollerConstants {
     this.canId = canId;
   }
 
-  public RollerConstants withCurrentLimits(Current currentLimit) {
-    this.currentLimit = currentLimit;
+  public RollerConstants withBaseCurrentLimit(Current currentLimit) {
+    this.baseCurrentLimit = currentLimit;
+    return this;
+  }
+
+  public RollerConstants withSpikeCurrentLimit(Current currentLimit, Time spikeTime) {
+    this.spikeCurrentLimit = currentLimit;
+    this.spikeTime = spikeTime;
+    return this;
+  }
+
+  public RollerConstants withStatorCurrentLimit(Current currentLimit) {
+    this.statorCurrentLimit = currentLimit;
     return this;
   }
 
