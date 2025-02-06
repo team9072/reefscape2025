@@ -133,6 +133,7 @@ public class Robot {
             () -> -controller.getRightX()));
 
     controller.a().whileTrue(intake.intake());
+    controller.y().whileTrue(intake.reverse());
 
     /*controller
         .leftTrigger()

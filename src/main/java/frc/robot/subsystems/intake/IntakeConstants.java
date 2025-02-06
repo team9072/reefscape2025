@@ -17,7 +17,12 @@ public class IntakeConstants {
   public static final CanID rollerCanId = new CanID(12, canBus);
 
   public static final Current intakeTorqueCurrent = Amps.of(200);
+  public static final Current intakeReverseTorqueCurrent = Amps.of(-100);
   public static final double intakeTorqueDutyCycle = 0.5;
+
+  public static final Current passthroughTorqueCurrent = Amps.of(200);
+  public static final Current passthroughReverseTorqueCurrent = Amps.of(-100);
+  public static final double passthroughTorqueDutyCycle = 0.5;
 
   public static PivotConstants pivot =
       new PivotConstants(pivotCanId, InvertedValue.Clockwise_Positive);
