@@ -3,6 +3,7 @@ package frc.robot.subsystems.generic.roller;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Time;
@@ -15,6 +16,7 @@ public class RollerConstants {
 
   public Current statorCurrentLimit = Amps.of(120);
 
+  public InvertedValue invertedValue = InvertedValue.CounterClockwise_Positive;
   public NeutralModeValue neutralMode = NeutralModeValue.Brake;
   public double motorReduction = 1.0;
 
@@ -37,6 +39,11 @@ public class RollerConstants {
 
   public RollerConstants withStatorCurrentLimit(Current currentLimit) {
     this.statorCurrentLimit = currentLimit;
+    return this;
+  }
+
+  public RollerConstants withInvert(InvertedValue invertedValue) {
+    this.invertedValue = invertedValue;
     return this;
   }
 

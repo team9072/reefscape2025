@@ -28,6 +28,7 @@ public class IntakeConstants {
       new PivotConstants(pivotCanId, InvertedValue.Clockwise_Positive);
   public static RollerConstants roller =
       new RollerConstants(rollerCanId)
+          .withInvert(InvertedValue.Clockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
           .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
           .withStatorCurrentLimit(Amps.of(500));

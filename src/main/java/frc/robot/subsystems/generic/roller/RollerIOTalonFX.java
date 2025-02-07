@@ -57,6 +57,7 @@ public class RollerIOTalonFX implements RollerIO {
     config.CurrentLimits.StatorCurrentLimitEnable = true;
 
     config.MotorOutput.NeutralMode = constants.neutralMode;
+    config.MotorOutput.Inverted = constants.invertedValue;
 
     tryUntilOk(5, () -> roller.getConfigurator().apply(config, 0.25));
 
