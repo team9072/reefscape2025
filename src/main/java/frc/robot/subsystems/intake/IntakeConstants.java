@@ -18,7 +18,7 @@ public class IntakeConstants {
 
   public static final Current intakeTorqueCurrent = Amps.of(200);
   public static final Current intakeReverseTorqueCurrent = Amps.of(-100);
-  public static final double intakeTorqueDutyCycle = 0.5;
+  public static final double intakeTorqueDutyCycle = 0.6;
 
   public static final Current passthroughTorqueCurrent = Amps.of(200);
   public static final Current passthroughReverseTorqueCurrent = Amps.of(-100);
