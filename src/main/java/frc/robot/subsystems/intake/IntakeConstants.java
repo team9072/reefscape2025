@@ -12,7 +12,7 @@ import frc.robot.util.CanID;
 public class IntakeConstants {
   public static final String canBus = TunerConstants.kCANBus.getName();
 
-  public static final CanID pivotCanId = new CanID(0, canBus); // TODO: Update id
+  public static final CanID pivotCanId = new CanID(13, canBus);
   public static final CanID passthroughCanId = new CanID(11, canBus);
   public static final CanID rollerCanId = new CanID(12, canBus);
 

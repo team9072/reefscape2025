@@ -53,8 +53,8 @@ public class ElevatorConstants {
   public static double motorReduction = 4 * 4 * 3;
 
   public static final String canBus = TunerConstants.kCANBus.getName();
-  public static final CanID primaryMotorCanId = new CanID(11, canBus);
-  public static final CanID secondaryMotorCanId = new CanID(12, canBus);
+  public static final CanID primaryMotorCanId = new CanID(15, canBus);
+  // public static final CanID secondaryMotorCanId = new CanID(12, canBus);
 
   public static final Voltage homingVoltage = Volts.of(3);
 }
