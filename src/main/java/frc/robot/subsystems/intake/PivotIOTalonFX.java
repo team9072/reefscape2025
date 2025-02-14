@@ -17,8 +17,11 @@ import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -36,6 +39,8 @@ public class PivotIOTalonFX implements PivotIO {
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
 
+  private final PositionVoltage positionRequest = new PositionVoltage(PivotConstants.stowAngle);
+
   public PivotIOTalonFX(PivotConstants constants) {
     motor = constants.canId.getTalon();
     positionRot = motor.getPosition();
@@ -52,12 +57,22 @@ public class PivotIOTalonFX implements PivotIO {
 
     config.Feedback.SensorToMechanismRatio = PivotConstants.motorReduction;
 
+    // Floating
     config.withSlot0(
-        new Slot0Configs()
+        new Slot0Configs().withKG(PivotConstants.kG).withGravityType(GravityTypeValue.Arm_Cosine));
+
+    config.withSlot1(
+        new Slot1Configs()
             .withKP(PivotConstants.kP)
+            .withKD(PivotConstants.kD)
             .withKV(PivotConstants.kV)
             .withKG(PivotConstants.kG)
             .withGravityType(GravityTypeValue.Arm_Cosine));
+
+    config.withMotionMagic(
+        new MotionMagicConfigs()
+            .withMotionMagicCruiseVelocity(PivotConstants.rampVelocity)
+            .withMotionMagicAcceleration(PivotConstants.rampAcceleration));
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
     tryUntilOk(5, () -> motor.setPosition(PivotConstants.stowAngle, 0.25));
@@ -75,5 +90,10 @@ public class PivotIOTalonFX implements PivotIO {
     inputs.velocity = velocityRotPerSec.getValue();
     inputs.appliedVoltage = appliedVolts.getValue();
     inputs.current = currentAmps.getValue();
+  }
+
+  @Override
+  public void setPosition(Angle positon) {
+    motor.setControl(positionRequest.withPosition(positon));
   }
 }

@@ -20,6 +20,8 @@ public class Intake extends SubsystemBase {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
+
+    pivotIO.setPosition(PivotConstants.stowAngle);
   }
 
   @Override

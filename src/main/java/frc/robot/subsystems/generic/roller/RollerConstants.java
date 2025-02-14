@@ -10,8 +10,8 @@ import edu.wpi.first.units.measure.Time;
 import frc.robot.util.CanID;
 
 public class RollerConstants {
-  public Current baseCurrentLimit = Amps.of(40);
-  public Current spikeCurrentLimit = Amps.of(40);
+  public Current baseCurrentLimit = Amps.of(50);
+  public Current spikeCurrentLimit = Amps.of(55);
   public Time spikeTime = Seconds.of(1);
 
   public Current statorCurrentLimit = Amps.of(120);

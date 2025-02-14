@@ -22,20 +22,21 @@ public class PivotConstants {
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
   public static final double motorReduction = 9.0 * (46.0 / 26.0);
 
-  public static final Angle stowAngle = Rotations.of(-0.4);
-  public static final Angle deployAngle = Rotations.of(0.2);
+  public static final Angle stowAngle = Rotations.of(-0.25);
+  public static final Angle deployAngle = Rotations.of(0.07);
 
   public static final Distance armLength = Inches.of(14);
   public static final Mass armMass = Pounds.of(14);
   public static final MomentOfInertia armMoi =
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
 
-  public static final double kG = -0.4;
-  public static final double kP = 0;
-  public static final double kV = 0;
+  public static final double kG = -0.45;
+  public static final double kP = 40;
+  public static final double kD = 4;
+  public static final double kV = 2.4;
 
-  public static final double rampVelocity = 10;
-  public static final double rampAcceleration = 10;
+  public static final double rampVelocity = 3;
+  public static final double rampAcceleration = 3;
 
   public final CanID canId;
   public final InvertedValue invertedValue;
