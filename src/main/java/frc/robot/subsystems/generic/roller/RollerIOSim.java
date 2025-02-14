@@ -13,24 +13,25 @@
 
 package frc.robot.subsystems.generic.roller;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
-import edu.wpi.first.math.MathUtil;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
-public class RollerIOSim implements RollerIO {
+public class RollerIOSim extends RollerIOTalonFX {
   private final DCMotorSim sim;
+  private final TalonFXSimState simState;
 
-  private final MutVoltage appliedVoltage = Volts.mutable(0);
+  private final double motorReduction;
 
   public RollerIOSim(RollerConstants constants) {
+    super(constants);
+
+    motorReduction = constants.motorReduction;
+    simState = roller.getSimState();
+
     sim =
         new DCMotorSim(
             LinearSystemId.createDCMotorSystem(
@@ -40,17 +41,14 @@ public class RollerIOSim implements RollerIO {
 
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    sim.setInputVoltage(appliedVoltage.in(Volts));
+    simState.setSupplyVoltage(RobotController.getBatteryVoltage());
+    sim.setInputVoltage(simState.getMotorVoltage());
     sim.update(0.02);
 
-    inputs.position = Radians.of(sim.getAngularPositionRad());
-    inputs.velocity = RadiansPerSecond.of(sim.getAngularVelocityRadPerSec());
-    inputs.appliedVoltage = appliedVoltage.copy();
-    inputs.current = Amps.of(sim.getCurrentDrawAmps());
-  }
+    simState.setRawRotorPosition(motorReduction * sim.getAngularPositionRotations());
+    simState.setRotorVelocity(
+        motorReduction * Units.radiansToRotations(sim.getAngularVelocityRadPerSec()));
 
-  @Override
-  public void setVoltage(Voltage voltage) {
-    appliedVoltage.mut_replace(MathUtil.clamp(voltage.in(Volts), -12.0, 12.0), Volts);
+    super.updateInputs(inputs);
   }
 }

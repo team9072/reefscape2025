@@ -18,6 +18,7 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
@@ -29,13 +30,14 @@ import edu.wpi.first.units.measure.Voltage;
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
  */
 public class RollerIOTalonFX implements RollerIO {
-  private final TalonFX roller;
+  protected final TalonFX roller;
   private final StatusSignal<Angle> positionRot;
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
 
   private final VoltageOut voltageRequest = new VoltageOut(0.0);
+  private final TorqueCurrentFOC torqueRequest = new TorqueCurrentFOC(0.0);
 
   public RollerIOTalonFX(RollerConstants constants) {
     roller = constants.canId.getTalon();
@@ -46,9 +48,16 @@ public class RollerIOTalonFX implements RollerIO {
 
     var config = new TalonFXConfiguration();
 
-    config.CurrentLimits.withSupplyCurrentLimit(constants.currentLimit);
+    config.CurrentLimits.withSupplyCurrentLowerLimit(constants.baseCurrentLimit);
+    config.CurrentLimits.withSupplyCurrentLimit(constants.spikeCurrentLimit);
+    config.CurrentLimits.withSupplyCurrentLowerTime(constants.spikeTime);
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+
+    config.CurrentLimits.withStatorCurrentLimit(constants.statorCurrentLimit);
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+
     config.MotorOutput.NeutralMode = constants.neutralMode;
+    config.MotorOutput.Inverted = constants.invertedValue;
 
     tryUntilOk(5, () -> roller.getConfigurator().apply(config, 0.25));
 
@@ -70,5 +79,10 @@ public class RollerIOTalonFX implements RollerIO {
   @Override
   public void setVoltage(Voltage voltage) {
     roller.setControl(voltageRequest.withOutput(voltage));
+  }
+
+  @Override
+  public void setTorque(Current current, double maxDutyCycle) {
+    roller.setControl(torqueRequest.withOutput(current).withMaxAbsDutyCycle(maxDutyCycle));
   }
 }

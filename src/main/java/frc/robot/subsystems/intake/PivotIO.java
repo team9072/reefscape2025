@@ -1,4 +1,4 @@
-package frc.robot.subsystems.generic.roller;
+package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Radians;
@@ -11,26 +11,16 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface RollerIO {
+public interface PivotIO {
   @AutoLog
-  public static class RollerIOInputs {
+  public static class PivotIOInputs {
     public Angle position = Radians.zero();
     public AngularVelocity velocity = RadiansPerSecond.zero();
     public Voltage appliedVoltage = Volts.zero();
     public Current current = Amps.zero();
   }
 
-  public default void updateInputs(RollerIOInputs inputs) {}
+  public default void updateInputs(PivotIOInputs inputs) {}
 
-  public default void setVoltage(Voltage voltage) {}
-
-  public default void setTorque(Current current, double maxDutyCycle) {}
-
-  public default void setTorque(Current current) {
-    setTorque(current, 1);
-  }
-
-  public default void stop() {
-    setVoltage(Volts.zero());
-  }
+  public default void setPosition(Angle positon) {}
 }
