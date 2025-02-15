@@ -135,6 +135,7 @@ public class Robot {
 
     controller.a().whileTrue(intake.intake());
     controller.y().whileTrue(intake.reverse());
+    controller.x().whileTrue(intake.intakeAlgae());
 
     controller.leftBumper().onTrue(intake.setPosition(PivotPosition.deploy));
     controller.rightBumper().onTrue(intake.setPosition(PivotPosition.stow));

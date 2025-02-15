@@ -63,6 +63,15 @@ public class Intake extends SubsystemBase {
     return runEnd(this::intakeRollers, this::stopRollers);
   }
 
+  public Command intakeAlgae() {
+    return runEnd(
+        () ->
+            rollerIO.setTorque(
+                IntakeConstants.intakeAlgaeTorqueCurrent,
+                IntakeConstants.intakeAlgaeTorqueDutyCycle),
+        this::stopRollers);
+  }
+
   public Command reverse() {
     return runEnd(this::reverseRollers, this::stopRollers);
   }
