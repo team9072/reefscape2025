@@ -15,6 +15,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 
 public class PivotIOSim implements PivotIO {
   private final SingleJointedArmSim armSim;
@@ -33,8 +34,8 @@ public class PivotIOSim implements PivotIO {
   public PivotIOSim(PivotConstants constants) {
     DCMotor motor = DCMotor.getKrakenX60(1);
 
-    Angle minAngle = PivotConstants.stowAngle;
-    Angle maxAngle = PivotConstants.deployAngle;
+    Angle minAngle = PivotPosition.stow.angle;
+    Angle maxAngle = PivotPosition.stow.angle;
 
     armSim =
         new SingleJointedArmSim(
@@ -48,7 +49,7 @@ public class PivotIOSim implements PivotIO {
             minAngle.in(Radians),
             maxAngle.in(Radians),
             false,
-            PivotConstants.stowAngle.in(Radians));
+            PivotPosition.stow.angle.in(Radians));
   }
 
   private void setVoltageClamped(double voltage) {

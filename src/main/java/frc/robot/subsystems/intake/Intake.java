@@ -1,9 +1,11 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -21,7 +23,7 @@ public class Intake extends SubsystemBase {
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
 
-    pivotIO.setPosition(PivotConstants.stowAngle);
+    pivotIO.setFloating();
   }
 
   @Override
@@ -63,5 +65,12 @@ public class Intake extends SubsystemBase {
 
   public Command reverse() {
     return runEnd(this::reverseRollers, this::stopRollers);
+  }
+
+  public Command setPosition(PivotPosition position) {
+    return Commands.sequence(
+            runOnce(() -> pivotIO.setPosition(position.angle)),
+            Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)))
+        .finallyDo(pivotIO::setFloating);
   }
 }

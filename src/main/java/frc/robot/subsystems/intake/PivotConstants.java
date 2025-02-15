@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
@@ -18,12 +19,25 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import frc.robot.util.CanID;
 
 public class PivotConstants {
+  public enum PivotPosition {
+    stow(Rotations.of(-0.25)),
+    deploy(Rotations.of(0.07));
+
+    public Angle angle;
+    public static final Angle tolerance = Degrees.of(3);
+
+    PivotPosition(Angle angle) {
+      this.angle = angle;
+    }
+
+    public boolean withinTolerance(Angle angle) {
+      return this.angle.isNear(angle, tolerance);
+    }
+  }
+
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
   public static final double motorReduction = 9.0 * (46.0 / 26.0);
-
-  public static final Angle stowAngle = Rotations.of(-0.25);
-  public static final Angle deployAngle = Rotations.of(0.07);
 
   public static final Distance armLength = Inches.of(14);
   public static final Mass armMass = Pounds.of(14);

@@ -20,6 +20,7 @@ import frc.robot.subsystems.generic.roller.RollerIOSim;
 import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
@@ -134,6 +135,9 @@ public class Robot {
 
     controller.a().whileTrue(intake.intake());
     controller.y().whileTrue(intake.reverse());
+
+    controller.leftBumper().onTrue(intake.setPosition(PivotPosition.deploy));
+    controller.rightBumper().onTrue(intake.setPosition(PivotPosition.stow));
 
     /*controller
         .leftTrigger()
