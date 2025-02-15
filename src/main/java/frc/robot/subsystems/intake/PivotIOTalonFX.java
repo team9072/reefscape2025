@@ -35,7 +35,7 @@ import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
  */
 public class PivotIOTalonFX implements PivotIO {
-  private final TalonFX motor;
+  protected final TalonFX motor;
   private final StatusSignal<Angle> positionRot;
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
   private final StatusSignal<Voltage> appliedVolts;

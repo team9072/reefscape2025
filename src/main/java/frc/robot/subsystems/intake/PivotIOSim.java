@@ -1,43 +1,36 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 
-public class PivotIOSim implements PivotIO {
-  private final SingleJointedArmSim armSim;
+public class PivotIOSim extends PivotIOTalonFX {
+  private final SingleJointedArmSim sim;
+  private final TalonFXSimState simState;
 
-  private final MutVoltage appliedVoltage = Volts.mutable(0);
-
-  private ProfiledPIDController angleController =
-      new ProfiledPIDController(
-          PivotConstants.kP,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              PivotConstants.rampAcceleration, PivotConstants.rampAcceleration));
-  private boolean usePid = false;
+  private final double motorReduction;
 
   public PivotIOSim(PivotConstants constants) {
+    super(constants);
+
+    motorReduction = constants.motorReduction;
+    simState = motor.getSimState();
+
     DCMotor motor = DCMotor.getKrakenX60(1);
 
     Angle minAngle = PivotPosition.stow.angle;
     Angle maxAngle = PivotPosition.stow.angle;
 
-    armSim =
+    sim =
         new SingleJointedArmSim(
             LinearSystemId.createSingleJointedArmSystem(
                 motor,
@@ -52,23 +45,16 @@ public class PivotIOSim implements PivotIO {
             PivotPosition.stow.angle.in(Radians));
   }
 
-  private void setVoltageClamped(double voltage) {
-    appliedVoltage.mut_replace(MathUtil.clamp(voltage, -12.0, 12.0), Volts);
-  }
-
   @Override
   public void updateInputs(PivotIOInputs inputs) {
-    if (usePid) {
-      setVoltageClamped(angleController.calculate(armSim.getAngleRads()));
-    }
+    simState.setSupplyVoltage(RobotController.getBatteryVoltage());
+    sim.setInputVoltage(simState.getMotorVoltage());
+    sim.update(0.02);
 
-    armSim.setInputVoltage(appliedVoltage.in(Volts));
-    armSim.update(0.02);
+    simState.setRawRotorPosition(motorReduction * sim.getAngleRads());
+    simState.setRotorVelocity(
+        motorReduction * Units.radiansToRotations(sim.getVelocityRadPerSec()));
 
-    inputs.position = Radians.of(armSim.getAngleRads());
-    inputs.velocity = RadiansPerSecond.of(armSim.getVelocityRadPerSec());
-
-    inputs.appliedVoltage = appliedVoltage.copy();
-    inputs.current = Amps.of(armSim.getCurrentDrawAmps());
+    super.updateInputs(inputs);
   }
 }
