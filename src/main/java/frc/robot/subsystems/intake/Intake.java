@@ -18,6 +18,8 @@ public class Intake extends SubsystemBase {
   private final RollerIO passthroughIO;
   private final RollerIOInputsAutoLogged passthroughInputs = new RollerIOInputsAutoLogged();
 
+  private PivotPosition lastSetpoint = null;
+
   public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
@@ -79,7 +81,11 @@ public class Intake extends SubsystemBase {
   public Command setPosition(PivotPosition position) {
     Command command =
         Commands.sequence(
-            runOnce(() -> pivotIO.setPosition(position.angle)),
+            runOnce(
+                () -> {
+                  pivotIO.setPosition(position.angle);
+                  lastSetpoint = position;
+                }),
             Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
 
     if (position.shouldFloat) {
@@ -87,5 +93,18 @@ public class Intake extends SubsystemBase {
     }
 
     return command;
+  }
+
+  public Command toggleDeploy() {
+    return Commands.either(
+        setPosition(PivotPosition.stow),
+        setPosition(PivotPosition.deploy),
+        () -> {
+          if (lastSetpoint == null) {
+            return true;
+          }
+
+          return (lastSetpoint != PivotPosition.stow);
+        });
   }
 }
