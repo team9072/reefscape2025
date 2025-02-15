@@ -102,6 +102,7 @@ public class PivotIOTalonFX implements PivotIO {
 
   @Override
   public void setPosition(Angle positon) {
+    floatRequest.withPosition(positon);
     motor.setControl(deployRequest.withPosition(positon));
   }
 }

@@ -77,9 +77,15 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setPosition(PivotPosition position) {
-    return Commands.sequence(
+    Command command =
+        Commands.sequence(
             runOnce(() -> pivotIO.setPosition(position.angle)),
-            Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)))
-        .finallyDo(pivotIO::setFloating);
+            Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
+
+    if (position.shouldFloat) {
+      command = command.finallyDo(pivotIO::setFloating);
+    }
+
+    return command;
   }
 }
