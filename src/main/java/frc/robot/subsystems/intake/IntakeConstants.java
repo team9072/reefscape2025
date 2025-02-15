@@ -15,6 +15,7 @@ public class IntakeConstants {
   public static final CanID pivotCanId = new CanID(13, canBus);
   public static final CanID passthroughCanId = new CanID(11, canBus);
   public static final CanID rollerCanId = new CanID(12, canBus);
+  public static final CanID stagingRollerCanId = new CanID(0);
 
   public static final Current intakeTorqueCurrent = Amps.of(200);
   public static final Current intakeReverseTorqueCurrent = Amps.of(-100);
@@ -25,8 +26,11 @@ public class IntakeConstants {
 
   public static final Current passthroughTorqueCurrent = Amps.of(200);
   public static final Current passthroughReverseTorqueCurrent = Amps.of(-100);
-
   public static final double passthroughTorqueDutyCycle = 0.5;
+
+  public static final Current stagingTorqueCurrent = Amps.of(50);
+  public static final Current stagingReverseTorqueCurrent = Amps.of(-50);
+  public static final double stagingTorqueDutyCycle = 0.2;
 
   public static PivotConstants pivot =
       new PivotConstants(pivotCanId, InvertedValue.Clockwise_Positive);
@@ -39,6 +43,12 @@ public class IntakeConstants {
 
   public static RollerConstants pasthrough =
       new RollerConstants(passthroughCanId)
+          .withBaseCurrentLimit(Amps.of(20))
+          .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
+          .withStatorCurrentLimit(Amps.of(500));
+
+  public static RollerConstants stagingRoller =
+      new RollerConstants(stagingRollerCanId)
           .withBaseCurrentLimit(Amps.of(20))
           .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
           .withStatorCurrentLimit(Amps.of(500));

@@ -18,12 +18,16 @@ public class Intake extends SubsystemBase {
   private final RollerIO passthroughIO;
   private final RollerIOInputsAutoLogged passthroughInputs = new RollerIOInputsAutoLogged();
 
+  private final RollerIO stagingIO;
+  private final RollerIOInputsAutoLogged stagingInputs = new RollerIOInputsAutoLogged();
+
   private PivotPosition lastSetpoint = null;
 
-  public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO) {
+  public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO, RollerIO stagingIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
+    this.stagingIO = stagingIO;
 
     pivotIO.setFloating();
   }
@@ -38,11 +42,17 @@ public class Intake extends SubsystemBase {
 
     passthroughIO.updateInputs(passthroughInputs);
     Logger.processInputs("Intake/Passthrough", passthroughInputs);
+
+    stagingIO.updateInputs(stagingInputs);
+    Logger.processInputs("Intake/Staging", stagingInputs);
   }
 
   private void stopRollers() {
     rollerIO.stop();
     passthroughIO.stop();
+
+    passthroughIO.setTorque(
+        IntakeConstants.stagingTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
   }
 
   private void intakeRollers() {

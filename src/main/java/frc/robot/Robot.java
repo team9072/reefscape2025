@@ -54,7 +54,8 @@ public class Robot {
             new Intake(
                 new PivotIOTalonFX(IntakeConstants.pivot),
                 new RollerIOTalonFX(IntakeConstants.roller),
-                new RollerIOTalonFX(IntakeConstants.pasthrough));
+                new RollerIOTalonFX(IntakeConstants.pasthrough),
+                new RollerIOTalonFX(IntakeConstants.stagingRoller));
 
         /*vision =
             new Vision(
@@ -83,7 +84,8 @@ public class Robot {
             new Intake(
                 new PivotIOSim(IntakeConstants.pivot),
                 new RollerIOSim(IntakeConstants.roller),
-                new RollerIOSim(IntakeConstants.pasthrough));
+                new RollerIOSim(IntakeConstants.pasthrough),
+                new RollerIOSim(IntakeConstants.stagingRoller));
 
         /*vision =
             new Vision(
@@ -109,7 +111,8 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        intake = new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {});
+        intake =
+            new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new RollerIO() {});
 
         /*vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
