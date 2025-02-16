@@ -50,6 +50,7 @@ public class IntakeConstants {
 
   public static RollerConstants stagingRoller =
       new RollerConstants(stagingRollerCanId)
+          .withInvert(InvertedValue.Clockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
           .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
           .withStatorCurrentLimit(Amps.of(500));
