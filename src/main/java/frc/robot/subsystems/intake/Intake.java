@@ -50,9 +50,7 @@ public class Intake extends SubsystemBase {
   private void stopRollers() {
     rollerIO.stop();
     passthroughIO.stop();
-
-    passthroughIO.setTorque(
-        IntakeConstants.stagingTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
+    stagingIO.stop();
   }
 
   private void intakeRollers() {
@@ -60,6 +58,9 @@ public class Intake extends SubsystemBase {
 
     passthroughIO.setTorque(
         IntakeConstants.passthroughTorqueCurrent, IntakeConstants.passthroughTorqueDutyCycle);
+
+    stagingIO.setTorque(
+        IntakeConstants.stagingTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
   }
 
   private void reverseRollers() {
@@ -69,6 +70,9 @@ public class Intake extends SubsystemBase {
     passthroughIO.setTorque(
         IntakeConstants.passthroughReverseTorqueCurrent,
         IntakeConstants.passthroughTorqueDutyCycle);
+
+    stagingIO.setTorque(
+        IntakeConstants.stagingReverseTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
   }
 
   public Command intake() {
