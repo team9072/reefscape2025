@@ -12,10 +12,10 @@ import frc.robot.util.CanID;
 public class IntakeConstants {
   public static final String canBus = TunerConstants.kCANBus.getName();
 
-  public static final CanID pivotCanId = new CanID(13, canBus);
+  public static final CanID pivotCanId = new CanID(14, canBus);
   public static final CanID passthroughCanId = new CanID(11, canBus);
   public static final CanID rollerCanId = new CanID(12, canBus);
-  public static final CanID stagingRollerCanId = new CanID(17, canBus);
+  public static final CanID stagingRollerCanId = new CanID(13, canBus);
 
   public static final Current intakeTorqueCurrent = Amps.of(200);
   public static final Current intakeReverseTorqueCurrent = Amps.of(-100);

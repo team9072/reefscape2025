@@ -9,12 +9,21 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.coralplacer.CoralPlacer;
+import frc.robot.subsystems.coralplacer.CoralPlacerIO;
+import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
+import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOSim;
 import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
@@ -28,9 +37,9 @@ public class Robot {
   // Subsystems
   private final Drive drive;
   private final Intake intake;
-  /*private final Vision vision;
+  /*private final Vision vision;*/
   private final CoralPlacer coralPlacer;
-  private final Elevator elevator;*/
+  private final Elevator elevator;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -58,16 +67,12 @@ public class Robot {
                 new RollerIOTalonFX(IntakeConstants.stagingRoller));
 
         /*vision =
-            new Vision(
-                drive::addVisionMeasurement, new VisionIOPhotonVision(CameraData.LeftCamera));
+        new Vision(
+            drive::addVisionMeasurement, new VisionIOPhotonVision(CameraData.LeftCamera));*/
 
-        coralPlacer =
-            new CoralPlacer(
-                new RollerIOTalonFX(CoralPlacerConstants.leftRoller),
-                new RollerIOTalonFX(CoralPlacerConstants.rightRoller),
-                new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
+        coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
 
-        elevator = new Elevator(new ElevatorIOTalonFX());*/
+        elevator = new Elevator(new ElevatorIOTalonFX());
       }
 
       case SIM -> {
@@ -88,17 +93,13 @@ public class Robot {
                 new RollerIOSim(IntakeConstants.stagingRoller));
 
         /*vision =
-            new Vision(
-                drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));
+        new Vision(
+            drive::addVisionMeasurement,
+            new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));*/
 
-        coralPlacer =
-            new CoralPlacer(
-                new RollerIOSim(CoralPlacerConstants.leftRoller),
-                new RollerIOSim(CoralPlacerConstants.rightRoller),
-                new BeamBreakIONull());
+        coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
 
-        elevator = new Elevator(new ElevatorIOSim());*/
+        elevator = new Elevator(new ElevatorIOSim());
       }
 
       default -> {
@@ -114,11 +115,11 @@ public class Robot {
         intake =
             new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new RollerIO() {});
 
-        /*vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
+        /*vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});*/
 
-        coralPlacer = new CoralPlacer(new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
+        coralPlacer = new CoralPlacer(new CoralPlacerIO() {});
 
-        elevator = new Elevator(new ElevatorIO() {});*/
+        elevator = new Elevator(new ElevatorIO() {});
       }
     }
 
@@ -147,17 +148,10 @@ public class Robot {
             ReefAlignment.driveReefAligned(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
-    controller.a().whileTrue(coralPlacer.extend());
+    controller.a().whileTrue(coralPlacer.extend());*/
 
-    controller
-        .b()
-        .onTrue(
-            elevator
-                .setPosition(ElevatorPosition.intakePosition)
-                .andThen(coralPlacer.intake().onlyWhile(controller.b())));
-
-    controller.rightBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
-    controller.leftBumper().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));*/
+    controller.povDown().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
+    controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
 
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));

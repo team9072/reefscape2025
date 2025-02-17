@@ -38,23 +38,23 @@ public class ElevatorConstants {
   public static final Current currentLimit = Amps.of(40);
 
   public static final Angle minDistance = Rotations.of(0);
-  public static final Angle maxDistance = Rotations.of(5.6);
+  public static final Angle maxDistance = Rotations.of(14);
 
-  public static final double kP = 100;
-  public static final double kV = 7.7;
-  public static final double kG = 0.15;
+  public static final double kP = 20;
+  public static final double kV = 0.45;
+  public static final double kG = 0.2;
 
-  public static final double rampVelocity = 1.8;
-  public static final double rampAcceleration = 5;
+  public static final double rampVelocity = 15;
+  public static final double rampAcceleration = 40;
 
   public static final Mass elevatorMass = Pounds.of(25);
-  public static final Distance drumRadius = Inches.of(1.432 / 2);
+  public static final Distance drumRadius = Inches.of(1.5 / 2);
 
-  public static double motorReduction = 4 * 4 * 3;
+  public static double motorReduction = 72.0 / 30.0;
 
   public static final String canBus = TunerConstants.kCANBus.getName();
   public static final CanID primaryMotorCanId = new CanID(15, canBus);
-  // public static final CanID secondaryMotorCanId = new CanID(12, canBus);
+  public static final CanID secondaryMotorCanId = new CanID(16, canBus);
 
   public static final Voltage homingVoltage = Volts.of(3);
 }

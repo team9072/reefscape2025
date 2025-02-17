@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,7 +25,7 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
   private final TalonFX primaryMotor;
-  // private final TalonFX secondaryMotor;
+  private final TalonFX secondaryMotor;
 
   private final StatusSignal<Angle> positionRot;
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
@@ -36,7 +37,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   public ElevatorIOTalonFX() {
     primaryMotor = ElevatorConstants.primaryMotorCanId.getTalon();
-    // secondaryMotor = ElevatorConstants.secondaryMotorCanId.getTalon();
+    secondaryMotor = ElevatorConstants.secondaryMotorCanId.getTalon();
 
     positionRot = primaryMotor.getPosition();
     velocityRotPerSec = primaryMotor.getVelocity();
@@ -50,7 +51,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     config.Feedback.SensorToMechanismRatio = ElevatorConstants.motorReduction;
-    // Invert the motor
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.withSlot0(
@@ -72,9 +72,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withReverseSoftLimitEnable(true));
 
     tryUntilOk(5, () -> primaryMotor.getConfigurator().apply(config, 0.25));
-    // tryUntilOk(5, () -> secondaryMotor.getConfigurator().apply(config, 0.25));
+    tryUntilOk(5, () -> secondaryMotor.getConfigurator().apply(config, 0.25));
 
-    // secondaryMotor.setControl(new Follower(primaryMotor.getDeviceID(), false));
+    secondaryMotor.setControl(new Follower(primaryMotor.getDeviceID(), true));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
