@@ -19,7 +19,6 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -62,14 +61,8 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
 
     config.Feedback.SensorToMechanismRatio = CoralPlacerConstants.motorReduction;
 
-    // Floating
     config.withSlot0(
         new Slot0Configs()
-            .withKG(CoralPlacerConstants.kG)
-            .withGravityType(GravityTypeValue.Arm_Cosine));
-
-    config.withSlot1(
-        new Slot1Configs()
             .withKP(CoralPlacerConstants.kP)
             .withKD(CoralPlacerConstants.kD)
             .withKV(CoralPlacerConstants.kV)

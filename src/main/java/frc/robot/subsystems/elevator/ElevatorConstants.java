@@ -19,7 +19,8 @@ public class ElevatorConstants {
   public enum ElevatorPosition {
     intakePosition(Rotations.of(0)),
     reefL2Position(Rotations.of(0)),
-    reefL3Position(Rotations.of(3.7));
+    reefL3Position(Rotations.of(3.7)),
+    reefL4Position(Rotations.of(10.415));
 
     public static final Distance linearTolerance = Inches.of(1);
     public static final Angle tolerance = distanceToDrumRotation(linearTolerance, drumRadius);
@@ -38,7 +39,7 @@ public class ElevatorConstants {
   public static final Current currentLimit = Amps.of(40);
 
   public static final Angle minDistance = Rotations.of(0);
-  public static final Angle maxDistance = Rotations.of(14);
+  public static final Angle maxDistance = Rotations.of(11.7);
 
   public static final double kP = 20;
   public static final double kV = 0.45;
