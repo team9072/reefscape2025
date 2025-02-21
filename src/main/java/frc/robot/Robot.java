@@ -15,6 +15,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
 import frc.robot.commands.CoralFlow.ReefBranch;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
@@ -168,13 +169,13 @@ public class Robot {
             intake.toggleDeploy(
                 elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)));
 
-    /*controller
+    controller
         .leftTrigger()
         .whileTrue(
             ReefAlignment.driveReefAligned(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
-    controller.a().whileTrue(coralPlacer.extend());*/
+    /*controller.a().whileTrue(coralPlacer.extend());*/
 
     controller.povDown().onTrue(coralFlow.grabCoral());
     controller.povLeft().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));
