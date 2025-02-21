@@ -39,12 +39,17 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants.CameraData;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
+import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 
 public class Robot {
   // Subsystems
   private final Drive drive;
   private final Intake intake;
-  /*private final Vision vision;*/
+  private final Vision vision;
   private final CoralPlacer coralPlacer;
   private final Elevator elevator;
 
@@ -76,9 +81,11 @@ public class Robot {
                 new RollerIOTalonFX(IntakeConstants.pasthrough),
                 new RollerIOTalonFX(IntakeConstants.stagingRoller));
 
-        /*vision =
-        new Vision(
-            drive::addVisionMeasurement, new VisionIOPhotonVision(CameraData.LeftCamera));*/
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVision(CameraData.LeftCamera),
+                new VisionIOPhotonVision(CameraData.RightCamera));
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
 
@@ -102,10 +109,11 @@ public class Robot {
                 new RollerIOSim(IntakeConstants.pasthrough),
                 new RollerIOSim(IntakeConstants.stagingRoller));
 
-        /*vision =
-        new Vision(
-            drive::addVisionMeasurement,
-            new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));*/
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose),
+                new VisionIOPhotonVisionSim(CameraData.RightCamera, drive::getPose));
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
 
@@ -125,7 +133,7 @@ public class Robot {
         intake =
             new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new RollerIO() {});
 
-        /*vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});*/
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
         coralPlacer = new CoralPlacer(new CoralPlacerIO() {});
 
