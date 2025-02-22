@@ -233,29 +233,33 @@ public class Drive extends SubsystemBase {
    * Adds a pid value to the supplied ChassisSpeeds correcting for a specified translation. Useful
    * for merging human and pid control
    */
-  public void addTranslationCorrection(ChassisSpeeds speeds, Translation2d targetTranslation) {
+  public ChassisSpeeds getTranslationCorrection(Translation2d targetTranslation) {
     Pose2d pose = getPose();
-    speeds.vxMetersPerSecond += xController.calculate(pose.getX(), targetTranslation.getX());
-    speeds.vyMetersPerSecond += yController.calculate(pose.getY(), targetTranslation.getY());
+    return new ChassisSpeeds(
+        xController.calculate(pose.getX(), targetTranslation.getX()),
+        yController.calculate(pose.getY(), targetTranslation.getY()),
+        0);
   }
 
   /**
    * Adds a pid value to the supplied ChassisSpeeds correcting for a specified heading. Useful for
    * merging human and pid control
    */
-  public void addHeadingCorrection(ChassisSpeeds speeds, Rotation2d targetRotaion) {
-    speeds.omegaRadiansPerSecond +=
+  public ChassisSpeeds getHeadingCorrection(Rotation2d targetRotaion) {
+    return new ChassisSpeeds(
+        0,
+        0,
         headingController.calculate(
-            getPose().getRotation().getRadians(), targetRotaion.getRadians());
+            getPose().getRotation().getRadians(), targetRotaion.getRadians()));
   }
 
   /**
    * Adds a pid value to the supplied ChassisSpeeds correcting for a specified position and rotation
    * (pose). Useful for merging human and pid control
    */
-  public void addPoseCorrection(ChassisSpeeds speeds, Pose2d targetPose) {
-    addTranslationCorrection(speeds, targetPose.getTranslation());
-    addHeadingCorrection(speeds, targetPose.getRotation());
+  public ChassisSpeeds getPoseCorrection(Pose2d targetPose) {
+    return getTranslationCorrection(targetPose.getTranslation())
+        .plus(getHeadingCorrection(targetPose.getRotation()));
   }
 
   /** Follow a choreo trajectory atthe provided sample point */

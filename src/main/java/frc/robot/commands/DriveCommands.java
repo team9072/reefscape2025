@@ -132,8 +132,8 @@ public class DriveCommands {
     return Commands.run(
             () -> {
               ChassisSpeeds speeds =
-                  getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
-              drive.addHeadingCorrection(speeds, rotationSupplier.get());
+                  getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
+                      .plus(drive.getHeadingCorrection(rotationSupplier.get()));
 
               drive.runVelocity(speeds);
             },
