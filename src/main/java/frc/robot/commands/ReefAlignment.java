@@ -20,6 +20,8 @@ public class ReefAlignment {
   private static final Translation2d reefOffset =
       new Translation2d(Meters.of(0.831723).plus(Inches.of(16)), Meters.zero());
 
+  private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.5));
+
   private ReefAlignment() {}
 
   private static Pose2d findClosestReef(Pose2d robotPose) {
@@ -37,24 +39,43 @@ public class ReefAlignment {
     return new Pose2d(reefSide, angleToReefCenter.rotateBy(Rotation2d.k180deg));
   }
 
+  private static Pose2d findClosestPole(Pose2d robotPose, Pose2d reefPose) {
+    Translation2d reefSide = reefPose.getTranslation();
+    Translation2d poleOffset = ReefAlignment.poleOffset.rotateBy(reefPose.getRotation());
+
+    Translation2d pole1 = reefSide.plus(poleOffset);
+    Translation2d pole2 = reefSide.minus(poleOffset);
+
+    Translation2d closestPole =
+        (pole1.getDistance(robotPose.getTranslation())
+                < pole2.getDistance(robotPose.getTranslation()))
+            ? pole1
+            : pole2;
+
+    return new Pose2d(closestPole, reefPose.getRotation());
+  }
+
   public static Command driveReefAligned(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
 
     return Commands.run(
         () -> {
           Pose2d closestReef = findClosestReef(drive.getPose());
-          Logger.recordOutput("ReefAlignPose", closestReef);
+          Logger.recordOutput("ReefAlign/Closest Side", closestReef);
+
+          Pose2d closestPole = findClosestPole(drive.getPose(), closestReef);
+          Logger.recordOutput("ReefAlign/Closest Pole", closestPole);
 
           double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
           ChassisSpeeds speeds =
               DriveCommands.getJoystickSpeeds(
                       drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
-                  .plus(drive.getHeadingCorrection(closestReef.getRotation()))
+                  .plus(drive.getHeadingCorrection(closestPole.getRotation()))
                   .plus(
                       ChassisSpeeds.fromFieldRelativeSpeeds(
                           drive
-                              .getTranslationCorrection(closestReef.getTranslation())
+                              .getTranslationCorrection(closestPole.getTranslation())
                               .div(1 + (joystickValue * 2)),
                           drive.getRotation()));
 
