@@ -1,5 +1,7 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,8 +55,15 @@ public class Intake extends SubsystemBase {
     stagingIO.stop();
   }
 
+  public boolean shouldIntakeSpin() {
+    return pivotInputs.position.gt(Rotations.of(-0.18));
+  }
+
   private void intakeRollers() {
-    rollerIO.setTorque(IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
+    if (shouldIntakeSpin()) {
+      rollerIO.setTorque(
+          IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
+    }
 
     passthroughIO.setTorque(
         IntakeConstants.passthroughTorqueCurrent, IntakeConstants.passthroughTorqueDutyCycle);
@@ -64,8 +73,10 @@ public class Intake extends SubsystemBase {
   }
 
   private void reverseRollers() {
-    rollerIO.setTorque(
-        IntakeConstants.intakeReverseTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
+    if (shouldIntakeSpin()) {
+      rollerIO.setTorque(
+          IntakeConstants.intakeReverseTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle);
+    }
 
     passthroughIO.setTorque(
         IntakeConstants.passthroughReverseTorqueCurrent,
@@ -81,10 +92,13 @@ public class Intake extends SubsystemBase {
 
   public Command intakeAlgae() {
     return runEnd(
-        () ->
+        () -> {
+          if (shouldIntakeSpin()) {
             rollerIO.setTorque(
                 IntakeConstants.intakeAlgaeTorqueCurrent,
-                IntakeConstants.intakeAlgaeTorqueDutyCycle),
+                IntakeConstants.intakeAlgaeTorqueDutyCycle);
+          }
+        },
         this::stopRollers);
   }
 
