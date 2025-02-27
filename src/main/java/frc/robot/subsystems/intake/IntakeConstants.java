@@ -29,9 +29,10 @@ public class IntakeConstants {
   public static final double passthroughTorqueDutyCycle = 0.5;
 
   public static final Current stagingTorqueCurrent = Amps.of(50);
-
   public static final Current stagingReverseTorqueCurrent = Amps.of(-50);
   public static final double stagingTorqueDutyCycle = 0.15;
+  public static final Current stagingIdleTorqueCurrent = Amps.of(20);
+  public static final double stagingIdleDutyCycle = 0.1;
 
   public static PivotConstants pivot =
       new PivotConstants(pivotCanId, InvertedValue.Clockwise_Positive);

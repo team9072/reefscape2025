@@ -23,7 +23,7 @@ public class Intake extends SubsystemBase {
   private final RollerIO stagingIO;
   private final RollerIOInputsAutoLogged stagingInputs = new RollerIOInputsAutoLogged();
 
-  private PivotPosition lastSetpoint = null;
+  private PivotPosition lastSetpoint = PivotPosition.stow;
 
   public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO, RollerIO stagingIO) {
     this.pivotIO = pivotIO;
@@ -102,6 +102,14 @@ public class Intake extends SubsystemBase {
         this::stopRollers);
   }
 
+  public Command idleStagingRoller() {
+    return this.runEnd(
+        () ->
+            stagingIO.setTorque(
+                IntakeConstants.stagingIdleTorqueCurrent, IntakeConstants.stagingIdleDutyCycle),
+        () -> stagingIO.stop());
+  }
+
   public Command reverse() {
     return runEnd(this::reverseRollers, this::stopRollers);
   }
@@ -123,10 +131,10 @@ public class Intake extends SubsystemBase {
     return command;
   }
 
-  public Command toggleDeploy() {
+  public Command toggleDeploy(Command onDeploy) {
     return Commands.either(
         setPosition(PivotPosition.stow),
-        setPosition(PivotPosition.deploy),
+        onDeploy.andThen(setPosition(PivotPosition.deploy)),
         () -> {
           if (lastSetpoint == null) {
             return true;

@@ -138,11 +138,17 @@ public class Robot {
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    controller.a().whileTrue(intake.intake());
-    controller.y().whileTrue(intake.reverse());
+    intake.setDefaultCommand(intake.idleStagingRoller());
+
+    controller.a().whileTrue(elevator.clearCoral().andThen(intake.intake()));
+    controller.y().whileTrue(elevator.clearCoral().andThen(intake.reverse()));
     controller.x().whileTrue(intake.intakeAlgae());
 
-    controller.rightBumper().onTrue(intake.toggleDeploy());
+    controller
+        .rightBumper()
+        .onTrue(
+            intake.toggleDeploy(
+                elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)));
 
     /*controller
         .leftTrigger()

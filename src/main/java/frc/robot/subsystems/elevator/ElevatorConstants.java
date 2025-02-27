@@ -18,9 +18,10 @@ import frc.robot.util.CanID;
 
 public class ElevatorConstants {
   public enum ElevatorPosition {
-    intakePosition(Rotations.of(-0.25)),
+    intakePosition(Rotations.of(-0.1)),
+    readyPosition(Rotations.of(1.5)),
     reefL2Position(Rotations.of(3.7)),
-    reefL3Position(Rotations.of(3.7)),
+    reefL3Position(Rotations.of(6.47)),
     reefL4Position(Rotations.of(11.4));
 
     public static final Distance linearTolerance = Inches.of(1);
