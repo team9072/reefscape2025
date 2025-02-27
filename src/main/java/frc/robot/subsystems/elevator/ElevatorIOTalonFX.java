@@ -16,7 +16,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -48,10 +47,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     config.CurrentLimits.withSupplyCurrentLimit(ElevatorConstants.currentLimit);
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.withStatorCurrentLimit(ElevatorConstants.statorLimit);
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     config.Feedback.SensorToMechanismRatio = ElevatorConstants.motorReduction;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config.MotorOutput.Inverted = ElevatorConstants.inverted;
 
     config.withSlot0(
         new Slot0Configs()

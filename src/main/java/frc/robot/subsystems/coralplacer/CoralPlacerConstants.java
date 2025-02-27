@@ -6,29 +6,36 @@ import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class CoralPlacerConstants {
-  public static final Voltage intakeVoltage = Volts.of(1);
+  public enum CoralPlacerPosition {
+    grabPosition(Rotations.of(0.55)),
+    readyPosition(Rotations.of(0.75)),
+    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.grabPosition.angle));
 
-  public static final Voltage extendVoltage = Volts.of(3);
-  public static final Voltage retractVoltage = Volts.of(-3);
+    public Angle angle;
+
+    CoralPlacerPosition(Angle angle) {
+      this.angle = angle;
+    }
+  }
 
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
-  public static final double motorReduction = (48.0 / 28.0) * (36.0 / 18.0);
+  public static final double motorReduction = (36.0 / 18.0) * (54.0 / 26.0);
 
-  public static final double kG = 0;
-  public static final double kP = 20;
+  public static final double kG = -0.4;
+  public static final double kP = 50;
   public static final double kD = 0;
   public static final double kV = 0.6;
 
@@ -41,7 +48,7 @@ public class CoralPlacerConstants {
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
 
   public static final String canBus = TunerConstants.kCANBus.getName();
-  public static final CanID motorCanId = new CanID(17, canBus);
+  public static final CanID motorCanId = new CanID(15, canBus);
 
   public static final int beamBreakDioId = 0;
 }

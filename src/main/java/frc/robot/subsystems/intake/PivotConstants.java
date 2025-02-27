@@ -20,8 +20,8 @@ import frc.robot.util.CanID;
 
 public class PivotConstants {
   public enum PivotPosition {
-    stow(Rotations.of(-0.25), false),
-    deploy(Rotations.of(0.07), true);
+    stow(Rotations.of(-0.3), false),
+    deploy(Rotations.of(0.12), true);
 
     public Angle angle;
     public boolean shouldFloat;

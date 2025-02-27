@@ -6,10 +6,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
@@ -150,10 +152,24 @@ public class Robot {
 
     controller.a().whileTrue(coralPlacer.extend());*/
 
-    controller.povDown().onTrue(elevator.setPosition(ElevatorPosition.intakePosition));
+    controller
+        .povDown()
+        .onTrue(
+            coralPlacer
+                .setPosition(CoralPlacerPosition.grabPosition)
+                .andThen(elevator.setPosition(ElevatorPosition.intakePosition)));
     controller.povLeft().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
     controller.povRight().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
     controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL4Position));
+
+    Trigger scoreTrigger = controller.rightTrigger().debounce(0.2);
+    /*scoreTrigger.whileTrue(
+    coralPlacer
+        .setPosition(CoralPlacerPosition.readyPosition)
+        .andThen(
+            Commands.waitUntil(scoreTrigger.negate()),
+            coralPlacer.setPosition(CoralPlacerPosition.scorePosition)));*/
+    scoreTrigger.onTrue(coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
 
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));

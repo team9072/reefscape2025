@@ -13,6 +13,7 @@
 
 package frc.robot.subsystems.coralplacer;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -21,7 +22,6 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -30,7 +30,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 
 /**
  * This roller implementation is for a Talon FX driving a motor like the Falon 500 or Kraken X60.
@@ -42,8 +42,8 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
 
-  private final PositionVoltage floatRequest = new PositionVoltage(0).withSlot(0);
-  private final MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(1);
+  private final MotionMagicVoltage positionRequest =
+      new MotionMagicVoltage(CoralPlacerPosition.grabPosition.angle);
 
   public CoralPlacerIOTalonFX() {
     motor = CoralPlacerConstants.motorCanId.getTalon();
@@ -75,11 +75,13 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
             .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration));
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
-    tryUntilOk(5, () -> motor.setPosition(PivotPosition.stow.angle, 0.25));
+    tryUntilOk(5, () -> motor.setPosition(CoralPlacerPosition.grabPosition.angle, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
     motor.optimizeBusUtilization();
+
+    motor.setControl(positionRequest);
   }
 
   @Override
@@ -93,8 +95,12 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   }
 
   @Override
-  public void setPosition(Angle positon) {
-    floatRequest.withPosition(positon);
-    motor.setControl(deployRequest.withPosition(positon));
+  public void setPosition(CoralPlacerPosition positon) {
+    motor.setControl(positionRequest.withPosition(positon.angle));
+  }
+
+  public void normalizePosition() {
+    Angle moduloPosition = Rotations.of(positionRot.getValue().in(Rotations) % 1.0);
+    motor.setPosition(moduloPosition);
   }
 }
