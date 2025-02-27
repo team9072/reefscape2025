@@ -29,6 +29,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 
@@ -41,6 +42,8 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
+
+  private MutAngle offsetRotations = Rotations.mutable(0);
 
   private final MotionMagicVoltage positionRequest =
       new MotionMagicVoltage(CoralPlacerPosition.grabPosition.angle);
@@ -88,7 +91,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   public void updateInputs(CoralPlacerInputs inputs) {
     BaseStatusSignal.refreshAll(positionRot, velocityRotPerSec, appliedVolts, currentAmps);
 
-    inputs.position = positionRot.getValue();
+    inputs.position = positionRot.getValue().minus(offsetRotations);
     inputs.velocity = velocityRotPerSec.getValue();
     inputs.appliedVoltage = appliedVolts.getValue();
     inputs.current = currentAmps.getValue();
@@ -96,11 +99,10 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
 
   @Override
   public void setPosition(CoralPlacerPosition positon) {
-    motor.setControl(positionRequest.withPosition(positon.angle));
+    motor.setControl(positionRequest.withPosition(positon.angle.plus(offsetRotations)));
   }
 
   public void normalizePosition() {
-    Angle moduloPosition = Rotations.of(positionRot.getValue().in(Rotations) % 1.0);
-    motor.setPosition(moduloPosition);
+    offsetRotations.mut_replace(Math.floor(positionRot.getValue().in(Rotations)), Rotations);
   }
 }
