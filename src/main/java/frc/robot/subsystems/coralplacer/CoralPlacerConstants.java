@@ -19,9 +19,10 @@ import frc.robot.util.CanID;
 
 public class CoralPlacerConstants {
   public enum CoralPlacerPosition {
-    grabPosition(Rotations.of(0.55)),
-    readyPosition(Rotations.of(0.75)),
-    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.grabPosition.angle));
+    stowPosition(Rotations.of(0.5)),
+    grabPosition(Rotations.of(0.512)),
+    readyPosition(Rotations.of(0.8)),
+    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle));
 
     public Angle angle;
 
@@ -35,7 +36,7 @@ public class CoralPlacerConstants {
   public static final double motorReduction = (36.0 / 18.0) * (54.0 / 26.0);
 
   public static final double kG = -0.4;
-  public static final double kP = 50;
+  public static final double kP = 120;
   public static final double kD = 0;
   public static final double kV = 0.6;
 

@@ -46,7 +46,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   private MutAngle offsetRotations = Rotations.mutable(0);
 
   private final MotionMagicVoltage positionRequest =
-      new MotionMagicVoltage(CoralPlacerPosition.grabPosition.angle);
+      new MotionMagicVoltage(CoralPlacerPosition.stowPosition.angle);
 
   public CoralPlacerIOTalonFX() {
     motor = CoralPlacerConstants.motorCanId.getTalon();
@@ -78,7 +78,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
             .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration));
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
-    tryUntilOk(5, () -> motor.setPosition(CoralPlacerPosition.grabPosition.angle, 0.25));
+    tryUntilOk(5, () -> motor.setPosition(CoralPlacerPosition.stowPosition.angle, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
