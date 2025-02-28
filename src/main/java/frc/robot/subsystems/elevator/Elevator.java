@@ -17,6 +17,9 @@ public class Elevator extends SubsystemBase {
               ElevatorPosition.readyPosition.withinTolerance(elevatorInputs.rotation)
                   || ElevatorPosition.readyPosition.angle.lt(elevatorInputs.rotation));
 
+  public final Trigger finishedGrab =
+      new Trigger(() -> elevatorInputs.rotation.lt(ElevatorPosition.grabZoneMax));
+
   public Elevator(ElevatorIO elevatorIO) {
     this.elevatorIO = elevatorIO;
   }
@@ -27,13 +30,22 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", elevatorInputs);
   }
 
+  private boolean atPosition(ElevatorPosition position) {
+    return position.withinTolerance(elevatorInputs.rotation);
+  }
+
   public Command setPosition(ElevatorPosition position) {
+
     return Commands.sequence(
         runOnce(() -> elevatorIO.setPosition(position.angle)),
-        Commands.waitUntil(() -> position.withinTolerance(elevatorInputs.rotation)));
+        Commands.waitUntil(
+            position == ElevatorPosition.intakePosition
+                ? finishedGrab
+                : () -> atPosition(position)));
   }
 
   public Command clearCoral() {
+
     return setPosition(ElevatorPosition.readyPosition).until(clearsCoral).unless(clearsCoral);
   }
 }

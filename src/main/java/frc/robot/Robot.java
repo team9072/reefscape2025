@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
+import frc.robot.commands.CoralFlow;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
@@ -42,6 +43,8 @@ public class Robot {
   /*private final Vision vision;*/
   private final CoralPlacer coralPlacer;
   private final Elevator elevator;
+
+  private final CoralFlow coralFlow;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -126,6 +129,8 @@ public class Robot {
     }
 
     autos = new Autos(drive);
+    coralFlow = new CoralFlow(intake, elevator, coralPlacer);
+
     configureBindings();
   }
 
@@ -158,12 +163,7 @@ public class Robot {
 
     controller.a().whileTrue(coralPlacer.extend());*/
 
-    controller
-        .povDown()
-        .onTrue(
-            coralPlacer
-                .setPosition(CoralPlacerPosition.grabPosition)
-                .andThen(elevator.setPosition(ElevatorPosition.intakePosition)));
+    controller.povDown().onTrue(coralFlow.grabCoral());
     controller.povLeft().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
     controller.povRight().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
     controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL4Position));

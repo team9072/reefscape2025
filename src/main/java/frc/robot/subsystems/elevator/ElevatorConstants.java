@@ -24,6 +24,8 @@ public class ElevatorConstants {
     reefL3Position(Rotations.of(6.47)),
     reefL4Position(Rotations.of(11.4));
 
+    public static final Angle grabZoneMax = Rotations.of(0.2);
+
     public static final Distance linearTolerance = Inches.of(1);
     public static final Angle tolerance = distanceToDrumRotation(linearTolerance, drumRadius);
 
