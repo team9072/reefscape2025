@@ -9,10 +9,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
+import frc.robot.commands.CoralFlow.ReefBranch;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
-import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
@@ -164,18 +164,13 @@ public class Robot {
     controller.a().whileTrue(coralPlacer.extend());*/
 
     controller.povDown().onTrue(coralFlow.grabCoral());
-    controller.povLeft().onTrue(elevator.setPosition(ElevatorPosition.reefL2Position));
-    controller.povRight().onTrue(elevator.setPosition(ElevatorPosition.reefL3Position));
-    controller.povUp().onTrue(elevator.setPosition(ElevatorPosition.reefL4Position));
+    controller.povLeft().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));
+    controller.povRight().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL3));
+    controller.povUp().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL4));
 
-    Trigger scoreTrigger = controller.rightTrigger().debounce(0.2);
-    /*scoreTrigger.whileTrue(
-    coralPlacer
-        .setPosition(CoralPlacerPosition.readyPosition)
-        .andThen(
-            Commands.waitUntil(scoreTrigger.negate()),
-            coralPlacer.setPosition(CoralPlacerPosition.scorePosition)));*/
-    scoreTrigger.onTrue(coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+    Trigger scoreTrigger = controller.rightTrigger();
+    scoreTrigger.onTrue(
+        coralFlow.scoreCoralOnTrigger(coralFlow::getMemorizedBranch, scoreTrigger.negate()));
 
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
