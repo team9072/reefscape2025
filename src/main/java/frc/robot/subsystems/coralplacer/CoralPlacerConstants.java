@@ -20,7 +20,7 @@ import frc.robot.util.CanID;
 public class CoralPlacerConstants {
   public enum CoralPlacerPosition {
     stowPosition(Rotations.of(0.5)),
-    grabPosition(Rotations.of(0.512)),
+    grabPosition(Rotations.of(0.5)),
     readyPosition(Rotations.of(0.8)),
     scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle));
 

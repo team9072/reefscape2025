@@ -25,9 +25,8 @@ public class CoralFlow {
   public Command grabCoral() {
     return Commands.sequence(
         Commands.parallel(
-                coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
-                elevator.setPosition(ElevatorPosition.readyPosition))
-            .withTimeout(0),
+            coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
+            elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
         elevator.setPosition(ElevatorPosition.intakePosition),
         Commands.waitSeconds(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral),
