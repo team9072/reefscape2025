@@ -27,16 +27,16 @@ import java.util.Optional;
 public class VisionConstants {
   public enum CameraData {
     LeftCamera(
-        "BW1",
+        "BW3",
         new Transform3d(
-            new Translation3d(Inches.of(-6.5), Inches.of(9), Inches.of(25.5)),
-            new Rotation3d(Degrees.zero(), Degrees.of(-9), Degrees.of(180 + 15)))),
+            new Translation3d(Inches.of(4.5), Inches.of(11.75), Inches.of(18)),
+            new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(-20)))),
 
     RightCamera(
         "BW2",
         new Transform3d(
-            new Translation3d(Inches.of(-6.5), Inches.of(-6.5), Inches.of(25.5)),
-            new Rotation3d(Degrees.zero(), Degrees.of(-9), Degrees.of(180 - 15))));
+            new Translation3d(Inches.of(4.5), Inches.of(-11.75), Inches.of(18)),
+            new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(20))));
 
     private static final HashMap<String, CameraData> _map = new HashMap<>();
 
