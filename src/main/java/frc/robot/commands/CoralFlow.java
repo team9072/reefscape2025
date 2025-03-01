@@ -63,8 +63,8 @@ public class CoralFlow {
     Command scoreCommand =
         Commands.sequence(
             Commands.waitUntil(scoreOrCancel),
-            coralPlacer.setPosition(CoralPlacerPosition.scorePosition),
-            elevator.setPosition(ElevatorPosition.readyPosition));
+            coralPlacer.setPosition(CoralPlacerPosition.scorePosition) /*,
+            elevator.setPosition(ElevatorPosition.readyPosition)*/);
 
     // If the trigger returned true before the command exited normally, return instead of scoring
     return Commands.defer(() -> elevator.setPosition(branch.get().position), Set.of(elevator))
