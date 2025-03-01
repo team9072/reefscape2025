@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
@@ -14,11 +15,14 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ReefAlignment {
+  private static final Distance minPoseError = Inches.of(0.5);
+  private static final Distance faceOffsetDistance = Inches.of(16);
+
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
   // Make the front of the robot go to the tag, not the center
   private static final Translation2d reefOffset =
-      new Translation2d(Meters.of(0.831723).plus(Inches.of(16)), Meters.zero());
+      new Translation2d(Meters.of(0.831723).plus(faceOffsetDistance), Meters.zero());
 
   private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.5));
 
@@ -71,13 +75,18 @@ public class ReefAlignment {
           ChassisSpeeds speeds =
               DriveCommands.getJoystickSpeeds(
                       drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
-                  .plus(drive.getHeadingCorrection(closestPole.getRotation()))
-                  .plus(
-                      ChassisSpeeds.fromFieldRelativeSpeeds(
-                          drive
-                              .getTranslationCorrection(closestPole.getTranslation())
-                              .div(1 + (joystickValue * 2)),
-                          drive.getRotation()));
+                  .plus(drive.getHeadingCorrection(closestPole.getRotation()));
+
+          if (closestPole.getTranslation().getDistance(drive.getPose().getTranslation())
+              > minPoseError.in(Meters)) {
+            speeds =
+                speeds.plus(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        drive
+                            .getTranslationCorrection(closestPole.getTranslation())
+                            .div(1 + (joystickValue * 2)),
+                        drive.getRotation()));
+          }
 
           drive.runVelocity(speeds);
         },

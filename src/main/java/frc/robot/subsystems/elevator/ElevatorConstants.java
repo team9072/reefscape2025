@@ -22,7 +22,7 @@ public class ElevatorConstants {
     readyPosition(Rotations.of(1.5)),
     reefL2Position(Rotations.of(3.7)),
     reefL3Position(Rotations.of(6.47)),
-    reefL4Position(Rotations.of(11.4));
+    reefL4Position(Rotations.of(11.45));
 
     public static final Angle grabZoneMax = Rotations.of(0.2);
 
@@ -44,7 +44,7 @@ public class ElevatorConstants {
   public static final Current statorLimit = Amps.of(120);
 
   public static final Angle minDistance = Rotations.of(-0.4);
-  public static final Angle maxDistance = Rotations.of(11.4);
+  public static final Angle maxDistance = Rotations.of(11.45);
 
   public static final double kP = 10;
   public static final double kV = 0;
