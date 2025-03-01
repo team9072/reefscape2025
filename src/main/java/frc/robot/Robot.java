@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
 import frc.robot.commands.CoralFlow.ReefBranch;
@@ -46,8 +50,9 @@ public class Robot {
 
   private final CoralFlow coralFlow;
 
-  // Controller
+  // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController sysIdController = new CommandXboxController(3);
 
   // Autonomous
   private final Autos autos;
@@ -174,6 +179,22 @@ public class Robot {
 
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
+
+    // SysId Controls
+    sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
+
+    sysIdController.rightBumper().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
+
+    sysIdController.povUp().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    sysIdController.povDown().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    sysIdController.povLeft().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    sysIdController.povRight().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    sysIdController.a().whileTrue(DriveCommands.feedforwardCharacterization(drive));
+    sysIdController
+        .b()
+        .whileTrue(
+            Commands.run(
+                () -> drive.runVelocity(new ChassisSpeeds(-sysIdController.getLeftY(), 0, 0))));
   }
 
   public Command getAutonomousCommand() {
