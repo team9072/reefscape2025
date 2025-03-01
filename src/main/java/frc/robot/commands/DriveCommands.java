@@ -46,6 +46,7 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+  private static final double DRIVE_SPEED_PERCENTAGE = 0.75;
 
   private DriveCommands() {}
 
@@ -77,9 +78,9 @@ public class DriveCommands {
 
     ChassisSpeeds speeds =
         new ChassisSpeeds(
-            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-            omega * drive.getMaxAngularSpeedRadPerSec());
+            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * DRIVE_SPEED_PERCENTAGE,
+            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * DRIVE_SPEED_PERCENTAGE,
+            omega * drive.getMaxAngularSpeedRadPerSec() * DRIVE_SPEED_PERCENTAGE);
 
     // Convert to field relative speeds & send command
     return ChassisSpeeds.fromFieldRelativeSpeeds(
