@@ -33,7 +33,7 @@ public class CoralPlacerConstants {
 
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
-  public static final double motorReduction = (36.0 / 18.0) * (54.0 / 26.0);
+  public static final double motorReduction = (72.0 / 18.0) * (54.0 / 26.0);
 
   public static final double kG = -0.4;
   public static final double kP = 120;
