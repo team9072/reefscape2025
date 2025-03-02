@@ -38,6 +38,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -85,13 +86,13 @@ public class Drive extends SubsystemBase {
           rawGyroRotation,
           lastModulePositions,
           new Pose2d(),
-          VecBuilder.fill(0.3, 0.3, 0.3),
+          VecBuilder.fill(0.2, 0.2, 0.2),
           VecBuilder.fill(1000, 1000, 1000));
 
   // PID controllers for choreo path following
-  private final PIDController xController = new PIDController(11.914124, 0.29054044, 0.0);
-  private final PIDController yController = new PIDController(11.914124, 0.29054044, 0.0);
-  private final PIDController headingController = new PIDController(7.5, 0.0, 0.1);
+  private final PIDController xController = new PIDController(3, 0, 0.0);
+  private final PIDController yController = new PIDController(3, 0, 0.0);
+  private final PIDController headingController = new PIDController(5, 0.05, 0);
 
   public Drive(
       GyroIO gyroIO,
@@ -126,6 +127,9 @@ public class Drive extends SubsystemBase {
                 }),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+    SmartDashboard.putNumber("Tuning/driveP", xController.getP());
+    SmartDashboard.putNumber("Tuning/driveD", xController.getD());
   }
 
   @Override
@@ -143,6 +147,12 @@ public class Drive extends SubsystemBase {
       for (var module : modules) {
         module.stop();
       }
+
+      xController.setP(SmartDashboard.getNumber("Tuning/driveP", 0));
+      xController.setD(SmartDashboard.getNumber("Tuning/driveD", 0));
+
+      yController.setP(SmartDashboard.getNumber("Tuning/driveP", 0));
+      yController.setD(SmartDashboard.getNumber("Tuning/driveD", 0));
     }
 
     // Log empty setpoint states when disabled

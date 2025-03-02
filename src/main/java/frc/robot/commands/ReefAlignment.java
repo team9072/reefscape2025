@@ -1,12 +1,16 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,7 +19,9 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ReefAlignment {
-  private static final Distance minPoseError = Inches.of(0.5);
+  private static final Distance minPoseError = Inches.of(2);
+  private static final Angle minHeadingError = Degrees.of(2);
+
   private static final Distance faceOffsetDistance = Inches.of(16);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
@@ -74,9 +80,17 @@ public class ReefAlignment {
 
           ChassisSpeeds speeds =
               DriveCommands.getJoystickSpeeds(
-                      drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
-                  .plus(drive.getHeadingCorrection(closestPole.getRotation()));
+                  drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
 
+          // Don't apply rotation pid if near the target rotation
+          double offsetAngle =
+              MathUtil.angleModulus(
+                  closestPole.getRotation().minus(drive.getRotation()).getRadians());
+          if (Math.abs(offsetAngle) > minHeadingError.in(Radians)) {
+            speeds = speeds.plus(drive.getHeadingCorrection(closestPole.getRotation()));
+          }
+
+          // Don't apply translation pid if near the target pose
           if (closestPole.getTranslation().getDistance(drive.getPose().getTranslation())
               > minPoseError.in(Meters)) {
             speeds =
@@ -84,7 +98,7 @@ public class ReefAlignment {
                     ChassisSpeeds.fromFieldRelativeSpeeds(
                         drive
                             .getTranslationCorrection(closestPole.getTranslation())
-                            .div(1 + (joystickValue * 2)),
+                            .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
                         drive.getRotation()));
           }
 
