@@ -1,21 +1,50 @@
 package frc.robot.subsystems.questnav;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
+
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
 public class QuestNav extends SubsystemBase {
+  private final PositionConsumer positionConsumer;
   private final QuestNavIO questnavIO;
   private final QuestNavInputsAutoLogged questnavInputs = new QuestNavInputsAutoLogged();
 
-  public QuestNav(QuestNavIO questnavIO) {
+  private long lastFrameCount = 0;
+
+  public QuestNav(QuestNavIO questnavIO, PositionConsumer positionConsumer) {
     this.questnavIO = questnavIO;
+    this.positionConsumer = positionConsumer;
   }
 
   @Override
   public void periodic() {
     questnavIO.updateInputs(questnavInputs);
     Logger.processInputs("QuestNav", questnavInputs);
+
+    // Keep odometry rotation
+    Translation2d robotPosition =
+        questnavInputs.latestObservation.estimatedRobotPose().getTranslation();
+
+    // Don't send poses if the quest hasn't updated (eg. it's disconnected)
+    if (questnavInputs.frameCount > lastFrameCount) {
+      lastFrameCount = questnavInputs.frameCount;
+
+      positionConsumer.accept(
+          robotPosition,
+          questnavInputs.latestObservation.timestamp(),
+          VecBuilder.fill(
+              QuestNavConstants.translationStdDevs.in(Meters),
+              QuestNavConstants.translationStdDevs.in(Meters),
+              QuestNavConstants.rotationStdDevs.in(Radians)));
+    }
   }
 
   /**
@@ -45,5 +74,13 @@ public class QuestNav extends SubsystemBase {
     questnavIO.resetPose(robotPose);
 
     return true;
+  }
+
+  @FunctionalInterface
+  public static interface PositionConsumer {
+    public void accept(
+        Translation2d visionRobotPoseMeters,
+        double timestampSeconds,
+        Matrix<N3, N1> visionMeasurementStdDevs);
   }
 }

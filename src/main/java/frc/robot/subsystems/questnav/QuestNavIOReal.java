@@ -314,12 +314,12 @@ public class QuestNavIOReal implements QuestNavIO {
         Meters.of(oculusArr[PositionIndex.Y.arrayIndex]).unaryMinus());
   }
 
-  private PoseObservation getObservation() {
+  private QuestNavPoseObservation getObservation() {
     Rotation2d yaw = getYaw();
     Translation2d translation =
         getRawPosition().minus(QuestNavConstants.robotToQuest.getTranslation().rotateBy(yaw));
 
-    return new PoseObservation(new Pose2d(translation, yaw), Seconds.of(Timer.getFPGATimestamp()));
+    return new QuestNavPoseObservation(new Pose2d(translation, yaw), Timer.getFPGATimestamp());
   }
 
   /**

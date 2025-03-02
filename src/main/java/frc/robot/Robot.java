@@ -38,6 +38,9 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
+import frc.robot.subsystems.questnav.QuestNav;
+import frc.robot.subsystems.questnav.QuestNavIO;
+import frc.robot.subsystems.questnav.QuestNavIOReal;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import frc.robot.subsystems.vision.VisionIO;
@@ -49,11 +52,10 @@ public class Robot {
   // Subsystems
   private final Drive drive;
   private final Intake intake;
-  private final Vision vision;
   private final CoralPlacer coralPlacer;
   private final Elevator elevator;
-
-  private final CoralFlow coralFlow;
+  private final Vision vision;
+  private final QuestNav questNav;
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -61,6 +63,7 @@ public class Robot {
 
   // Autonomous
   private final Autos autos;
+  private final CoralFlow coralFlow;
 
   public Robot() {
     switch (Constants.currentMode) {
@@ -81,15 +84,17 @@ public class Robot {
                 new RollerIOTalonFX(IntakeConstants.pasthrough),
                 new RollerIOTalonFX(IntakeConstants.stagingRoller));
 
+        coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
+
+        elevator = new Elevator(new ElevatorIOTalonFX());
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVision(CameraData.LeftCamera),
                 new VisionIOPhotonVision(CameraData.RightCamera));
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
-
-        elevator = new Elevator(new ElevatorIOTalonFX());
+        questNav = new QuestNav(new QuestNavIOReal(), drive::addVisionMeasurement);
       }
 
       case SIM -> {
@@ -109,15 +114,17 @@ public class Robot {
                 new RollerIOSim(IntakeConstants.pasthrough),
                 new RollerIOSim(IntakeConstants.stagingRoller));
 
+        coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
+
+        elevator = new Elevator(new ElevatorIOSim());
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose),
                 new VisionIOPhotonVisionSim(CameraData.RightCamera, drive::getPose));
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
-
-        elevator = new Elevator(new ElevatorIOSim());
+        questNav = new QuestNav(new QuestNavIO() {}, drive::addVisionMeasurement);
       }
 
       default -> {
@@ -130,14 +137,16 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        coralPlacer = new CoralPlacer(new CoralPlacerIO() {});
+
+        elevator = new Elevator(new ElevatorIO() {});
+
         intake =
             new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new RollerIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIO() {});
-
-        elevator = new Elevator(new ElevatorIO() {});
+        questNav = new QuestNav(new QuestNavIO() {}, drive::addVisionMeasurement);
       }
     }
 
@@ -175,6 +184,8 @@ public class Robot {
         .whileTrue(
             ReefAlignment.driveReefAligned(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+
+    controller.a().whileTrue(intake.reverse());
 
     controller.povDown().onTrue(coralFlow.grabCoral());
     controller.x().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));

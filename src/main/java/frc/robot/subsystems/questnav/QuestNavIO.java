@@ -7,14 +7,14 @@ import org.littletonrobotics.junction.AutoLog;
 public interface QuestNavIO {
   @AutoLog
   public static class QuestNavInputs {
-    public PoseObservation latestObservation;
+    public QuestNavPoseObservation latestObservation;
     public Time latestTimestamp;
     public long frameCount;
     public double batteryPercentage;
     public boolean isBusy;
   }
 
-  public static record PoseObservation(Pose2d estimatedRobotPose, Time timestamp) {}
+  public static record QuestNavPoseObservation(Pose2d estimatedRobotPose, double timestamp) {}
 
   public default void updateInputs(QuestNavInputs inputs) {}
 
