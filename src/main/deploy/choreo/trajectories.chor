@@ -3,28 +3,317 @@
  "version":1,
  "type":"Swerve",
  "variables":{
-  "expressions":{},
-  "poses":{}
+  "expressions":{
+   "MaxVelocity":{
+    "dimension":"LinVel",
+    "var":{
+     "exp":"3 m / s",
+     "val":3.0
+    }
+   },
+   "PoleOffset":{
+    "dimension":"Length",
+    "var":{
+     "exp":"6.5 in",
+     "val":0.1651
+    }
+   },
+   "R1Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "R2Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"240 deg",
+     "val":4.1887902047863905
+    }
+   },
+   "R3Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"300 deg",
+     "val":5.235987755982989
+    }
+   },
+   "R4Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   },
+   "R5Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"60 deg",
+     "val":1.0471975511965976
+    }
+   },
+   "R6Angle":{
+    "dimension":"Angle",
+    "var":{
+     "exp":"120 deg",
+     "val":2.0943951023931953
+    }
+   },
+   "ReefOffset":{
+    "dimension":"Length",
+    "var":{
+     "exp":"0.831723 m + 16 in",
+     "val":1.238123
+    }
+   }
+  },
+  "poses":{
+   "Cage1S":{
+    "x":{
+     "exp":"7.22 m",
+     "val":7.22
+    },
+    "y":{
+     "exp":"7.27 m",
+     "val":7.27
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "Cage2S":{
+    "x":{
+     "exp":"7.22 m",
+     "val":7.22
+    },
+    "y":{
+     "exp":"6.54 m",
+     "val":6.54
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "Cage3S":{
+    "x":{
+     "exp":"7.22 m",
+     "val":7.22
+    },
+    "y":{
+     "exp":"5.08 m",
+     "val":5.08
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "R1P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R1Angle - 180 deg) * ReefOffset) + (cos(R1Angle + 90 deg) * PoleOffset)",
+     "val":5.727446
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R1Angle - 180 deg) * ReefOffset) + (sin(R1Angle + 90 deg) * PoleOffset)",
+     "val":3.8608
+    },
+    "heading":{
+     "exp":"R1Angle",
+     "val":3.141592653589793
+    }
+   },
+   "R1P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R1Angle - 180 deg) * ReefOffset) + (cos(R1Angle + 90 deg) * PoleOffset)",
+     "val":5.727446
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R1Angle - 180 deg) * ReefOffset) + (sin(R1Angle - 90 deg) * PoleOffset)",
+     "val":4.191
+    },
+    "heading":{
+     "exp":"R1Angle",
+     "val":3.141592653589793
+    }
+   },
+   "R2P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R2Angle - 180 deg) * ReefOffset) + (cos(R2Angle + 90 deg) * PoleOffset)",
+     "val":5.251365294164811
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R2Angle - 180 deg) * ReefOffset) + (sin(R2Angle + 90 deg) * PoleOffset)",
+     "val":5.0155959710098
+    },
+    "heading":{
+     "exp":"R2Angle",
+     "val":4.1887902047863905
+    }
+   },
+   "R2P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R2Angle - 180 deg) * ReefOffset) + (cos(R2Angle - 90 deg) * PoleOffset)",
+     "val":4.965403705835189
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R2Angle - 180 deg) * ReefOffset) + (sin(R2Angle - 90 deg) * PoleOffset)",
+     "val":5.180695971009801
+    },
+    "heading":{
+     "exp":"R2Angle",
+     "val":4.1887902047863905
+    }
+   },
+   "R3P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R3Angle - 180 deg) * ReefOffset) + (cos(R3Angle + 90 deg) * PoleOffset)",
+     "val":4.013242294164811
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R3Angle - 180 deg) * ReefOffset) + (sin(R3Angle + 90 deg) * PoleOffset)",
+     "val":5.180695971009801
+    },
+    "heading":{
+     "exp":"R3Angle",
+     "val":5.235987755982989
+    }
+   },
+   "R3P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R3Angle - 180 deg) * ReefOffset) + (cos(R3Angle - 90 deg) * PoleOffset)",
+     "val":3.727280705835189
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R3Angle - 180 deg) * ReefOffset) + (sin(R3Angle - 90 deg) * PoleOffset)",
+     "val":5.0155959710098
+    },
+    "heading":{
+     "exp":"R3Angle",
+     "val":5.235987755982989
+    }
+   },
+   "R4P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R4Angle - 180 deg) * ReefOffset) + (cos(R4Angle + 90 deg) * PoleOffset)",
+     "val":3.2512
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R4Angle - 180 deg) * ReefOffset) + (sin(R4Angle + 90 deg) * PoleOffset)",
+     "val":4.191
+    },
+    "heading":{
+     "exp":"R4Angle",
+     "val":0.0
+    }
+   },
+   "R4P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R4Angle - 180 deg) * ReefOffset) + (cos(R4Angle - 90 deg) * PoleOffset)",
+     "val":3.2512
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R4Angle - 180 deg) * ReefOffset) + (sin(R4Angle - 90 deg) * PoleOffset)",
+     "val":3.8608
+    },
+    "heading":{
+     "exp":"R4Angle",
+     "val":0.0
+    }
+   },
+   "R5P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R5Angle - 180 deg) * ReefOffset) + (cos(R5Angle + 90 deg) * PoleOffset)",
+     "val":3.727280705835189
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R5Angle - 180 deg) * ReefOffset) + (sin(R5Angle + 90 deg) * PoleOffset)",
+     "val":3.0362040289901997
+    },
+    "heading":{
+     "exp":"R5Angle",
+     "val":1.0471975511965976
+    }
+   },
+   "R5P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R5Angle - 180 deg) * ReefOffset) + (cos(R5Angle - 90 deg) * PoleOffset)",
+     "val":4.013242294164811
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R5Angle - 180 deg) * ReefOffset) + (sin(R5Angle - 90 deg) * PoleOffset)",
+     "val":2.8711040289902
+    },
+    "heading":{
+     "exp":"R5Angle",
+     "val":1.0471975511965976
+    }
+   },
+   "R6P1":{
+    "x":{
+     "exp":"Reef.x + (cos(R6Angle - 180 deg) * ReefOffset) + (cos(R6Angle + 90 deg) * PoleOffset)",
+     "val":4.965403705835189
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R6Angle - 180 deg) * ReefOffset) + (sin(R6Angle + 90 deg) * PoleOffset)",
+     "val":2.8711040289902
+    },
+    "heading":{
+     "exp":"R6Angle",
+     "val":2.0943951023931953
+    }
+   },
+   "R6P2":{
+    "x":{
+     "exp":"Reef.x + (cos(R6Angle - 180 deg) * ReefOffset) + (cos(R6Angle - 90 deg) * PoleOffset)",
+     "val":5.251365294164811
+    },
+    "y":{
+     "exp":"Reef.y + (sin(R6Angle - 180 deg) * ReefOffset) + (sin(R6Angle - 90 deg) * PoleOffset)",
+     "val":3.0362040289901997
+    },
+    "heading":{
+     "exp":"R6Angle",
+     "val":2.0943951023931953
+    }
+   },
+   "Reef":{
+    "x":{
+     "exp":"4.489323 m",
+     "val":4.489323
+    },
+    "y":{
+     "exp":"4.0259 m",
+     "val":4.0259
+    },
+    "heading":{
+     "exp":"240 deg",
+     "val":4.1887902047863905
+    }
+   }
+  }
  },
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"10.25 in",
-    "val":0.26034999999999997
+    "exp":"10 in",
+    "val":0.254
    },
    "y":{
-    "exp":"10.25 in",
-    "val":0.26034999999999997
+    "exp":"10 in",
+    "val":0.254
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-10.25 in",
-    "val":-0.26034999999999997
+    "exp":"-10 in",
+    "val":-0.254
    },
    "y":{
-    "exp":"10.25 in",
-    "val":0.26034999999999997
+    "exp":"10 in",
+    "val":0.254
    }
   },
   "mass":{
@@ -44,8 +333,8 @@
    "val":0.0508
   },
   "vmax":{
-   "exp":"5800 RPM",
-   "val":607.3745796940267
+   "exp":"5650 RPM",
+   "val":591.6666164260777
   },
   "tmax":{
    "exp":"2 N * m",
@@ -57,16 +346,16 @@
   },
   "bumper":{
    "front":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16.5 in",
+    "val":0.4191
    },
    "side":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16 in",
+    "val":0.4064
    },
    "back":{
-    "exp":"13 in",
-    "val":0.3302
+    "exp":"16 in",
+    "val":0.4064
    }
   },
   "differentialTrackWidth":{
