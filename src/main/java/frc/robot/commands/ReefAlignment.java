@@ -1,16 +1,12 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,8 +15,6 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ReefAlignment {
-  private static final Distance minPoseError = Inches.of(2);
-  private static final Angle minHeadingError = Degrees.of(2);
 
   private static final Distance faceOffsetDistance = Inches.of(16);
 
@@ -80,26 +74,25 @@ public class ReefAlignment {
 
           ChassisSpeeds speeds =
               DriveCommands.getJoystickSpeeds(
-                  drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
+                      drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
+                  .plus(drive.getHeadingCorrection(closestPole.getRotation()))
+                  .plus(
+                      ChassisSpeeds.fromFieldRelativeSpeeds(
+                          drive
+                              .getTranslationCorrection(closestPole.getTranslation())
+                              .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
+                          drive.getRotation()));
 
-          // Don't apply rotation pid if near the target rotation
-          double offsetAngle =
-              MathUtil.angleModulus(
-                  closestPole.getRotation().minus(drive.getRotation()).getRadians());
-          if (Math.abs(offsetAngle) > minHeadingError.in(Radians)) {
-            speeds = speeds.plus(drive.getHeadingCorrection(closestPole.getRotation()));
+          if (Math.abs(speeds.vxMetersPerSecond) < 0.1) {
+            speeds.vxMetersPerSecond = 0;
           }
 
-          // Don't apply translation pid if near the target pose
-          if (closestPole.getTranslation().getDistance(drive.getPose().getTranslation())
-              > minPoseError.in(Meters)) {
-            speeds =
-                speeds.plus(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        drive
-                            .getTranslationCorrection(closestPole.getTranslation())
-                            .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
-                        drive.getRotation()));
+          if (Math.abs(speeds.vyMetersPerSecond) < 0.1) {
+            speeds.vyMetersPerSecond = 0;
+          }
+
+          if (Math.abs(speeds.omegaRadiansPerSecond) < 0.075) {
+            speeds.omegaRadiansPerSecond = 0;
           }
 
           drive.runVelocity(speeds);
