@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
@@ -41,6 +43,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import java.util.Set;
 
 public class Robot {
   // Subsystems
@@ -155,15 +158,17 @@ public class Robot {
 
     intake.setDefaultCommand(intake.idleStagingRoller());
 
-    controller.a().whileTrue(elevator.clearCoral().andThen(intake.intake()));
-    controller.y().whileTrue(elevator.clearCoral().andThen(intake.reverse()));
-    controller.x().whileTrue(intake.intakeAlgae());
+    controller.leftBumper().whileTrue(elevator.clearCoral().andThen(intake.intake()));
 
+    // Schedule a new command so the old one gets interrupted
     controller
         .rightBumper()
         .onTrue(
-            intake.toggleDeploy(
-                elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)));
+            Commands.defer(
+                () ->
+                    new ScheduleCommand(
+                        intake.toggleDeploy(elevator.setPosition(ElevatorPosition.readyPosition))),
+                Set.of()));
 
     controller
         .leftTrigger()
@@ -171,12 +176,10 @@ public class Robot {
             ReefAlignment.driveReefAligned(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
-    /*controller.a().whileTrue(coralPlacer.extend());*/
-
     controller.povDown().onTrue(coralFlow.grabCoral());
-    controller.povLeft().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));
-    controller.povRight().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL3));
-    controller.povUp().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL4));
+    controller.x().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));
+    controller.b().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL3));
+    controller.y().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL4));
 
     Trigger scoreTrigger = controller.rightTrigger();
     scoreTrigger.onTrue(
