@@ -378,7 +378,9 @@ public class Drive extends SubsystemBase {
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     addVisionMeasurement(
-        new Pose2d(visionRobotPositionMeters, getRotation()),
+        new Pose2d(
+            visionRobotPositionMeters,
+            poseEstimator.sampleAt(timestampSeconds).orElse(getPose()).getRotation()),
         timestampSeconds,
         visionMeasurementStdDevs);
   }
