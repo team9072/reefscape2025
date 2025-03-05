@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.Radians;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -25,5 +27,6 @@ public class QuestNavConstants {
 
   public static final Time setPoseDelay = Milliseconds.of(40.0);
 
-  public static final Pose2d robotToQuest = new Pose2d();
+  public static final Pose2d robotToQuest =
+      new Pose2d(new Translation2d(Inches.of(3), Inches.of(11.75)), Rotation2d.kCW_90deg);
 }
