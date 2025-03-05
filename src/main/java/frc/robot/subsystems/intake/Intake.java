@@ -5,6 +5,9 @@ import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIOInputsAutoLogged;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
@@ -23,13 +26,25 @@ public class Intake extends SubsystemBase {
   private final RollerIO stagingIO;
   private final RollerIOInputsAutoLogged stagingInputs = new RollerIOInputsAutoLogged();
 
+  private final BeamBreakIO beamBreakIO;
+
+  private final BeamBreakIOInputsAutoLogged beamBreakInputs = new BeamBreakIOInputsAutoLogged();
+
   private PivotPosition lastSetpoint = PivotPosition.stow;
 
-  public Intake(PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO, RollerIO stagingIO) {
+  public Trigger coralDetected = new Trigger(() -> beamBreakInputs.objectDetected);
+
+  public Intake(
+      PivotIO pivotIO,
+      RollerIO rollerIO,
+      RollerIO passthroughIO,
+      RollerIO stagingIO,
+      BeamBreakIO beamBreakIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
     this.stagingIO = stagingIO;
+    this.beamBreakIO = beamBreakIO;
 
     pivotIO.setFloating();
   }
@@ -47,6 +62,13 @@ public class Intake extends SubsystemBase {
 
     stagingIO.updateInputs(stagingInputs);
     Logger.processInputs("Intake/Staging", stagingInputs);
+
+    beamBreakIO.updateInputs(beamBreakInputs);
+    Logger.processInputs("Intake/Beam Break", beamBreakInputs);
+
+    if (lastSetpoint.shouldFloat && lastSetpoint.withinTolerance(pivotInputs.position)) {
+      pivotIO.setFloating();
+    }
   }
 
   private void stopRollers() {
@@ -115,20 +137,13 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setPosition(PivotPosition position) {
-    Command command =
-        Commands.sequence(
-            runOnce(
-                () -> {
-                  pivotIO.setPosition(position.angle);
-                  lastSetpoint = position;
-                }),
-            Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
-
-    if (position.shouldFloat) {
-      command = command.finallyDo(pivotIO::setFloating);
-    }
-
-    return command;
+    return Commands.sequence(
+        runOnce(
+            () -> {
+              pivotIO.setPosition(position.angle);
+              lastSetpoint = position;
+            }),
+        Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
   }
 
   public Command toggleDeploy(Command onDeploy) {

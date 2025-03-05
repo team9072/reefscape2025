@@ -17,6 +17,8 @@ public class IntakeConstants {
   public static final CanID passthroughCanId = new CanID(17, canBus);
   public static final CanID stagingRollerCanId = new CanID(16, canBus);
 
+  public static final int beamBreakDioId = 1;
+
   public static final Current intakeTorqueCurrent = Amps.of(200);
   public static final Current intakeReverseTorqueCurrent = Amps.of(-100);
   public static final double intakeTorqueDutyCycle = 0.7;

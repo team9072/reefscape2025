@@ -30,6 +30,8 @@ import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
+import frc.robot.subsystems.generic.beambreak.BeamBreakIODio;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOSim;
 import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
@@ -82,7 +84,8 @@ public class Robot {
                 new PivotIOTalonFX(IntakeConstants.pivot),
                 new RollerIOTalonFX(IntakeConstants.roller),
                 new RollerIOTalonFX(IntakeConstants.pasthrough),
-                new RollerIOTalonFX(IntakeConstants.stagingRoller));
+                new RollerIOTalonFX(IntakeConstants.stagingRoller),
+                new BeamBreakIODio(IntakeConstants.beamBreakDioId));
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
 
@@ -112,7 +115,8 @@ public class Robot {
                 new PivotIOSim(IntakeConstants.pivot),
                 new RollerIOSim(IntakeConstants.roller),
                 new RollerIOSim(IntakeConstants.pasthrough),
-                new RollerIOSim(IntakeConstants.stagingRoller));
+                new RollerIOSim(IntakeConstants.stagingRoller),
+                new BeamBreakIO() {});
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
 
@@ -142,7 +146,12 @@ public class Robot {
         elevator = new Elevator(new ElevatorIO() {});
 
         intake =
-            new Intake(new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new RollerIO() {});
+            new Intake(
+                new PivotIO() {},
+                new RollerIO() {},
+                new RollerIO() {},
+                new RollerIO() {},
+                new BeamBreakIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
