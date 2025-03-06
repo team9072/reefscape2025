@@ -90,9 +90,13 @@ public class Drive extends SubsystemBase {
           VecBuilder.fill(1000, 1000, 1000));
 
   // PID controllers for choreo path following
-  private final PIDController xController = new PIDController(3, 0, 0.0);
-  private final PIDController yController = new PIDController(3, 0, 0.0);
-  private final PIDController headingController = new PIDController(5, 0.05, 0);
+  private final PIDController xController = new PIDController(3, 0.0, 0.1);
+  private final PIDController yController = new PIDController(3, 0.0, 0.1);
+  private final PIDController headingController = new PIDController(7, 0.0, 0.1);
+
+  // Prevent tiny oscilations that cause turn wheels to offset position
+  private final double headingPidMinOutput = 0.015;
+  private final double translationPidMinOutput = 0.2;
 
   public Drive(
       GyroIO gyroIO,
@@ -128,6 +132,9 @@ public class Drive extends SubsystemBase {
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
 
+    SmartDashboard.putNumber("Tuning/headingP", headingController.getP());
+    SmartDashboard.putNumber("Tuning/headingD", headingController.getD());
+
     SmartDashboard.putNumber("Tuning/driveP", xController.getP());
     SmartDashboard.putNumber("Tuning/driveD", xController.getD());
   }
@@ -147,6 +154,9 @@ public class Drive extends SubsystemBase {
       for (var module : modules) {
         module.stop();
       }
+
+      headingController.setP(SmartDashboard.getNumber("Tuning/headingP", 0));
+      headingController.setD(SmartDashboard.getNumber("Tuning/headingD", 0));
 
       xController.setP(SmartDashboard.getNumber("Tuning/driveP", 0));
       xController.setD(SmartDashboard.getNumber("Tuning/driveD", 0));
@@ -252,10 +262,18 @@ public class Drive extends SubsystemBase {
    */
   public ChassisSpeeds getTranslationCorrection(Translation2d targetTranslation) {
     Pose2d pose = getPose();
-    return new ChassisSpeeds(
-        xController.calculate(pose.getX(), targetTranslation.getX()),
-        yController.calculate(pose.getY(), targetTranslation.getY()),
-        0);
+
+    double xSpeed = xController.calculate(pose.getX(), targetTranslation.getX());
+    if (Math.abs(xSpeed) < translationPidMinOutput) {
+      xSpeed = 0;
+    }
+
+    double ySpeed = yController.calculate(pose.getY(), targetTranslation.getY());
+    if (Math.abs(ySpeed) < translationPidMinOutput) {
+      ySpeed = 0;
+    }
+
+    return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }
 
   /**
@@ -263,11 +281,15 @@ public class Drive extends SubsystemBase {
    * merging human and pid control
    */
   public ChassisSpeeds getHeadingCorrection(Rotation2d targetRotaion) {
-    return new ChassisSpeeds(
-        0,
-        0,
+    double headingSpeed =
         headingController.calculate(
-            getPose().getRotation().getRadians(), targetRotaion.getRadians()));
+            getPose().getRotation().getRadians(), targetRotaion.getRadians());
+
+    if (Math.abs(headingSpeed) < headingPidMinOutput) {
+      headingSpeed = 0;
+    }
+
+    return new ChassisSpeeds(0, 0, headingSpeed);
   }
 
   /**
