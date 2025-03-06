@@ -128,10 +128,15 @@ public class CoralFlow {
         .onlyIf(elevator.clearsCoral);
   }
 
-  public Command holdOutCoralForKnockOff() {
-    return Commands.parallel(
+  public Command knockCoralOff() {
+    return Commands.sequence(
+        elevator
+            .setPosition(ElevatorPosition.knockCoralOffPosition)
+            .alongWith(
+                Commands.waitUntil(elevator.clearsCoral)
+                    .andThen(coralPlacer.setPosition(CoralPlacerPosition.knockCoralOffPosition))),
+        elevator.setPosition(ElevatorPosition.intakePosition).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.knockCoralOffPosition),
-        Commands.waitUntil(elevator.clearsCoral)
-            .andThen(coralPlacer.setPosition(CoralPlacerPosition.knockCoralOffPosition)));
+        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
   }
 }

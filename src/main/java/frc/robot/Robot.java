@@ -260,7 +260,7 @@ public class Robot {
         .b()
         .onTrue(
             s.coralFlow.prepareElevator(ReefBranch.branchL3).andThen(s.coralFlow.removeAlgae()));
-    secondaryController.y().onTrue(s.coralFlow.holdOutCoralForKnockOff());
+    secondaryController.y().onTrue(s.coralFlow.knockCoralOff());
 
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
