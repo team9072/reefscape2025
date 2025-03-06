@@ -117,4 +117,10 @@ public class CoralFlow {
         elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral),
         coralPlacer.setPosition(CoralPlacerPosition.readyPosition));
   }
+
+  public Command removeAlgae() {
+    return coralPlacer
+        .setPosition(CoralPlacerPosition.removeAlgaePosition)
+        .onlyIf(elevator.clearsCoral);
+  }
 }

@@ -226,6 +226,8 @@ public class Robot {
     scoreTrigger.onTrue(
         s.coralFlow.scoreCoralOnTrigger(s.coralFlow::getMemorizedBranch, scoreTrigger.negate()));
 
+    controller.povUp().onTrue(s.coralFlow.removeAlgae());
+
     // Reset gyro to 0° when start button is pressed
     controller.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 

@@ -22,7 +22,8 @@ public class CoralPlacerConstants {
     stowPosition(Rotations.of(0.5)),
     grabPosition(Rotations.of(0.5)),
     readyPosition(Rotations.of(0.8)),
-    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle));
+    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle)),
+    removeAlgaePosition(Rotations.of(-2));
 
     public Angle angle;
 
