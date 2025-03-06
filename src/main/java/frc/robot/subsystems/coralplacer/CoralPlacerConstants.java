@@ -21,7 +21,9 @@ public class CoralPlacerConstants {
   public enum CoralPlacerPosition {
     stowPosition(Rotations.of(0.5)),
     grabPosition(Rotations.of(0.5)),
+    knockCoralOffPosition(Rotations.of(0)),
     readyPosition(Rotations.of(0.8)),
+    readyPositionL4(Rotations.of(1.1)),
     scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle)),
     removeAlgaePosition(Rotations.of(-2));
 

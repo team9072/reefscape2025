@@ -36,6 +36,7 @@ import frc.robot.subsystems.generic.roller.RollerIOSim;
 import frc.robot.subsystems.generic.roller.RollerIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
@@ -77,7 +78,8 @@ public class Robot {
   }
 
   // Controllers
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController mainController = new CommandXboxController(0);
+  private final CommandXboxController secondaryController = new CommandXboxController(1);
   // private final CommandXboxController sysIdController = new CommandXboxController(3);
 
   private final Subsystems s;
@@ -189,49 +191,78 @@ public class Robot {
   }
 
   private void configureBindings() {
-    // Default command, normal field-relative drive
+    /** Driver Controls */
     s.drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             s.drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -mainController.getLeftY(),
+            () -> -mainController.getLeftX(),
+            () -> -mainController.getRightX()));
+
+    mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     s.intake.setDefaultCommand(s.intake.idleStagingRoller());
 
-    controller.leftBumper().whileTrue(s.coralFlow.clearElevator().andThen(s.intake.intake()));
+    mainController.leftBumper().whileTrue(s.coralFlow.clearElevator().andThen(s.intake.intake()));
 
     // Schedule a new command so the old one gets interrupted
-    controller
+    mainController
         .rightBumper()
         .onTrue(
             Commands.defer(
                 () -> new ScheduleCommand(s.intake.toggleDeploy(s.coralFlow.elevatorDown())),
                 Set.of()));
 
-    controller
+    mainController
         .leftTrigger()
         .whileTrue(
             ReefAlignment.driveReefAligned(
-                s.drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+                s.drive, () -> -mainController.getLeftY(), () -> -mainController.getLeftX()));
 
-    controller.a().whileTrue(s.intake.reverse());
+    mainController.a().whileTrue(s.intake.reverse());
 
-    controller.povDown().onTrue(s.coralFlow.grabCoral());
-    controller.x().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL2));
-    controller.b().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL3));
-    controller.y().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL4));
-
-    Trigger scoreTrigger = controller.rightTrigger();
+    Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
         s.coralFlow.scoreCoralOnTrigger(s.coralFlow::getMemorizedBranch, scoreTrigger.negate()));
 
-    controller.povUp().onTrue(s.coralFlow.removeAlgae());
+    mainController.x().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL2));
+    mainController.b().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL3));
+    mainController.y().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL4));
 
-    // Reset gyro to 0° when start button is pressed
-    controller.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
+    // Mapped to back buttons
+    mainController.povDown().onTrue(s.coralFlow.grabCoral());
 
-    // SysId Controls
+    /** Operator Controls */
+    secondaryController
+        .rightBumper()
+        .whileTrue(s.intake.setPosition(PivotPosition.stow).andThen(s.intake.reverse()));
+    secondaryController
+        .leftBumper()
+        .whileTrue(
+            s.intake.setPosition(PivotPosition.unjam).withTimeout(0.4).andThen(s.intake.reverse()));
+
+    secondaryController.rightTrigger().onTrue(s.coralFlow.grabCoral());
+
+    secondaryController
+        .leftTrigger()
+        .whileTrue(
+            s.intake
+                .setPosition(PivotPosition.algae)
+                .withTimeout(0)
+                .andThen(s.intake.intakeAlgae()));
+    secondaryController.leftTrigger().onFalse(s.intake.reverseAlgae().withTimeout(1));
+
+    secondaryController
+        .x()
+        .onTrue(
+            s.coralFlow.prepareElevator(ReefBranch.branchL2).andThen(s.coralFlow.removeAlgae()));
+    secondaryController
+        .b()
+        .onTrue(
+            s.coralFlow.prepareElevator(ReefBranch.branchL3).andThen(s.coralFlow.removeAlgae()));
+    secondaryController.y().onTrue(s.coralFlow.holdOutCoralForKnockOff());
+
+    /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
 
     sysIdController.rightBumper().onTrue(Commands.runOnce(() -> SignalLogger.stop()));

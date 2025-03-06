@@ -114,13 +114,10 @@ public class Intake extends SubsystemBase {
 
   public Command intakeAlgae() {
     return runEnd(
-        () -> {
-          if (shouldIntakeSpin()) {
+        () ->
             rollerIO.setTorque(
                 IntakeConstants.intakeAlgaeTorqueCurrent,
-                IntakeConstants.intakeAlgaeTorqueDutyCycle);
-          }
-        },
+                IntakeConstants.intakeAlgaeTorqueDutyCycle),
         this::stopRollers);
   }
 
@@ -134,6 +131,14 @@ public class Intake extends SubsystemBase {
 
   public Command reverse() {
     return runEnd(this::reverseRollers, this::stopRollers);
+  }
+
+  public Command reverseAlgae() {
+    return runEnd(
+        () ->
+            rollerIO.setTorque(
+                IntakeConstants.intakeTorqueCurrent, IntakeConstants.intakeTorqueDutyCycle),
+        this::stopRollers);
   }
 
   public Command setPosition(PivotPosition position) {

@@ -73,8 +73,12 @@ public class CoralFlow {
         .clearCoral()
         .andThen(
             Commands.parallel(
-                coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
-                elevator.setPosition(branch.position)));
+                    coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
+                    elevator.setPosition(branch.position))
+                .andThen(
+                    coralPlacer
+                        .setPosition(CoralPlacerPosition.readyPosition)
+                        .onlyIf(() -> branch == ReefBranch.branchL4)));
   }
 
   /**
@@ -122,5 +126,12 @@ public class CoralFlow {
     return coralPlacer
         .setPosition(CoralPlacerPosition.removeAlgaePosition)
         .onlyIf(elevator.clearsCoral);
+  }
+
+  public Command holdOutCoralForKnockOff() {
+    return Commands.parallel(
+        elevator.setPosition(ElevatorPosition.knockCoralOffPosition),
+        Commands.waitUntil(elevator.clearsCoral)
+            .andThen(coralPlacer.setPosition(CoralPlacerPosition.knockCoralOffPosition)));
   }
 }
