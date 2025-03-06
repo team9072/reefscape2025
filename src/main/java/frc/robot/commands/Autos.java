@@ -7,15 +7,17 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.Robot;
+import frc.robot.commands.CoralFlow.ReefBranch;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class Autos extends SubsystemBase {
-  private final AutoFactory autoFactory;
-  private final AutoInputs inputs;
 
   private static class AutoInputs implements LoggableInputs {
     final AutoChooser autoChooser;
@@ -39,10 +41,23 @@ public class Autos extends SubsystemBase {
     }
   }
 
-  public Autos(Drive drive) {
+  private final AutoFactory autoFactory;
+  private final AutoInputs inputs;
+  private final Robot.Subsystems s;
+
+  public Autos(Robot.Subsystems s) {
     this.autoFactory =
-        new AutoFactory(drive::getPose, drive::setPose, drive::followTrajectory, true, drive);
+        new AutoFactory(
+            s.drive::getPose,
+            (pose) -> {
+              s.drive.setPose(pose);
+              s.questNav.resetPose(pose);
+            },
+            s.drive::followTrajectory,
+            true,
+            s.drive);
     inputs = new AutoInputs(buildAutoChooser());
+    this.s = s;
   }
 
   @Override
@@ -54,31 +69,126 @@ public class Autos extends SubsystemBase {
     return inputs.autoChooser.selectedCommand();
   }
 
+  private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
+    trajectory.active().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL4));
+    trajectory
+        .done()
+        .onTrue(
+            s.coralFlow
+                .scoreCoral(ReefBranch.branchL4)
+                .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+  }
+
+  private void intakeAndScore(
+      AutoTrajectory intakeTrajectory, AutoTrajectory scoreTrajectory, Command afterScore) {
+    final AtomicBoolean coralDetected = new AtomicBoolean(false);
+    final AtomicBoolean coralGrabbed = new AtomicBoolean(false);
+
+    intakeTrajectory
+        .active()
+        .onTrue(
+            s.intake.setPosition(PivotPosition.deploy).withTimeout(0).andThen(s.intake.intake()));
+
+    intakeTrajectory
+        .active()
+        .or(scoreTrajectory.active())
+        .and(s.intake.coralDetected)
+        .onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> coralDetected.set(true)),
+                Commands.waitSeconds(0.9),
+                new ScheduleCommand(
+                    Commands.parallel(
+                        s.intake.setPosition(PivotPosition.stow),
+                        Commands.sequence(
+                            s.coralFlow.grabCoral(),
+                            Commands.runOnce(() -> coralGrabbed.set(true)),
+                            s.coralFlow.prepareElevator(ReefBranch.branchL4))))));
+
+    intakeTrajectory.active().and(s.intake.coralDetected).onTrue(scoreTrajectory.cmd());
+    intakeTrajectory.chain(scoreTrajectory);
+
+    scoreTrajectory
+        .done()
+        .and(() -> !coralDetected.get())
+        .onTrue(
+            s.coralFlow
+                .grabCoral()
+                .andThen(
+                    Commands.runOnce(
+                            () -> {
+                              coralDetected.set(true);
+                              coralGrabbed.set(true);
+                            })
+                        .alongWith(s.intake.setPosition(PivotPosition.stow).withTimeout(0))));
+
+    scoreTrajectory
+        .recentlyDone()
+        .and(coralGrabbed::get)
+        .onTrue(
+            s.coralFlow
+                .scoreCoral(ReefBranch.branchL4)
+                .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+  }
+
+  private AutoRoutine test() {
+    AutoRoutine routine = autoFactory.newRoutine("Test");
+    AutoTrajectory trajectory = routine.trajectory("R2P1 L4");
+
+    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
+
+    scorePreload(trajectory, Commands.none());
+
+    return routine;
+  }
+
+  private AutoRoutine test2p() {
+    AutoRoutine routine = autoFactory.newRoutine("Test 2p");
+    AutoTrajectory scorePreloadTraj = routine.trajectory("C1 to R2P1");
+    AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
+    AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
+
+    routine
+        .active()
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
+
+    scorePreload(scorePreloadTraj, intakeS1Traj.cmd());
+    intakeAndScore(intakeS1Traj, scoreS1Traj, Commands.none());
+
+    return routine;
+  }
+
+  private AutoRoutine test3p() {
+    AutoRoutine routine = autoFactory.newRoutine("Test 3p");
+    AutoTrajectory scorePreloadTraj = routine.trajectory("C1 to R2P1");
+
+    AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
+    AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
+
+    AutoTrajectory intakeS2Traj = routine.trajectory("R3P2 to S2 to R4P1", 0);
+    AutoTrajectory scoreS2Traj = routine.trajectory("R3P2 to S2 to R4P1", 1);
+
+    routine
+        .active()
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
+
+    scorePreloadTraj.active().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL4));
+
+    scorePreload(scorePreloadTraj, intakeS1Traj.cmd());
+    intakeAndScore(intakeS1Traj, scoreS1Traj, intakeS2Traj.cmd());
+    intakeAndScore(intakeS2Traj, scoreS2Traj, Commands.none());
+
+    return routine;
+  }
+
   private AutoChooser buildAutoChooser() {
     AutoChooser autoChooser = new AutoChooser();
 
-    autoChooser.addRoutine("Forward 180", this::forward180Auto);
-    autoChooser.addRoutine("Around Reef", this::aroundReefAuto);
+    autoChooser.addRoutine("Test", this::test);
+    autoChooser.addRoutine("Test 2P", this::test2p);
+    autoChooser.addRoutine("Test 3P", this::test3p);
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;
-  }
-
-  private AutoRoutine forward180Auto() {
-    AutoRoutine routine = autoFactory.newRoutine("Forward 180");
-    AutoTrajectory trajectory = routine.trajectory("Forward 180");
-
-    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
-
-    return routine;
-  }
-
-  private AutoRoutine aroundReefAuto() {
-    AutoRoutine routine = autoFactory.newRoutine("Around Reef");
-    AutoTrajectory trajectory = routine.trajectory("Around Reef");
-
-    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
-
-    return routine;
   }
 }

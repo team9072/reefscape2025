@@ -45,7 +45,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command clearCoral() {
-
     return setPosition(ElevatorPosition.readyPosition).until(clearsCoral).unless(clearsCoral);
   }
 }

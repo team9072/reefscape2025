@@ -7,8 +7,8 @@
    "MaxVelocity":{
     "dimension":"LinVel",
     "var":{
-     "exp":"3 m / s",
-     "val":3.0
+     "exp":"2 m / s",
+     "val":2.0
     }
    },
    "PoleOffset":{
@@ -60,11 +60,46 @@
      "val":2.0943951023931953
     }
    },
+   "ReefMaxAccel":{
+    "dimension":"LinAcc",
+    "var":{
+     "exp":"3 m / s ^ 2",
+     "val":3.0
+    }
+   },
    "ReefOffset":{
     "dimension":"Length",
     "var":{
      "exp":"0.831723 m + 16 in",
      "val":1.238123
+    }
+   },
+   "Spike1Y":{
+    "dimension":"Length",
+    "var":{
+     "exp":"5.855 m",
+     "val":5.855
+    }
+   },
+   "Spike2Y":{
+    "dimension":"Length",
+    "var":{
+     "exp":"4.026 m",
+     "val":4.026
+    }
+   },
+   "Spike3Y":{
+    "dimension":"Length",
+    "var":{
+     "exp":"2.195 m",
+     "val":2.195
+    }
+   },
+   "SpikeX":{
+    "dimension":"Length",
+    "var":{
+     "exp":"1.222 m",
+     "val":1.222
     }
    }
   },
@@ -291,6 +326,48 @@
     "heading":{
      "exp":"240 deg",
      "val":4.1887902047863905
+    }
+   },
+   "S1":{
+    "x":{
+     "exp":"SpikeX",
+     "val":1.222
+    },
+    "y":{
+     "exp":"Spike1Y",
+     "val":5.855
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
+    }
+   },
+   "S2":{
+    "x":{
+     "exp":"SpikeX",
+     "val":1.222
+    },
+    "y":{
+     "exp":"Spike2Y",
+     "val":4.026
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
+    }
+   },
+   "S3":{
+    "x":{
+     "exp":"SpikeX",
+     "val":1.222
+    },
+    "y":{
+     "exp":"Spike3Y",
+     "val":2.195
+    },
+    "heading":{
+     "exp":"0 rad",
+     "val":0.0
     }
    }
   }

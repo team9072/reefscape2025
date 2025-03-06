@@ -83,18 +83,6 @@ public class ReefAlignment {
                               .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
                           drive.getRotation()));
 
-          if (Math.abs(speeds.vxMetersPerSecond) < 0.1) {
-            speeds.vxMetersPerSecond = 0;
-          }
-
-          if (Math.abs(speeds.vyMetersPerSecond) < 0.1) {
-            speeds.vyMetersPerSecond = 0;
-          }
-
-          if (Math.abs(speeds.omegaRadiansPerSecond) < 0.075) {
-            speeds.omegaRadiansPerSecond = 0;
-          }
-
           drive.runVelocity(speeds);
         },
         drive);

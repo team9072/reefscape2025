@@ -26,7 +26,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -51,23 +50,47 @@ import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import java.util.Set;
 
 public class Robot {
-  // Subsystems
-  private final Drive drive;
-  private final Intake intake;
-  private final CoralPlacer coralPlacer;
-  private final Elevator elevator;
-  private final Vision vision;
-  private final QuestNav questNav;
+  public static class Subsystems {
+    // Subsystems
+    public final Drive drive;
+    public final Intake intake;
+    public final Vision vision;
+    public final QuestNav questNav;
+
+    // State
+    public final CoralFlow coralFlow;
+
+    Subsystems(
+        Drive drive,
+        Intake intake,
+        CoralPlacer coralPlacer,
+        Elevator elevator,
+        Vision vision,
+        QuestNav questNav) {
+      this.drive = drive;
+      this.intake = intake;
+      this.vision = vision;
+      this.questNav = questNav;
+
+      coralFlow = new CoralFlow(intake, elevator, coralPlacer);
+    }
+  }
 
   // Controllers
   private final CommandXboxController controller = new CommandXboxController(0);
   // private final CommandXboxController sysIdController = new CommandXboxController(3);
 
-  // Autonomous
+  private final Subsystems s;
   private final Autos autos;
-  private final CoralFlow coralFlow;
 
   public Robot() {
+    final Drive drive;
+    final Intake intake;
+    final CoralPlacer coralPlacer;
+    final Elevator elevator;
+    final Vision vision;
+    final QuestNav questNav;
+
     switch (Constants.currentMode) {
       case REAL -> {
         // Real robot, instantiate hardware IO implementations
@@ -159,70 +182,68 @@ public class Robot {
       }
     }
 
-    autos = new Autos(drive);
-    coralFlow = new CoralFlow(intake, elevator, coralPlacer);
+    s = new Subsystems(drive, intake, coralPlacer, elevator, vision, questNav);
+    autos = new Autos(s);
 
     configureBindings();
   }
 
   private void configureBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
+    s.drive.setDefaultCommand(
         DriveCommands.joystickDrive(
-            drive,
+            s.drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
 
-    intake.setDefaultCommand(intake.idleStagingRoller());
+    s.intake.setDefaultCommand(s.intake.idleStagingRoller());
 
-    controller.leftBumper().whileTrue(elevator.clearCoral().andThen(intake.intake()));
+    controller.leftBumper().whileTrue(s.coralFlow.clearElevator().andThen(s.intake.intake()));
 
     // Schedule a new command so the old one gets interrupted
     controller
         .rightBumper()
         .onTrue(
             Commands.defer(
-                () ->
-                    new ScheduleCommand(
-                        intake.toggleDeploy(elevator.setPosition(ElevatorPosition.readyPosition))),
+                () -> new ScheduleCommand(s.intake.toggleDeploy(s.coralFlow.elevatorDown())),
                 Set.of()));
 
     controller
         .leftTrigger()
         .whileTrue(
             ReefAlignment.driveReefAligned(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
+                s.drive, () -> -controller.getLeftY(), () -> -controller.getLeftX()));
 
-    controller.a().whileTrue(intake.reverse());
+    controller.a().whileTrue(s.intake.reverse());
 
-    controller.povDown().onTrue(coralFlow.grabCoral());
-    controller.x().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL2));
-    controller.b().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL3));
-    controller.y().onTrue(coralFlow.memorizeBranch(ReefBranch.branchL4));
+    controller.povDown().onTrue(s.coralFlow.grabCoral());
+    controller.x().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL2));
+    controller.b().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL3));
+    controller.y().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL4));
 
     Trigger scoreTrigger = controller.rightTrigger();
     scoreTrigger.onTrue(
-        coralFlow.scoreCoralOnTrigger(coralFlow::getMemorizedBranch, scoreTrigger.negate()));
+        s.coralFlow.scoreCoralOnTrigger(s.coralFlow::getMemorizedBranch, scoreTrigger.negate()));
 
     // Reset gyro to 0° when start button is pressed
-    controller.start().onTrue(DriveCommands.zeroGyro(drive).ignoringDisable(true));
+    controller.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     // SysId Controls
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
 
     sysIdController.rightBumper().onTrue(Commands.runOnce(() -> SignalLogger.stop()));
 
-    sysIdController.povUp().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    sysIdController.povDown().whileTrue(drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    sysIdController.povLeft().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    sysIdController.povRight().whileTrue(drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    sysIdController.a().whileTrue(DriveCommands.feedforwardCharacterization(drive));
+    sysIdController.povUp().whileTrue(s.drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    sysIdController.povDown().whileTrue(s.drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    sysIdController.povLeft().whileTrue(s.drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    sysIdController.povRight().whileTrue(s.drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    sysIdController.a().whileTrue(DriveCommands.feedforwardCharacterization(s.drive));
     sysIdController
         .b()
         .whileTrue(
             Commands.run(
-                () -> drive.runVelocity(new ChassisSpeeds(-sysIdController.getLeftY(), 0, 0))));*/
+                () -> s.drive.runVelocity(new ChassisSpeeds(-sysIdController.getLeftY(), 0, 0))));*/
   }
 
   public Command getAutonomousCommand() {
