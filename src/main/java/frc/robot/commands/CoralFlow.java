@@ -68,7 +68,7 @@ public class CoralFlow {
         elevator.setPosition(ElevatorPosition.readyPosition));
   }
 
-  public Command prepareElevator(ReefBranch branch) {
+  public Command prepareElevator(ReefBranch branch, boolean dontHoldL4) {
     return elevator
         .clearCoral()
         .andThen(
@@ -77,8 +77,17 @@ public class CoralFlow {
                     elevator.setPosition(branch.position))
                 .andThen(
                     coralPlacer
-                        .setPosition(CoralPlacerPosition.readyPosition)
-                        .onlyIf(() -> branch == ReefBranch.branchL4)));
+                        .setPosition(CoralPlacerPosition.readyPositionL4)
+                        .onlyIf(() -> branch == ReefBranch.branchL4 && !dontHoldL4)));
+  }
+
+  public Command prepareElevator(ReefBranch branch) {
+    return prepareElevator(branch, false);
+  }
+
+  /** Does not hold out on L4 */
+  public Command prepareElevatorAuto(ReefBranch branch) {
+    return prepareElevator(branch, true);
   }
 
   /**
@@ -91,7 +100,6 @@ public class CoralFlow {
     Command scoreCommand =
         Commands.sequence(
             Commands.waitUntil(scoreOrCancel),
-            coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
             coralPlacer.setPosition(CoralPlacerPosition.scorePosition) /*,
             elevator.setPosition(ElevatorPosition.readyPosition)*/);
 
