@@ -132,8 +132,8 @@ public class Autos extends SubsystemBase {
   }
 
   private AutoRoutine test() {
-    AutoRoutine routine = autoFactory.newRoutine("Test");
-    AutoTrajectory trajectory = routine.trajectory("R2P1 L4");
+    AutoRoutine routine = autoFactory.newRoutine("C2S 1p");
+    AutoTrajectory trajectory = routine.trajectory("C2S to R2P1 Bump");
 
     routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
 
@@ -143,8 +143,8 @@ public class Autos extends SubsystemBase {
   }
 
   private AutoRoutine test2p() {
-    AutoRoutine routine = autoFactory.newRoutine("Test 2p");
-    AutoTrajectory scorePreloadTraj = routine.trajectory("C1 to R2P1");
+    AutoRoutine routine = autoFactory.newRoutine("C2S 2p");
+    AutoTrajectory scorePreloadTraj = routine.trajectory("C2S to R2P1 Bump");
     AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
     AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
 
@@ -159,8 +159,8 @@ public class Autos extends SubsystemBase {
   }
 
   private AutoRoutine test3p() {
-    AutoRoutine routine = autoFactory.newRoutine("Test 3p");
-    AutoTrajectory scorePreloadTraj = routine.trajectory("C1 to R2P1");
+    AutoRoutine routine = autoFactory.newRoutine("C2S 3p");
+    AutoTrajectory scorePreloadTraj = routine.trajectory("C2S to R2P1 Bump");
 
     AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
     AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
@@ -184,9 +184,9 @@ public class Autos extends SubsystemBase {
   private AutoChooser buildAutoChooser() {
     AutoChooser autoChooser = new AutoChooser();
 
-    autoChooser.addRoutine("Test", this::test);
-    autoChooser.addRoutine("Test 2P", this::test2p);
-    autoChooser.addRoutine("Test 3P", this::test3p);
+    autoChooser.addRoutine("C2S 1p", this::test);
+    autoChooser.addRoutine("C2S 2p", this::test2p);
+    autoChooser.addRoutine("C2S 3p", this::test3p);
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;
