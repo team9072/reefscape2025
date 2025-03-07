@@ -39,6 +39,8 @@ public class PivotConstants {
     }
   }
 
+  public static final Angle homingAngle = Rotations.of(-1);
+
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
   public static final double motorReduction = 9.0 * (46.0 / 26.0);
@@ -48,7 +50,7 @@ public class PivotConstants {
   public static final MomentOfInertia armMoi =
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
 
-  public static final double kG = -0.45;
+  public static final double kG = -0.5;
   public static final double kP = 40;
   public static final double kD = 4;
   public static final double kV = 2.4;

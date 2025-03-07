@@ -1,7 +1,9 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -11,6 +13,7 @@ import frc.robot.subsystems.generic.beambreak.BeamBreakIOInputsAutoLogged;
 import frc.robot.subsystems.generic.roller.RollerIO;
 import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -31,6 +34,12 @@ public class Intake extends SubsystemBase {
   private final BeamBreakIOInputsAutoLogged beamBreakInputs = new BeamBreakIOInputsAutoLogged();
 
   private PivotPosition lastSetpoint = PivotPosition.stow;
+  private Trigger isAtZeroVelocity =
+      new Trigger(() -> pivotInputs.velocity.isEquivalent(RotationsPerSecond.zero())).debounce(0.2);
+
+  private boolean homedSinceLastSetpoint = false;
+  private Timer waitForHoming = new Timer();
+  private Timer homingDelay = new Timer();
 
   public Trigger coralDetected = new Trigger(() -> beamBreakInputs.objectDetected);
 
@@ -69,6 +78,56 @@ public class Intake extends SubsystemBase {
     if (lastSetpoint.shouldFloat && lastSetpoint.withinTolerance(pivotInputs.position)) {
       pivotIO.setFloating();
     }
+
+    if (lastSetpoint == PivotPosition.stow && !homedSinceLastSetpoint && !isHoming()) {
+      startWaitForHoming();
+    }
+
+    // Wait for reach position or time elapsed
+    if (waitForHoming.isRunning()
+        && (waitForHoming.hasElapsed(0.5) || lastSetpoint.withinTolerance(pivotInputs.position))) {
+      startHoming();
+    }
+
+    if (homingDelay.hasElapsed(0.2) && isAtZeroVelocity.getAsBoolean()) {
+      pivotIO.setHomePosition(PivotPosition.stow.angle);
+      pivotIO.setPosition(PivotPosition.stow.angle);
+      homedSinceLastSetpoint = true;
+      stopHoming();
+    }
+
+    Logger.recordOutput("Intake/Homing/waitForHoming/elapsed", waitForHoming.get());
+    Logger.recordOutput("Intake/Homing/waitForHoming/running", waitForHoming.isRunning());
+
+    Logger.recordOutput("Intake/Homing/homingDelay/elapsed", homingDelay.get());
+    Logger.recordOutput("Intake/Homing/homingDelay/running", homingDelay.isRunning());
+
+    Logger.recordOutput("Intake/SetpointPosition", lastSetpoint.angle);
+  }
+
+  @AutoLogOutput(key = "Intake/Homing/isHoming")
+  public boolean isHoming() {
+    return waitForHoming.isRunning() || homingDelay.isRunning();
+  }
+
+  private void startWaitForHoming() {
+    homingDelay.stop();
+    homingDelay.reset();
+    waitForHoming.restart();
+  }
+
+  private void startHoming() {
+    waitForHoming.stop();
+    waitForHoming.reset();
+    homingDelay.restart();
+    pivotIO.setPosition(PivotConstants.homingAngle);
+  }
+
+  private void stopHoming() {
+    waitForHoming.stop();
+    waitForHoming.reset();
+    homingDelay.stop();
+    homingDelay.reset();
   }
 
   private void stopRollers() {
@@ -145,6 +204,8 @@ public class Intake extends SubsystemBase {
     return Commands.sequence(
         runOnce(
             () -> {
+              stopHoming();
+              homedSinceLastSetpoint = false;
               pivotIO.setPosition(position.angle);
               lastSetpoint = position;
             }),
@@ -156,10 +217,6 @@ public class Intake extends SubsystemBase {
         setPosition(PivotPosition.stow),
         onDeploy.andThen(setPosition(PivotPosition.deploy)),
         () -> {
-          if (lastSetpoint == null) {
-            return true;
-          }
-
           return (lastSetpoint != PivotPosition.stow);
         });
   }
