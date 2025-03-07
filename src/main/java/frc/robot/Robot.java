@@ -241,7 +241,7 @@ public class Robot {
         .whileTrue(
             s.intake.setPosition(PivotPosition.unjam).withTimeout(0.4).andThen(s.intake.reverse()));
 
-    secondaryController.rightTrigger().onTrue(s.coralFlow.grabCoral());
+    secondaryController.rightTrigger().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL2));
 
     secondaryController
         .leftTrigger()
@@ -260,6 +260,7 @@ public class Robot {
         .b()
         .onTrue(
             s.coralFlow.prepareElevator(ReefBranch.branchL3).andThen(s.coralFlow.removeAlgae()));
+
     secondaryController.y().onTrue(s.coralFlow.knockCoralOff());
 
     /** SysId Controls */
