@@ -83,8 +83,6 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
     motor.optimizeBusUtilization();
-
-    motor.setControl(positionRequest);
   }
 
   @Override
