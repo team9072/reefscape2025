@@ -1,9 +1,12 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -93,6 +96,8 @@ public class Autos extends SubsystemBase {
         .onTrue(
             s.intake.setPosition(PivotPosition.deploy).withTimeout(0).andThen(s.intake.intake()));
 
+    Time coralDetectDelay = Seconds.of(0.9);
+
     intakeTrajectory
         .active()
         .or(scoreTrajectory.active())
@@ -100,7 +105,7 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> coralDetected.set(true)),
-                Commands.waitSeconds(0.9),
+                Commands.waitTime(coralDetectDelay),
                 new ScheduleCommand(
                     Commands.parallel(
                         s.intake.setPosition(PivotPosition.stow),
@@ -116,15 +121,13 @@ public class Autos extends SubsystemBase {
         .done()
         .and(() -> !coralDetected.get())
         .onTrue(
-            s.coralFlow
-                .grabCoral()
-                .andThen(
-                            Commands.runOnce(
-                                () -> {
-                                  coralDetected.set(true);
-                                  coralGrabbed.set(true);
-                            })
-                        .alongWith(s.intake.setPosition(PivotPosition.stow).withTimeout(0))));
+            Commands.parallel(
+                Commands.sequence(
+                    Commands.runOnce(() -> coralDetected.set(true)),
+                    Commands.waitTime(coralDetectDelay),
+                    s.coralFlow.grabCoral(),
+                    Commands.runOnce(() -> coralGrabbed.set(true))),
+                s.intake.setPosition(PivotPosition.stow).withTimeout(0)));
 
     scoreTrajectory
         .recentlyDone()
