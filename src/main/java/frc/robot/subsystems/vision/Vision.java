@@ -76,6 +76,7 @@ public class Vision extends SubsystemBase {
       List<Pose3d> robotPoses = new LinkedList<>();
       List<Pose3d> robotPosesAccepted = new LinkedList<>();
       List<Pose3d> robotPosesRejected = new LinkedList<>();
+      List<double[]> stdDevs = new LinkedList<>();
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
@@ -128,6 +129,8 @@ public class Vision extends SubsystemBase {
           angularStdDev *= camera.stdDevFactor;
         }
 
+        stdDevs.add(new double[] {linearStdDev, linearStdDev, angularStdDev});
+
         // Send vision observation
         consumer.accept(
             observation.pose().toPose2d(),
@@ -148,6 +151,10 @@ public class Vision extends SubsystemBase {
       Logger.recordOutput(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
+      Logger.recordOutput(
+          "Vision/Camera" + Integer.toString(cameraIndex) + "/StdDevs",
+          stdDevs.toArray(new double[stdDevs.size()][3]));
+
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
