@@ -155,8 +155,6 @@ public class Vision extends SubsystemBase {
           "Vision/Camera" + Integer.toString(cameraIndex) + "/StdDevs",
           stdDevs.toArray(new double[stdDevs.size()][3]));
 
-      Logger.recordOutput("Vision/Camera" + Integer.toString(cameraIndex) + "/Test", 12);
-
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
