@@ -33,6 +33,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -46,7 +47,7 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static final double DRIVE_SPEED_PERCENTAGE = 0.65;
+  private static final double DEFAULT_DRIVE_SPEED_PERCENTAGE = 0.65;
 
   private DriveCommands() {}
 
@@ -70,7 +71,8 @@ public class DriveCommands {
   }
 
   /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
-  public static ChassisSpeeds getJoystickSpeeds(Drive drive, double x, double y, double omega) {
+  public static ChassisSpeeds getJoystickSpeeds(
+      Drive drive, double x, double y, double omega, double maxSpeedPercent) {
     Translation2d linearVelocity = getLinearVelocityFromJoysticks(x, y);
 
     omega = MathUtil.applyDeadband(omega, DEADBAND);
@@ -78,14 +80,42 @@ public class DriveCommands {
 
     ChassisSpeeds speeds =
         new ChassisSpeeds(
-            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * DRIVE_SPEED_PERCENTAGE,
-            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * DRIVE_SPEED_PERCENTAGE,
-            omega * drive.getMaxAngularSpeedRadPerSec() * DRIVE_SPEED_PERCENTAGE);
+            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * maxSpeedPercent,
+            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * maxSpeedPercent,
+            omega * drive.getMaxAngularSpeedRadPerSec() * maxSpeedPercent);
 
     // Convert to field relative speeds & send command
     return ChassisSpeeds.fromFieldRelativeSpeeds(
         speeds,
         getIsFlipped() ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation());
+  }
+
+  /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
+  public static ChassisSpeeds getJoystickSpeeds(Drive drive, double x, double y, double omega) {
+    return getJoystickSpeeds(drive, x, y, omega, DEFAULT_DRIVE_SPEED_PERCENTAGE);
+  }
+
+  /**
+   * Field relative drive command using two joysticks (controlling linear and angular velocities). A
+   * supplier of an OptionalDouble can be passed to override the default max speed
+   */
+  public static Command joystickDrive(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier omegaSupplier,
+      Supplier<OptionalDouble> speedPercentOverrideSupplier) {
+    return Commands.run(
+        () -> {
+          drive.runVelocity(
+              getJoystickSpeeds(
+                  drive,
+                  xSupplier.getAsDouble(),
+                  ySupplier.getAsDouble(),
+                  omegaSupplier.getAsDouble(),
+                  speedPercentOverrideSupplier.get().orElse(DEFAULT_DRIVE_SPEED_PERCENTAGE)));
+        },
+        drive);
   }
 
   /**
@@ -96,16 +126,7 @@ public class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    return Commands.run(
-        () -> {
-          drive.runVelocity(
-              getJoystickSpeeds(
-                  drive,
-                  xSupplier.getAsDouble(),
-                  ySupplier.getAsDouble(),
-                  omegaSupplier.getAsDouble()));
-        },
-        drive);
+    return joystickDrive(drive, xSupplier, ySupplier, omegaSupplier, () -> OptionalDouble.empty());
   }
 
   /**
@@ -117,7 +138,8 @@ public class DriveCommands {
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier) {
+      Supplier<Rotation2d> rotationSupplier,
+      Supplier<OptionalDouble> speedPercentOverrideSupplier) {
 
     // Create PID controller
     ProfiledPIDController angleController =
@@ -132,7 +154,12 @@ public class DriveCommands {
     return Commands.run(
             () -> {
               ChassisSpeeds speeds =
-                  getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
+                  getJoystickSpeeds(
+                          drive,
+                          xSupplier.getAsDouble(),
+                          ySupplier.getAsDouble(),
+                          0,
+                          speedPercentOverrideSupplier.get().orElse(DEFAULT_DRIVE_SPEED_PERCENTAGE))
                       .plus(drive.getHeadingCorrection(rotationSupplier.get()));
 
               drive.runVelocity(speeds);
@@ -141,6 +168,20 @@ public class DriveCommands {
 
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
+  }
+
+  /**
+   * Field relative drive command using joystick for linear control and PID for angular control.
+   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
+   * absolute rotation with a joystick.
+   */
+  public static Command joystickDriveAtAngle(
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      Supplier<Rotation2d> rotationSupplier) {
+    return joystickDriveAtAngle(
+        drive, xSupplier, ySupplier, rotationSupplier, () -> OptionalDouble.empty());
   }
 
   /**

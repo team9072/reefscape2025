@@ -13,7 +13,6 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
 import frc.robot.commands.CoralFlow.ReefBranch;
 import frc.robot.commands.DriveCommands;
-import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
@@ -48,6 +47,7 @@ import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import java.util.OptionalDouble;
 import java.util.Set;
 
 public class Robot {
@@ -199,6 +199,16 @@ public class Robot {
             () -> -mainController.getLeftX(),
             () -> -mainController.getRightX()));
 
+    mainController
+        .leftTrigger()
+        .whileTrue(
+            DriveCommands.joystickDrive(
+                s.drive,
+                () -> -mainController.getLeftY(),
+                () -> -mainController.getLeftX(),
+                () -> -mainController.getRightX(),
+                () -> OptionalDouble.of(0.25)));
+
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     s.intake.setDefaultCommand(s.intake.idleStagingRoller());
@@ -212,12 +222,6 @@ public class Robot {
             Commands.defer(
                 () -> new ScheduleCommand(s.intake.toggleDeploy(s.coralFlow.elevatorDown())),
                 Set.of()));
-
-    mainController
-        .leftTrigger()
-        .whileTrue(
-            ReefAlignment.driveReefAligned(
-                s.drive, () -> -mainController.getLeftY(), () -> -mainController.getLeftX()));
 
     mainController.a().whileTrue(s.intake.reverse());
 
