@@ -199,34 +199,27 @@ public class Autos extends SubsystemBase {
     AutoChooser autoChooser = new AutoChooser();
 
     /** C2S (Alliance color start) */
+    autoChooser.addRoutine("C2S [Aliance color] 1p", () -> preload1p("C2S 1p", "C2S to R2P1"));
     autoChooser.addRoutine(
-        "C2S [Aliance color] 1p (Bump)", () -> preload1p("C2S 1p (Bump)", "C2S to R2P1 Bump"));
+        "C2S [Alliance color] 2p", () -> preload2p("C2S 2p", "C2S to R2P1", "R2P1 to S1 to R3P2"));
     autoChooser.addRoutine(
-        "C2S [Alliance color] 2p (Bump)",
-        () -> preload2p("C2S 2p (Bump)", "C2S to R2P1 Bump", "R2P1 to S1 to R3P2"));
-    autoChooser.addRoutine(
-        "C2S [Alliance color] 3p (Bump)",
+        "C2S [Alliance color] 3p",
         () ->
             preload3p(
-                "C2S [Alliance color] 3p (Bump)",
-                "C2S to R2P1 Bump",
+                "C2S [Alliance color] 3p",
+                "C2S to R2P1",
                 "R2P1 to S1 to R3P2",
                 "R3P2 to S2 to R4P1"));
 
     /** C5S (Opposite color start) */
+    autoChooser.addRoutine("C5S [Opposite color] 1p", () -> preload1p("C5S 1p", "C5S to R6P2"));
     autoChooser.addRoutine(
-        "C5S [Opposite color] 1p (Bump)", () -> preload1p("C5S 1p (Bump)", "C5S to R6P2 Bump"));
+        "C5S [Opposite color] 2p", () -> preload2p("C5S 2p", "C5S to R6P2", "R6P2 to S3 to R5P1"));
     autoChooser.addRoutine(
-        "C5S [Opposite color] 2p (Bump)",
-        () -> preload2p("C5S 2p (Bump)", "C5S to R6P2 Bump", "R6P2 to S3 to R5P1"));
-    autoChooser.addRoutine(
-        "C5S [Opposite color] 3p (Bump)",
+        "C5S [Opposite color] 3p",
         () ->
             preload3p(
-                "C5S [Opposite] 3p (Bump)",
-                "C5S to R6P2 Bump",
-                "R6P2 to S3 to R5P1",
-                "R5P1 to S2 to R4P1"));
+                "C5S [Opposite] 3p", "C5S to R6P2", "R6P2 to S3 to R5P1", "R5P1 to S2 to R4P1"));
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;

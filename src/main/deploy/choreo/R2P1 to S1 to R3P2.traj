@@ -31,7 +31,7 @@
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"17.548 m", "val":17.548}, "h":{"exp":"8.052 m", "val":8.052}}}, "enabled":true},
-    {"from":"first", "to":"last", "data":{"type":"MaxVelocity", "props":{"max":{"exp":"MaxVelocity", "val":2.5}}}, "enabled":true},
+    {"from":"first", "to":"last", "data":{"type":"MaxVelocity", "props":{"max":{"exp":"MaxVelocity", "val":2.0}}}, "enabled":true},
     {"from":2, "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":0, "to":2, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.242212321609259 m", "val":4.242212321609259}, "y":{"exp":"4.455522179603577 m", "val":4.455522179603577}, "r":{"exp":"0.5976238836106923 m", "val":0.5976238836106923}}}, "enabled":true},
     {"from":3, "to":4, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"ReefMaxAccel", "val":3.0}}}, "enabled":true},
