@@ -209,7 +209,7 @@ public class Robot {
                 () -> -mainController.getRightX(),
                 () -> OptionalDouble.of(0.15)));
 
-    mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
+    mainController.back().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     s.intake.setDefaultCommand(s.intake.idleStagingRoller());
 
