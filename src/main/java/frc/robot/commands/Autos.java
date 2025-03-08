@@ -119,10 +119,10 @@ public class Autos extends SubsystemBase {
             s.coralFlow
                 .grabCoral()
                 .andThen(
-                    Commands.runOnce(
-                            () -> {
-                              coralDetected.set(true);
-                              coralGrabbed.set(true);
+                            Commands.runOnce(
+                                () -> {
+                                  coralDetected.set(true);
+                                  coralGrabbed.set(true);
                             })
                         .alongWith(s.intake.setPosition(PivotPosition.stow).withTimeout(0))));
 
@@ -135,42 +135,49 @@ public class Autos extends SubsystemBase {
                 .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
-  private AutoRoutine test() {
-    AutoRoutine routine = autoFactory.newRoutine("C2S 1p");
-    AutoTrajectory trajectory = routine.trajectory("C2S to R2P1 Bump");
-
-    routine.active().onTrue(Commands.sequence(trajectory.resetOdometry(), trajectory.cmd()));
-
-    scorePreload(trajectory, Commands.none());
-
-    return routine;
-  }
-
-  private AutoRoutine test2p() {
-    AutoRoutine routine = autoFactory.newRoutine("C2S 2p");
-    AutoTrajectory scorePreloadTraj = routine.trajectory("C2S to R2P1 Bump");
-    AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
-    AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
+  private AutoRoutine preload1p(String name, String preloadTrajName) {
+    AutoRoutine routine = autoFactory.newRoutine(name);
+    AutoTrajectory scorePreloadTraj = routine.trajectory(preloadTrajName);
 
     routine
         .active()
         .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
 
-    scorePreload(scorePreloadTraj, intakeS1Traj.cmd());
-    intakeAndScore(intakeS1Traj, scoreS1Traj, Commands.none());
+    scorePreload(scorePreloadTraj, Commands.none());
 
     return routine;
   }
 
-  private AutoRoutine test3p() {
-    AutoRoutine routine = autoFactory.newRoutine("C2S 3p");
-    AutoTrajectory scorePreloadTraj = routine.trajectory("C2S to R2P1 Bump");
+  private AutoRoutine preload2p(
+      String name, String preloadTrajName, String intakeAndScoreSecondTrajName) {
+    AutoRoutine routine = autoFactory.newRoutine(name);
+    AutoTrajectory scorePreloadTraj = routine.trajectory(preloadTrajName);
+    AutoTrajectory intakeSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 0);
+    AutoTrajectory scoreSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 1);
 
-    AutoTrajectory intakeS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 0);
-    AutoTrajectory scoreS1Traj = routine.trajectory("R2P1 to S1 to R3P2", 1);
+    routine
+        .active()
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
 
-    AutoTrajectory intakeS2Traj = routine.trajectory("R3P2 to S2 to R4P1", 0);
-    AutoTrajectory scoreS2Traj = routine.trajectory("R3P2 to S2 to R4P1", 1);
+    scorePreload(scorePreloadTraj, intakeSecondTraj.cmd());
+    intakeAndScore(intakeSecondTraj, scoreSecondTraj, Commands.none());
+
+    return routine;
+  }
+
+  private AutoRoutine preload3p(
+      String name,
+      String preloadTrajName,
+      String intakeAndScoreSecondTrajName,
+      String intakeAndScoreThirdTrajName) {
+    AutoRoutine routine = autoFactory.newRoutine(name);
+    AutoTrajectory scorePreloadTraj = routine.trajectory(preloadTrajName);
+
+    AutoTrajectory intakeSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 0);
+    AutoTrajectory scoreSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 1);
+
+    AutoTrajectory intakeThirdTraj = routine.trajectory(intakeAndScoreThirdTrajName, 0);
+    AutoTrajectory scoreThirdTraj = routine.trajectory(intakeAndScoreThirdTrajName, 1);
 
     routine
         .active()
@@ -178,9 +185,9 @@ public class Autos extends SubsystemBase {
 
     scorePreloadTraj.active().onTrue(s.coralFlow.prepareElevatorAuto(ReefBranch.branchL4));
 
-    scorePreload(scorePreloadTraj, intakeS1Traj.cmd());
-    intakeAndScore(intakeS1Traj, scoreS1Traj, intakeS2Traj.cmd());
-    intakeAndScore(intakeS2Traj, scoreS2Traj, Commands.none());
+    scorePreload(scorePreloadTraj, intakeSecondTraj.cmd());
+    intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.cmd());
+    intakeAndScore(intakeThirdTraj, scoreThirdTraj, Commands.none());
 
     return routine;
   }
@@ -188,9 +195,35 @@ public class Autos extends SubsystemBase {
   private AutoChooser buildAutoChooser() {
     AutoChooser autoChooser = new AutoChooser();
 
-    autoChooser.addRoutine("C2S 1p", this::test);
-    autoChooser.addRoutine("C2S 2p", this::test2p);
-    autoChooser.addRoutine("C2S 3p", this::test3p);
+    /** C2S (Alliance color start) */
+    autoChooser.addRoutine(
+        "C2S [Aliance color] 1p (Bump)", () -> preload1p("C2S 1p (Bump)", "C2S to R2P1 Bump"));
+    autoChooser.addRoutine(
+        "C2S [Alliance color] 2p (Bump)",
+        () -> preload2p("C2S 2p (Bump)", "C2S to R2P1 Bump", "R2P1 to S1 to R3P2"));
+    autoChooser.addRoutine(
+        "C2S [Alliance color] 3p (Bump)",
+        () ->
+            preload3p(
+                "C2S [Alliance color] 3p (Bump)",
+                "C2S to R2P1 Bump",
+                "R2P1 to S1 to R3P2",
+                "R3P2 to S2 to R4P1"));
+
+    /** C5S (Opposite color start) */
+    autoChooser.addRoutine(
+        "C5S [Opposite color] 1p (Bump)", () -> preload1p("C5S 1p (Bump)", "C5S to R6P2 Bump"));
+    autoChooser.addRoutine(
+        "C5S [Opposite color] 2p (Bump)",
+        () -> preload2p("C5S 2p (Bump)", "C5S to R6P2 Bump", "R6P2 to S3 to R5P1"));
+    autoChooser.addRoutine(
+        "C5S [Opposite color] 3p (Bump)",
+        () ->
+            preload3p(
+                "C5S [Opposite] 3p (Bump)",
+                "C5S to R6P2 Bump",
+                "R6P2 to S3 to R5P1",
+                "R5P1 to S2 to R4P1"));
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;
