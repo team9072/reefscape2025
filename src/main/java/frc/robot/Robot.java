@@ -207,7 +207,7 @@ public class Robot {
                 () -> -mainController.getLeftY(),
                 () -> -mainController.getLeftX(),
                 () -> -mainController.getRightX(),
-                () -> OptionalDouble.of(0.25)));
+                () -> OptionalDouble.of(0.15)));
 
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
