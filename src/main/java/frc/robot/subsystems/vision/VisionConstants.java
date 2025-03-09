@@ -26,13 +26,13 @@ import java.util.Optional;
 
 public class VisionConstants {
   public enum CameraData {
-    LeftCamera(
+    RightCamera(
         "BW2",
         new Transform3d(
             new Translation3d(Inches.of(4.5), Inches.of(11.75), Inches.of(18.5)),
             new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(-30)))),
 
-    RightCamera(
+    LeftCamera(
         "BW3",
         new Transform3d(
             new Translation3d(Inches.of(4.5), Inches.of(-11.75), Inches.of(18.5)),

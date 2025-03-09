@@ -119,8 +119,8 @@ public class Robot {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(CameraData.LeftCamera),
-                new VisionIOPhotonVision(CameraData.RightCamera));
+                new VisionIOPhotonVision(CameraData.RightCamera),
+                new VisionIOPhotonVision(CameraData.LeftCamera));
 
         questNav = new QuestNav(new QuestNavIOReal(), drive::addVisionMeasurement);
       }
@@ -150,8 +150,8 @@ public class Robot {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose),
-                new VisionIOPhotonVisionSim(CameraData.RightCamera, drive::getPose));
+                new VisionIOPhotonVisionSim(CameraData.RightCamera, drive::getPose),
+                new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));
 
         questNav = new QuestNav(new QuestNavIO() {}, drive::addVisionMeasurement);
       }
