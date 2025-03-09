@@ -22,7 +22,7 @@ public class PivotConstants {
   public enum PivotPosition {
     stow(Rotations.of(-0.3), false),
     unjam(Rotations.of(0.05), false),
-    algae(Rotations.of(-0.8), true),
+    algae(Rotations.of(-0.08), true),
     deploy(Rotations.of(0.12), false);
 
     public Angle angle;
