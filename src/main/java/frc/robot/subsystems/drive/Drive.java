@@ -86,7 +86,7 @@ public class Drive extends SubsystemBase {
           rawGyroRotation,
           lastModulePositions,
           new Pose2d(),
-          VecBuilder.fill(0.4, 0.4, 0.4),
+          VecBuilder.fill(1000, 1000, 1000),
           VecBuilder.fill(1000, 1000, 1000));
 
   // PID controllers for choreo path following
