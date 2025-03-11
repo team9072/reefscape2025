@@ -23,6 +23,7 @@ public class PivotConstants {
     stow(Rotations.of(-0.3), false),
     unjam(Rotations.of(0.05), false),
     algae(Rotations.of(-0.08), true),
+    coralL1(Rotations.of(-0.21), false),
     deploy(Rotations.of(0.12), false);
 
     public Angle angle;

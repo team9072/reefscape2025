@@ -229,6 +229,9 @@ public class Robot {
     mainController.b().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL3));
     mainController.y().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL4));
 
+    mainController.povLeft().whileTrue(s.intake.setPosition(PivotPosition.coralL1));
+    mainController.povLeft().onFalse(s.intake.removeForL1().withTimeout(1));
+
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
 
