@@ -263,17 +263,10 @@ public class Drive extends SubsystemBase {
   public ChassisSpeeds getTranslationCorrection(Translation2d targetTranslation) {
     Pose2d pose = getPose();
 
-    double xSpeed = xController.calculate(pose.getX(), targetTranslation.getX());
-    if (Math.abs(xSpeed) < translationPidMinOutput) {
-      xSpeed = 0;
-    }
-
-    double ySpeed = yController.calculate(pose.getY(), targetTranslation.getY());
-    if (Math.abs(ySpeed) < translationPidMinOutput) {
-      ySpeed = 0;
-    }
-
-    return new ChassisSpeeds(xSpeed, ySpeed, 0);
+    return new ChassisSpeeds(
+        xController.calculate(pose.getX(), targetTranslation.getX()),
+        yController.calculate(pose.getY(), targetTranslation.getY()),
+        0);
   }
 
   /**
@@ -281,15 +274,12 @@ public class Drive extends SubsystemBase {
    * merging human and pid control
    */
   public ChassisSpeeds getHeadingCorrection(Rotation2d targetRotaion) {
-    double headingSpeed =
+
+    return new ChassisSpeeds(
+        0,
+        0,
         headingController.calculate(
-            getPose().getRotation().getRadians(), targetRotaion.getRadians());
-
-    if (Math.abs(headingSpeed) < headingPidMinOutput) {
-      headingSpeed = 0;
-    }
-
-    return new ChassisSpeeds(0, 0, headingSpeed);
+            getPose().getRotation().getRadians(), targetRotaion.getRadians()));
   }
 
   /**
