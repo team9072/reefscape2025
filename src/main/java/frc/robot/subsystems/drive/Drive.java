@@ -35,6 +35,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -92,11 +94,10 @@ public class Drive extends SubsystemBase {
   // PID controllers for choreo path following
   private final PIDController xController = new PIDController(3, 0.0, 0.1);
   private final PIDController yController = new PIDController(3, 0.0, 0.1);
-  private final PIDController headingController = new PIDController(7, 0.0, 0.1);
+  private final PIDController headingController = new PIDController(5, 0.0, 0.1);
 
-  // Prevent tiny oscilations that cause turn wheels to offset position
-  private final double headingPidMinOutput = 0.015;
-  private final double translationPidMinOutput = 0.2;
+  private final Distance positionErrorTolerance = Meters.of(0.07);
+  private final Angle headingErrorTolerance = Radians.of(0.02);
 
   public Drive(
       GyroIO gyroIO,
@@ -105,6 +106,10 @@ public class Drive extends SubsystemBase {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     headingController.enableContinuousInput(-Math.PI, Math.PI);
+    headingController.setTolerance(headingErrorTolerance.in(Radians));
+
+    xController.setTolerance(positionErrorTolerance.in(Meters));
+    yController.setTolerance(positionErrorTolerance.in(Meters));
 
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
@@ -269,6 +274,10 @@ public class Drive extends SubsystemBase {
         0);
   }
 
+  public boolean positionPidAtSetpoint() {
+    return xController.atSetpoint() && yController.atSetpoint();
+  }
+
   /**
    * Adds a pid value to the supplied ChassisSpeeds correcting for a specified heading. Useful for
    * merging human and pid control
@@ -280,6 +289,10 @@ public class Drive extends SubsystemBase {
         0,
         headingController.calculate(
             getPose().getRotation().getRadians(), targetRotaion.getRadians()));
+  }
+
+  public boolean headingPidAtSetpoint() {
+    return headingController.atSetpoint();
   }
 
   /**

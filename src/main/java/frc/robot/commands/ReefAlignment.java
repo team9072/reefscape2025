@@ -74,14 +74,24 @@ public class ReefAlignment {
 
           ChassisSpeeds speeds =
               DriveCommands.getJoystickSpeeds(
-                      drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
-                  .plus(drive.getHeadingCorrection(closestPole.getRotation()))
-                  .plus(
-                      ChassisSpeeds.fromFieldRelativeSpeeds(
-                          drive
-                              .getTranslationCorrection(closestPole.getTranslation())
-                              .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
-                          drive.getRotation()));
+                  drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
+
+          ChassisSpeeds headingCorrection = drive.getHeadingCorrection(closestPole.getRotation());
+
+          if (!drive.headingPidAtSetpoint()) {
+            speeds = speeds.plus(headingCorrection);
+          }
+
+          ChassisSpeeds positionCorrection =
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  drive
+                      .getTranslationCorrection(closestPole.getTranslation())
+                      .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
+                  drive.getRotation());
+
+          if (!drive.positionPidAtSetpoint()) {
+            speeds = speeds.plus(positionCorrection);
+          }
 
           drive.runVelocity(speeds);
         },
