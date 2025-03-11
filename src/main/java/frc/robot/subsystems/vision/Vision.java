@@ -17,6 +17,7 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
@@ -33,6 +34,8 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+
+  private static record PoseUpdate(Pose2d pose, double timestamp, Vector<N3> stdDevs) {}
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -65,6 +68,7 @@ public class Vision extends SubsystemBase {
     List<Pose3d> allRobotPoses = new LinkedList<>();
     List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    List<PoseUpdate> allPoseUpdates = new LinkedList<>();
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -76,7 +80,8 @@ public class Vision extends SubsystemBase {
       List<Pose3d> robotPoses = new LinkedList<>();
       List<Pose3d> robotPosesAccepted = new LinkedList<>();
       List<Pose3d> robotPosesRejected = new LinkedList<>();
-      List<double[]> stdDevs = new LinkedList<>();
+      List<double[]> stdDevsAccepted = new LinkedList<>();
+      List<PoseUpdate> poseUpdates = new LinkedList<>();
 
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
@@ -129,13 +134,11 @@ public class Vision extends SubsystemBase {
           angularStdDev *= camera.stdDevFactor;
         }
 
-        stdDevs.add(new double[] {linearStdDev, linearStdDev, angularStdDev});
+        Vector<N3> stdDevs = VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev);
 
-        // Send vision observation
-        consumer.accept(
-            observation.pose().toPose2d(),
-            observation.timestamp(),
-            VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+        stdDevsAccepted.add(stdDevs.getData());
+        poseUpdates.add(
+            new PoseUpdate(observation.pose().toPose2d(), observation.timestamp(), stdDevs));
       }
 
       // Log camera datadata
@@ -152,13 +155,38 @@ public class Vision extends SubsystemBase {
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/StdDevs",
-          stdDevs.toArray(new double[stdDevs.size()][3]));
+          "Vision/Camera" + Integer.toString(cameraIndex) + "/StdDevsAccepted",
+          stdDevsAccepted.toArray(new double[stdDevsAccepted.size()][3]));
 
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);
       allRobotPosesAccepted.addAll(robotPosesAccepted);
       allRobotPosesRejected.addAll(robotPosesRejected);
+      allPoseUpdates.addAll(poseUpdates);
+    }
+
+    // Send vision observation
+    if (true) {
+      // Precison mode, only chose the best camera
+      PoseUpdate bestUpdate = null;
+      for (PoseUpdate poseUpdate : allPoseUpdates) {
+        if (bestUpdate == null) {
+          bestUpdate = poseUpdate;
+          continue;
+        }
+
+        if (poseUpdate.stdDevs().mean() < bestUpdate.stdDevs().mean()) {
+          bestUpdate = poseUpdate;
+        }
+      }
+
+      if (bestUpdate != null) {
+        consumer.accept(bestUpdate.pose(), bestUpdate.timestamp(), bestUpdate.stdDevs());
+      }
+    } else {
+      for (PoseUpdate poseUpdate : allPoseUpdates) {
+        consumer.accept(poseUpdate.pose(), poseUpdate.timestamp(), poseUpdate.stdDevs());
+      }
     }
 
     // Log summary data

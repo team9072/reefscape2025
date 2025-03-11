@@ -23,7 +23,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"R6P2.x", "val":5.251365294164811}, "y":{"exp":"R6P2.y", "val":3.0362040289901997}, "heading":{"exp":"R6P2.heading", "val":2.0943951023931953}, "intervals":41, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"3.2342965602874756 m", "val":3.2342965602874756}, "y":{"exp":"2.14948199921 m", "val":2.14948199921}, "heading":{"exp":"91.24898588257527 mrad", "val":0.09124898588257528}, "intervals":41, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
+    {"x":{"exp":"3.2801637649536133 m", "val":3.2801637649536133}, "y":{"exp":"2.1018362045288086 m", "val":2.1018362045288086}, "heading":{"exp":"91.24898588257527 mrad", "val":0.09124898588257528}, "intervals":42, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"0.35652352929115294 m", "val":0.35652352929115294}, "y":{"exp":"2.24103044205 m", "val":2.24103044205}, "heading":{"exp":"91.24898588257527 mrad", "val":0.09124898588257528}, "intervals":38, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"2.871931314468384 m", "val":2.871931314468384}, "y":{"exp":"2.40736554794 m", "val":2.40736554794}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"R5P1.x", "val":3.727280705835189}, "y":{"exp":"R5P1.y", "val":3.0362040289901997}, "heading":{"exp":"R5P1.heading", "val":1.0471975511965976}, "intervals":21, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
@@ -36,7 +36,7 @@
     {"from":0, "to":2, "data":{"type":"KeepOutCircle", "props":{"x":{"exp":"4.242212321609259 m", "val":4.242212321609259}, "y":{"exp":"4.455522179603577 m", "val":4.455522179603577}, "r":{"exp":"0.5976238836106923 m", "val":0.5976238836106923}}}, "enabled":true},
     {"from":3, "to":4, "data":{"type":"MaxAcceleration", "props":{"max":{"exp":"ReefMaxAccel", "val":2.0}}}, "enabled":true},
     {"from":1, "to":2, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
-    {"from":1, "to":2, "data":{"type":"PointAt", "props":{"x":{"exp":"0.1692851185798645 m", "val":0.1692851185798645}, "y":{"exp":"2.2251827716827393 m", "val":2.2251827716827393}, "tolerance":{"exp":"170 deg", "val":2.9670597283903604}, "flip":true}}, "enabled":true}],
+    {"from":1, "to":2, "data":{"type":"PointAt", "props":{"x":{"exp":"0.12426002323627472 m", "val":0.12426002323627472}, "y":{"exp":"2.2259535789489746 m", "val":2.2259535789489746}, "tolerance":{"exp":"170 deg", "val":2.9670597283903604}, "flip":true}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
