@@ -26,18 +26,17 @@ import java.util.Optional;
 
 public class VisionConstants {
   public enum CameraData {
-    RightCamera(
-        "BW2",
+    LeftCamera(
+        "LeftCamera",
         new Transform3d(
             new Translation3d(Inches.of(4.5), Inches.of(11.75), Inches.of(18.5)),
             new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(-30)))),
 
-    LeftCamera(
-        "BW3",
+    RightCamera(
+        "RightCamera",
         new Transform3d(
             new Translation3d(Inches.of(4.5), Inches.of(-11.75), Inches.of(18.5)),
-            new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(30))),
-        1.2);
+            new Rotation3d(Degrees.zero(), Degrees.of(20), Degrees.of(30))));
 
     private static final HashMap<String, CameraData> _map = new HashMap<>();
 
@@ -69,6 +68,6 @@ public class VisionConstants {
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)
-  public static double linearStdDevBaseline = 0.02; // Meters
-  public static double angularStdDevBaseline = 0.06; // Radians
+  public static double linearStdDevBaseline = 0.1; // Meters
+  public static double angularStdDevBaseline = 0.085; // Radians
 }
