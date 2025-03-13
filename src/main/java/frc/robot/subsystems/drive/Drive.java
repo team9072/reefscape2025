@@ -92,8 +92,8 @@ public class Drive extends SubsystemBase {
           VecBuilder.fill(1000, 1000, 1000));
 
   // PID controllers for choreo path following
-  private final PIDController xController = new PIDController(3, 0.0, 0.1);
-  private final PIDController yController = new PIDController(3, 0.0, 0.1);
+  private final PIDController xController = new PIDController(4, 0.0, 0.1);
+  private final PIDController yController = new PIDController(4, 0.0, 0.1);
   private final PIDController headingController = new PIDController(5, 0.0, 0.1);
 
   private final Distance positionErrorTolerance = Meters.of(0.02);

@@ -86,7 +86,7 @@ public class ReefAlignment {
               ChassisSpeeds.fromFieldRelativeSpeeds(
                   drive
                       .getTranslationCorrection(closestPole.getTranslation())
-                      .times(Math.max(0, 1 - (Math.sqrt(joystickValue)))),
+                      .times(Math.max(0, 1 - joystickValue * 10)),
                   drive.getRotation());
 
           if (!drive.positionPidAtSetpoint()) {
