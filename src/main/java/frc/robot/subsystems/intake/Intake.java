@@ -136,6 +136,7 @@ public class Intake extends SubsystemBase {
     stagingIO.stop();
   }
 
+  @AutoLogOutput(key = "Intake/ShouldSpinIntakeRollers")
   public boolean shouldIntakeSpin() {
     return pivotInputs.position.gt(Rotations.of(-0.18));
   }
