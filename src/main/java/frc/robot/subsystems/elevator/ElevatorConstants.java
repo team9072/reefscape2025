@@ -51,8 +51,8 @@ public class ElevatorConstants {
   public static final double kV = 0;
   public static final double kG = 0.47;
 
-  public static final double rampVelocity = 35 / 2;
-  public static final double rampAcceleration = 50;
+  public static final double rampVelocity = 30;
+  public static final double rampAcceleration = 100;
 
   public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.5 / 2);
