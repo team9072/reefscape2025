@@ -83,11 +83,18 @@ public class Vision extends SubsystemBase {
       List<double[]> stdDevsAccepted = new LinkedList<>();
       List<PoseUpdate> poseUpdates = new LinkedList<>();
 
+      boolean containsRejectedTagId = false;
+
       // Add tag poses
       for (int tagId : inputs[cameraIndex].tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
+        }
+
+        // Only accept tags on our aliance reef
+        if (!ReefTags.allianceIncludesTags(tagId)) {
+          containsRejectedTagId = true;
         }
       }
 
@@ -105,7 +112,10 @@ public class Vision extends SubsystemBase {
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > aprilTagLayout.getFieldLength()
                 || observation.pose().getY() < 0.0
-                || observation.pose().getY() > aprilTagLayout.getFieldWidth();
+                || observation.pose().getY() > aprilTagLayout.getFieldWidth()
+
+                // Must only contain tags on the current aliance's reef
+                || containsRejectedTagId;
 
         // Add pose to log
         robotPoses.add(observation.pose());

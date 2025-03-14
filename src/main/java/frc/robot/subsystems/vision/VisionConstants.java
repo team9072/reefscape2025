@@ -21,6 +21,8 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -56,6 +58,31 @@ public class VisionConstants {
 
     CameraData(String cameraName, Transform3d robotToCamera) {
       this(cameraName, robotToCamera, 1);
+    }
+  }
+
+  public enum ReefTags {
+    blue(17, 22),
+    red(6, 11);
+
+    private final int first;
+    private final int last;
+
+    ReefTags(int first, int last) {
+      this.first = first;
+      this.last = last;
+    }
+
+    boolean includesTag(int tagId) {
+      return tagId >= first && tagId <= last;
+    }
+
+    static boolean allianceIncludesTags(int tagId) {
+      if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+        return ReefTags.blue.includesTag(tagId);
+      } else {
+        return ReefTags.blue.includesTag(tagId);
+      }
     }
   }
 
