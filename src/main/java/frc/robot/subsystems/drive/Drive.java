@@ -88,7 +88,7 @@ public class Drive extends SubsystemBase {
           rawGyroRotation,
           lastModulePositions,
           new Pose2d(),
-          VecBuilder.fill(0.8, 0.8, 0.8),
+          VecBuilder.fill(0.1, 0.1, 0.1),
           VecBuilder.fill(1000, 1000, 1000));
 
   // PID controllers for choreo path following
@@ -403,9 +403,7 @@ public class Drive extends SubsystemBase {
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     addVisionMeasurement(
-        new Pose2d(
-            visionRobotPositionMeters,
-            poseEstimator.sampleAt(timestampSeconds).orElse(getPose()).getRotation()),
+        new Pose2d(visionRobotPositionMeters, getRotation()),
         timestampSeconds,
         visionMeasurementStdDevs);
   }

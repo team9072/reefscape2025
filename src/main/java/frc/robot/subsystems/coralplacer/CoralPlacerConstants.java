@@ -24,7 +24,7 @@ public class CoralPlacerConstants {
 
     knockCoralOffPosition(Rotations.of(0.85)),
     readyPosition(Rotations.of(0.55)),
-    readyPositionL4(Rotations.of(0.85)),
+    driverAlignHoldPosition(Rotations.of(0.85)),
 
     scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle)),
     removeAlgaePosition(Rotations.of(-2));
