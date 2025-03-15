@@ -77,7 +77,7 @@ public class Autos extends SubsystemBase {
         .active()
         .onTrue(
             Commands.sequence(
-                Commands.waitSeconds(0.5), s.coralFlow.prepareElevatorAuto(ReefBranch.branchL4)));
+                Commands.waitSeconds(0.5), s.coralFlow.prepareElevator(ReefBranch.branchL4)));
     trajectory
         .done()
         .onTrue(
@@ -112,7 +112,7 @@ public class Autos extends SubsystemBase {
                         Commands.sequence(
                             s.coralFlow.grabCoral(),
                             Commands.runOnce(() -> coralGrabbed.set(true)),
-                            s.coralFlow.prepareElevatorAuto(ReefBranch.branchL4))))));
+                            s.coralFlow.prepareElevator(ReefBranch.branchL4))))));
 
     intakeTrajectory.active().and(s.intake.coralDetected).onTrue(scoreTrajectory.cmd());
     intakeTrajectory.chain(scoreTrajectory);
@@ -186,7 +186,7 @@ public class Autos extends SubsystemBase {
         .active()
         .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
 
-    scorePreloadTraj.active().onTrue(s.coralFlow.prepareElevatorAuto(ReefBranch.branchL4));
+    scorePreloadTraj.active().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL4));
 
     scorePreload(scorePreloadTraj, intakeSecondTraj.cmd());
     intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.cmd());

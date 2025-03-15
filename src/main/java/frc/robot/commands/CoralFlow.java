@@ -63,56 +63,35 @@ public class CoralFlow {
 
   public Command scoreCoral(ReefBranch branch) {
     return Commands.sequence(
-        elevator.setPosition(branch.position),
-        coralPlacer.setPosition(CoralPlacerPosition.scorePosition),
-        elevator.setPosition(ElevatorPosition.readyPosition));
+        prepareElevator(branch), coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
   }
 
-  public Command prepareElevator(ReefBranch branch, boolean dontHold) {
+  public Command prepareElevator(ReefBranch branch) {
     return elevator
         .clearCoral()
         .andThen(
             Commands.parallel(
-                    coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
-                    elevator.setPosition(branch.position))
-                .andThen(
-                    coralPlacer
-                        .setPosition(CoralPlacerPosition.driverAlignHoldPosition)
-                        .unless(() -> dontHold)));
-  }
-
-  public Command prepareElevator(ReefBranch branch) {
-    return prepareElevator(branch, false);
-  }
-
-  /** Does not hold out on L4 */
-  public Command prepareElevatorAuto(ReefBranch branch) {
-    return prepareElevator(branch, true);
+                coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
+                elevator.setPosition(branch.position)));
   }
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
-   * `startScore` supplier returns true, the robot will score the coral if it is ready. Otherwise,
-   * the scoring will be cancelled and the robot will go back down.
+   * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
   public Command scoreCoralOnTrigger(ReefBranch branch, BooleanSupplier scoreOrCancel) {
-    Command returnCommand = elevator.setPosition(ElevatorPosition.readyPosition);
-    Command scoreCommand =
-        Commands.sequence(
-            Commands.waitUntil(scoreOrCancel),
-            coralPlacer.setPosition(CoralPlacerPosition.scorePosition) /*,
-            elevator.setPosition(ElevatorPosition.readyPosition)*/);
-
     // If the trigger returned true before the command exited normally, return instead of scoring
     return prepareElevator(branch)
-        .until(scoreOrCancel)
-        .andThen(Commands.either(returnCommand, scoreCommand, scoreOrCancel));
+        .andThen(
+            Commands.sequence(
+                    Commands.waitUntil(scoreOrCancel),
+                    coralPlacer.setPosition(CoralPlacerPosition.scorePosition))
+                .unless(scoreOrCancel));
   }
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
-   * `startScore` supplier returns true, the robot will score the coral if it is ready. Otherwise,
-   * the scoring will be cancelled and the robot will go back down.
+   * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
   public Command scoreCoralOnTrigger(Supplier<ReefBranch> branch, BooleanSupplier scoreOrCancel) {
     return Commands.defer(
@@ -126,25 +105,6 @@ public class CoralFlow {
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
         elevator.setPosition(ElevatorPosition.intakePosition),
         Commands.waitSeconds(0.2),
-        elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral),
-        coralPlacer.setPosition(CoralPlacerPosition.readyPosition));
-  }
-
-  public Command removeAlgae() {
-    return coralPlacer
-        .setPosition(CoralPlacerPosition.removeAlgaePosition)
-        .onlyIf(elevator.clearsCoral);
-  }
-
-  public Command knockCoralOff() {
-    return Commands.sequence(
-        elevator
-            .setPosition(ElevatorPosition.knockCoralOffPosition)
-            .alongWith(
-                Commands.waitUntil(elevator.clearsCoral)
-                    .andThen(coralPlacer.setPosition(CoralPlacerPosition.knockCoralOffPosition))),
-        elevator.setPosition(ElevatorPosition.intakePosition).withTimeout(0.2),
-        elevator.setPosition(ElevatorPosition.knockCoralOffPosition),
-        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+        elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral));
   }
 }
