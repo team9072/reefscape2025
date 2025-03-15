@@ -96,8 +96,10 @@ public class Drive extends SubsystemBase {
   private final PIDController yController = new PIDController(4, 0.0, 0.1);
   private final PIDController headingController = new PIDController(5, 0.0, 0.1);
 
-  private final Distance positionErrorTolerance = Meters.of(0.02);
-  private final Angle headingErrorTolerance = Radians.of(0.015);
+  private final Distance positionErrorTolerance = Inches.of(0.5);
+  private final Distance positionVisionTolerance = Inches.of(1.5);
+  private final Angle headingErrorTolerance = Degrees.of(0.5);
+  private final Angle headingVisionTolerance = Degrees.of(1);
 
   public Drive(
       GyroIO gyroIO,
@@ -106,6 +108,10 @@ public class Drive extends SubsystemBase {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     headingController.enableContinuousInput(-Math.PI, Math.PI);
+    headingController.setTolerance(headingErrorTolerance.in(Radians));
+
+    xController.setTolerance(positionErrorTolerance.in(Meters));
+    yController.setTolerance(positionErrorTolerance.in(Meters));
 
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
@@ -396,9 +402,9 @@ public class Drive extends SubsystemBase {
         visionRobotPoseMeters
             .getRotation()
             .getMeasure()
-            .isNear(getRotation().getMeasure(), headingErrorTolerance);
+            .isNear(getRotation().getMeasure(), headingVisionTolerance);
 
-    if (positionError < positionErrorTolerance.in(Meters) && headingWithinTolerance) {
+    if (positionError < positionVisionTolerance.in(Meters) && headingWithinTolerance) {
       return;
     }
 

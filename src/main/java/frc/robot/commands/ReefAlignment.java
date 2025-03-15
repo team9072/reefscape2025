@@ -15,14 +15,14 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class ReefAlignment {
-
-  private static final Distance faceOffsetDistance = Inches.of(17);
+  private static final Distance reefBumberOffset = Inches.of(16);
+  private static final Distance reefOffsetDistance = reefBumberOffset.plus(Inches.of(5.5));
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
   // Make the front of the robot go to the tag, not the center
   private static final Translation2d reefOffset =
-      new Translation2d(Meters.of(0.831723).plus(faceOffsetDistance), Meters.zero());
+      new Translation2d(Meters.of(0.831723).plus(reefOffsetDistance), Meters.zero());
 
   private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.5));
 

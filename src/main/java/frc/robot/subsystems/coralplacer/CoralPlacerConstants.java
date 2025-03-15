@@ -24,7 +24,7 @@ public class CoralPlacerConstants {
 
     holdPosition(Rotations.of(-0.25)),
     preScoreHoldPosition(Rotations.of(-0.15)),
-    scorePosition(Rotations.of(0.1));
+    scorePosition(Rotations.of(0.03));
 
     public Angle angle;
 

@@ -20,9 +20,9 @@ public class ElevatorConstants {
   public enum ElevatorPosition {
     grabPosition(Rotations.of(1.5)),
     readyPosition(Rotations.of(2.8)),
-    reefL2Position(Rotations.of(2.9)),
-    reefL3Position(Rotations.of(4.44)),
-    reefL4Position(Rotations.of(10.86));
+    reefL2Position(Rotations.of(2.2)),
+    reefL3Position(Rotations.of(5)),
+    reefL4Position(Rotations.of(10.35));
 
     public static final Angle grabZoneMax = Rotations.of(1.75);
 
