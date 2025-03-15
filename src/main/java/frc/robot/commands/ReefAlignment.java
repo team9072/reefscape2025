@@ -16,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ReefAlignment {
 
-  private static final Distance faceOffsetDistance = Inches.of(15);
+  private static final Distance faceOffsetDistance = Inches.of(17);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);

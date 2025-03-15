@@ -106,10 +106,6 @@ public class Drive extends SubsystemBase {
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
     headingController.enableContinuousInput(-Math.PI, Math.PI);
-    headingController.setTolerance(headingErrorTolerance.in(Radians));
-
-    xController.setTolerance(positionErrorTolerance.in(Meters));
-    yController.setTolerance(positionErrorTolerance.in(Meters));
 
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
@@ -393,6 +389,19 @@ public class Drive extends SubsystemBase {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
+    double positionError =
+        getPose().getTranslation().getDistance(visionRobotPoseMeters.getTranslation());
+
+    boolean headingWithinTolerance =
+        visionRobotPoseMeters
+            .getRotation()
+            .getMeasure()
+            .isNear(getRotation().getMeasure(), headingErrorTolerance);
+
+    if (positionError < positionErrorTolerance.in(Meters) && headingWithinTolerance) {
+      return;
+    }
+
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
