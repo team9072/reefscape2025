@@ -82,7 +82,7 @@ public class Autos extends SubsystemBase {
         .done()
         .onTrue(
             s.coralFlow
-                .scoreCoral(ReefBranch.branchL4)
+                .scoreCoralAuto(ReefBranch.branchL4)
                 .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
@@ -134,7 +134,7 @@ public class Autos extends SubsystemBase {
         .and(coralGrabbed::get)
         .onTrue(
             s.coralFlow
-                .scoreCoral(ReefBranch.branchL4)
+                .scoreCoralAuto(ReefBranch.branchL4)
                 .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 

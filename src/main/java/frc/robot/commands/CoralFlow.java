@@ -61,20 +61,31 @@ public class CoralFlow {
     return elevator.clearCoral();
   }
 
-  public Command scoreCoral(ReefBranch branch) {
+  public Command scoreCoral(ReefBranch branch, boolean dontHold) {
     return Commands.sequence(
-        elevator.setPosition(branch.position),
-        coralPlacer.setPosition(CoralPlacerPosition.scorePosition),
-        elevator.setPosition(ElevatorPosition.readyPosition));
+        prepareElevator(branch, dontHold),
+        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+  }
+
+  public Command scoreCoral(ReefBranch branch) {
+    return scoreCoral(branch, false);
+  }
+
+  public Command scoreCoralAuto(ReefBranch branch) {
+    return scoreCoral(branch, true);
   }
 
   public Command prepareElevator(ReefBranch branch, boolean dontHold) {
+    Command coralPlacerReady = coralPlacer.setPosition(CoralPlacerPosition.readyPosition);
+
+    if (!dontHold) {
+      coralPlacerReady = coralPlacerReady.withTimeout(0.1);
+    }
+
     return elevator
         .clearCoral()
         .andThen(
-            Commands.parallel(
-                    coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
-                    elevator.setPosition(branch.position))
+            Commands.parallel(coralPlacerReady, elevator.setPosition(branch.position))
                 .andThen(
                     coralPlacer
                         .setPosition(CoralPlacerPosition.driverAlignHoldPosition)
@@ -92,27 +103,21 @@ public class CoralFlow {
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
-   * `startScore` supplier returns true, the robot will score the coral if it is ready. Otherwise,
-   * the scoring will be cancelled and the robot will go back down.
+   * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
   public Command scoreCoralOnTrigger(ReefBranch branch, BooleanSupplier scoreOrCancel) {
-    Command returnCommand = elevator.setPosition(ElevatorPosition.readyPosition);
-    Command scoreCommand =
-        Commands.sequence(
-            Commands.waitUntil(scoreOrCancel),
-            coralPlacer.setPosition(CoralPlacerPosition.scorePosition) /*,
-            elevator.setPosition(ElevatorPosition.readyPosition)*/);
-
     // If the trigger returned true before the command exited normally, return instead of scoring
     return prepareElevator(branch)
-        .until(scoreOrCancel)
-        .andThen(Commands.either(returnCommand, scoreCommand, scoreOrCancel));
+        .andThen(
+            Commands.sequence(
+                    Commands.waitUntil(scoreOrCancel),
+                    coralPlacer.setPosition(CoralPlacerPosition.scorePosition))
+                .unless(scoreOrCancel));
   }
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
-   * `startScore` supplier returns true, the robot will score the coral if it is ready. Otherwise,
-   * the scoring will be cancelled and the robot will go back down.
+   * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
   public Command scoreCoralOnTrigger(Supplier<ReefBranch> branch, BooleanSupplier scoreOrCancel) {
     return Commands.defer(
