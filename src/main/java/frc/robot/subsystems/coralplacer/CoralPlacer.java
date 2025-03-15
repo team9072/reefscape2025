@@ -1,6 +1,7 @@
 package frc.robot.subsystems.coralplacer;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,7 +23,9 @@ public class CoralPlacer extends SubsystemBase {
   }
 
   private boolean isAtPosition(CoralPlacerPosition position) {
-    return position.angle.isNear(coralPlacerInputs.position, Degrees.of(2));
+    return position.angle.isNear(coralPlacerInputs.position, Degrees.of(2))
+        && coralPlacerInputs.velocity.isNear(
+            RotationsPerSecond.zero(), CoralPlacerPosition.velocityTolerance);
   }
 
   public Command setPosition(CoralPlacerPosition position) {

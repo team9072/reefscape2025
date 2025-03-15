@@ -7,9 +7,11 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
@@ -25,6 +27,8 @@ public class CoralPlacerConstants {
     holdPosition(Rotations.of(-0.25)),
     preScoreHoldPosition(Rotations.of(-0.15)),
     scorePosition(Rotations.of(0.03));
+
+    public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(0.05);
 
     public Angle angle;
 

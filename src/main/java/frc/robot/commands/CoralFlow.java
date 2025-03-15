@@ -79,7 +79,9 @@ public class CoralFlow {
     return elevator
         .clearCoral()
         .andThen(
-            coralPlacer.setPosition(CoralPlacerPosition.holdPosition),
+            coralPlacer
+                .setPosition(CoralPlacerPosition.holdPosition)
+                .unless(() -> elevator.atPosition(branch.position)),
             elevator.setPosition(branch.position),
             coralPlacer
                 .setPosition(CoralPlacerPosition.preScoreHoldPosition)
@@ -101,12 +103,12 @@ public class CoralFlow {
    */
   public Command scoreCoralOnTrigger(ReefBranch branch, BooleanSupplier scoreOrCancel) {
     // If the trigger returned true before the command exited normally, return instead of scoring
-    return prepareElevator(branch)
-        .andThen(
-            Commands.sequence(
-                    Commands.waitUntil(scoreOrCancel),
-                    coralPlacer.setPosition(CoralPlacerPosition.scorePosition))
-                .unless(scoreOrCancel));
+    return Commands.sequence(
+        prepareElevator(branch).until(scoreOrCancel),
+        Commands.waitUntil(scoreOrCancel),
+        coralPlacer
+            .setPosition(CoralPlacerPosition.scorePosition)
+            .onlyIf(() -> elevator.atPosition(branch.position)));
   }
 
   /**

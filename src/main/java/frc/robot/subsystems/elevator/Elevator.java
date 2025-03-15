@@ -30,7 +30,7 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", elevatorInputs);
   }
 
-  private boolean atPosition(ElevatorPosition position) {
+  public boolean atPosition(ElevatorPosition position) {
     return position.withinTolerance(elevatorInputs.rotation);
   }
 
