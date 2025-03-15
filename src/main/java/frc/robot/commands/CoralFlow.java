@@ -71,8 +71,9 @@ public class CoralFlow {
         .clearCoral()
         .andThen(
             Commands.parallel(
-                coralPlacer.setPosition(CoralPlacerPosition.readyPosition),
-                elevator.setPosition(branch.position)));
+                coralPlacer.setPosition(CoralPlacerPosition.holdPosition),
+                elevator.setPosition(branch.position)),
+            coralPlacer.setPosition(CoralPlacerPosition.preScoreHoldPosition));
   }
 
   /**
@@ -103,8 +104,9 @@ public class CoralFlow {
         Commands.parallel(
             coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
-        elevator.setPosition(ElevatorPosition.intakePosition),
+        elevator.setPosition(ElevatorPosition.grabPosition),
         Commands.waitSeconds(0.2),
-        elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral));
+        elevator.setPosition(ElevatorPosition.readyPosition),
+        coralPlacer.setPosition(CoralPlacerPosition.holdPosition));
   }
 }

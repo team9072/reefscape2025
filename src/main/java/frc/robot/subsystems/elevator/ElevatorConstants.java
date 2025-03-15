@@ -18,14 +18,13 @@ import frc.robot.util.CanID;
 
 public class ElevatorConstants {
   public enum ElevatorPosition {
-    intakePosition(Rotations.of(-0.1)),
-    readyPosition(Rotations.of(1.5)),
-    knockCoralOffPosition(Rotations.of(1.5)),
-    reefL2Position(Rotations.of(3.7)),
-    reefL3Position(Rotations.of(6.47)),
-    reefL4Position(Rotations.of(11.45));
+    grabPosition(Rotations.of(1.5)),
+    readyPosition(Rotations.of(2.8)),
+    reefL2Position(Rotations.of(2.9)),
+    reefL3Position(Rotations.of(4.44)),
+    reefL4Position(Rotations.of(10.86));
 
-    public static final Angle grabZoneMax = Rotations.of(0.2);
+    public static final Angle grabZoneMax = Rotations.of(1.75);
 
     public static final Distance linearTolerance = Inches.of(1);
     public static final Angle tolerance = distanceToDrumRotation(linearTolerance, drumRadius);
