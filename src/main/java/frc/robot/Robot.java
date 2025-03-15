@@ -209,15 +209,17 @@ public class Robot {
 
     s.intake.setDefaultCommand(s.intake.idleStagingRoller());
 
-    mainController.leftBumper().whileTrue(s.coralFlow.clearElevator().andThen(s.intake.intake()));
+    mainController
+        .leftBumper()
+        .whileTrue(
+            Commands.sequence(
+                s.coralFlow.clearElevator(),
+                s.intake.intake().alongWith(s.coralFlow.elevatorDown())));
 
     // Schedule a new command so the old one gets interrupted
     mainController
         .rightBumper()
-        .onTrue(
-            Commands.defer(
-                () -> new ScheduleCommand(s.intake.toggleDeploy(s.coralFlow.elevatorDown())),
-                Set.of()));
+        .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
 
     mainController.a().whileTrue(s.intake.reverse());
 

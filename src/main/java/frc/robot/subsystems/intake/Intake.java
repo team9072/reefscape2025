@@ -222,10 +222,10 @@ public class Intake extends SubsystemBase {
         Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
   }
 
-  public Command toggleDeploy(Command onDeploy) {
+  public Command toggleDeploy() {
     return Commands.either(
         setPosition(PivotPosition.stow),
-        onDeploy.andThen(setPosition(PivotPosition.deploy)),
+        setPosition(PivotPosition.deploy),
         () -> {
           return (lastSetpoint != PivotPosition.stow);
         });
