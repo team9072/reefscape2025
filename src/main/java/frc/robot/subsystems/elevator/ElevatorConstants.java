@@ -18,7 +18,7 @@ import frc.robot.util.CanID;
 
 public class ElevatorConstants {
   public enum ElevatorPosition {
-    grabPosition(Rotations.of(1.5)),
+    grabPosition(Rotations.of(1)),
     readyPosition(Rotations.of(2.8)),
     reefL2Position(Rotations.of(2.2)),
     reefL3Position(Rotations.of(5)),
