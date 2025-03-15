@@ -24,7 +24,7 @@ public class PivotConstants {
     unjam(Rotations.of(0.05), false),
     algae(Rotations.of(-0.08), true),
     coralL1(Rotations.of(-0.21), false),
-    deploy(Rotations.of(0.12), false);
+    deploy(Rotations.of(0.13), false);
 
     public Angle angle;
     public boolean shouldFloat;
