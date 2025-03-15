@@ -22,12 +22,9 @@ public class CoralPlacerConstants {
     stowPosition(Rotations.of(0.25)),
     grabPosition(Rotations.of(0.25)),
 
-    knockCoralOffPosition(Rotations.of(0.85)),
-    readyPosition(Rotations.of(0.55)),
-    driverAlignHoldPosition(Rotations.of(0.85)),
-
-    scorePosition(Rotations.of(1).plus(CoralPlacerPosition.stowPosition.angle)),
-    removeAlgaePosition(Rotations.of(-2));
+    holdPosition(Rotations.of(-0.25)),
+    preScoreHoldPosition(Rotations.of(-0.15)),
+    scorePosition(Rotations.of(0.1));
 
     public Angle angle;
 
@@ -38,15 +35,15 @@ public class CoralPlacerConstants {
 
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
-  public static final double motorReduction = (72.0 / 18.0) * (54.0 / 26.0);
+  public static final double motorReduction = (72.0 / 18.0) * (54.0 / 26.0) * 3;
 
-  public static final double kG = -0.4;
+  public static final double kG = -0.5;
   public static final double kP = 120;
-  public static final double kD = 0;
-  public static final double kV = 0.6;
+  public static final double kD = 0.1;
+  public static final double kV = 1.1;
 
-  public static final double rampVelocity = 5.5;
-  public static final double rampAcceleration = 15;
+  public static final double rampVelocity = 3;
+  public static final double rampAcceleration = 10;
 
   public static final Distance armLength = Inches.of(5);
   public static final Mass armMass = Pounds.of(1.3);

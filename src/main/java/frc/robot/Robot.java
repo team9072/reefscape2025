@@ -255,17 +255,6 @@ public class Robot {
                 .andThen(s.intake.intakeAlgae()));
     secondaryController.leftTrigger().onFalse(s.intake.reverseAlgae().withTimeout(1));
 
-    secondaryController
-        .a()
-        .onTrue(
-            s.coralFlow.prepareElevator(ReefBranch.branchL2).andThen(s.coralFlow.removeAlgae()));
-    secondaryController
-        .y()
-        .onTrue(
-            s.coralFlow.prepareElevator(ReefBranch.branchL3).andThen(s.coralFlow.removeAlgae()));
-
-    secondaryController.x().onTrue(s.coralFlow.knockCoralOff());
-
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
 

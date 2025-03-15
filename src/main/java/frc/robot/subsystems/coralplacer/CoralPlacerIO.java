@@ -24,10 +24,4 @@ public interface CoralPlacerIO {
   public default void updateInputs(CoralPlacerInputs inputs) {}
 
   public default void setPosition(CoralPlacerPosition positon) {}
-
-  /**
-   * Since the positions are in a range of 0 - 1 rotations with continuous wrap off, we need to
-   * reset into that range so it does not go backwards.
-   */
-  public default void normalizePosition() {}
 }

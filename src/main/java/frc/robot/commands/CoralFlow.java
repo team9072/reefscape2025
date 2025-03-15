@@ -76,27 +76,21 @@ public class CoralFlow {
   }
 
   public Command prepareElevator(ReefBranch branch, boolean dontHold) {
-    Command coralPlacerReady = coralPlacer.setPosition(CoralPlacerPosition.readyPosition);
-
-    if (!dontHold) {
-      coralPlacerReady = coralPlacerReady.withTimeout(0.1);
-    }
-
     return elevator
         .clearCoral()
         .andThen(
-            Commands.parallel(coralPlacerReady, elevator.setPosition(branch.position))
-                .andThen(
-                    coralPlacer
-                        .setPosition(CoralPlacerPosition.driverAlignHoldPosition)
-                        .unless(() -> dontHold)));
+            coralPlacer.setPosition(CoralPlacerPosition.holdPosition),
+            elevator.setPosition(branch.position),
+            coralPlacer
+                .setPosition(CoralPlacerPosition.preScoreHoldPosition)
+                .unless(() -> dontHold));
   }
 
   public Command prepareElevator(ReefBranch branch) {
     return prepareElevator(branch, false);
   }
 
-  /** Does not hold out on L4 */
+  /** Does not hold coral for alignment */
   public Command prepareElevatorAuto(ReefBranch branch) {
     return prepareElevator(branch, true);
   }
@@ -129,27 +123,9 @@ public class CoralFlow {
         Commands.parallel(
             coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
-        elevator.setPosition(ElevatorPosition.intakePosition),
+        elevator.setPosition(ElevatorPosition.grabPosition),
         Commands.waitSeconds(0.2),
-        elevator.setPosition(ElevatorPosition.readyPosition).until(elevator.clearsCoral),
-        coralPlacer.setPosition(CoralPlacerPosition.readyPosition));
-  }
-
-  public Command removeAlgae() {
-    return coralPlacer
-        .setPosition(CoralPlacerPosition.removeAlgaePosition)
-        .onlyIf(elevator.clearsCoral);
-  }
-
-  public Command knockCoralOff() {
-    return Commands.sequence(
-        elevator
-            .setPosition(ElevatorPosition.knockCoralOffPosition)
-            .alongWith(
-                Commands.waitUntil(elevator.clearsCoral)
-                    .andThen(coralPlacer.setPosition(CoralPlacerPosition.knockCoralOffPosition))),
-        elevator.setPosition(ElevatorPosition.intakePosition).withTimeout(0.2),
-        elevator.setPosition(ElevatorPosition.knockCoralOffPosition),
-        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+        elevator.setPosition(ElevatorPosition.readyPosition),
+        coralPlacer.setPosition(CoralPlacerPosition.holdPosition));
   }
 }
