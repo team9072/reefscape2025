@@ -17,6 +17,10 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class ElevatorConstants {
+  /**
+   * Positions based on the absolute elevator zero position. The `startingPosition` variable in the
+   * constructor determines how far up the elevator starts, which is subtracted from each position.
+   */
   public enum ElevatorPosition {
     grabPosition(Rotations.of(1)),
     readyPosition(Rotations.of(2.8)),
@@ -32,7 +36,8 @@ public class ElevatorConstants {
     public Angle angle;
 
     ElevatorPosition(Angle angle) {
-      this.angle = angle;
+      final Angle startingPosition = Rotations.of(1.55);
+      this.angle = angle.minus(startingPosition);
     }
 
     public boolean withinTolerance(Angle angle) {
