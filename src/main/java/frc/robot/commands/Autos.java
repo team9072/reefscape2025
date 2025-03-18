@@ -6,6 +6,10 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
+import choreo.trajectory.SwerveSample;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.commands.CoralFlow.ReefBranch;
+import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.littletonrobotics.junction.LogTable;
@@ -21,7 +26,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class Autos extends SubsystemBase {
-
   private static class AutoInputs implements LoggableInputs {
     final AutoChooser autoChooser;
 
@@ -44,11 +48,18 @@ public class Autos extends SubsystemBase {
     }
   }
 
+  private static final String prepareAlignEvent = "PrepareAlign";
+
   private final AutoFactory autoFactory;
   private final AutoInputs inputs;
   private final Robot.Subsystems s;
 
+  private final DrivePid driveController;
+  private Pose2d reefOverridePose = null;
+
   public Autos(Robot.Subsystems s) {
+    driveController = s.drive.getPid();
+
     this.autoFactory =
         new AutoFactory(
             s.drive::getPose,
@@ -56,7 +67,7 @@ public class Autos extends SubsystemBase {
               s.drive.setPose(pose);
               s.questNav.resetPose(pose);
             },
-            s.drive::followTrajectory,
+            this::drivePath,
             true,
             s.drive);
     inputs = new AutoInputs(buildAutoChooser());
@@ -72,18 +83,65 @@ public class Autos extends SubsystemBase {
     return inputs.autoChooser.selectedCommand();
   }
 
+  private void drivePath(SwerveSample sample) {
+    ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
+
+    if (reefOverridePose != null) {
+      targetSpeeds =
+          targetSpeeds.plus(ReefAlignment.getReefAlignSpeeds(reefOverridePose, driveController));
+    } else {
+      Pose2d samplePose = new Pose2d(sample.x, sample.y, Rotation2d.fromRadians(sample.heading));
+      targetSpeeds = targetSpeeds.plus(driveController.getPoseCorrection(samplePose));
+    }
+
+    s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
+  }
+
+  private void driveAuto() {
+    ChassisSpeeds targetSpeeds = new ChassisSpeeds();
+
+    if (reefOverridePose != null) {
+      targetSpeeds =
+          targetSpeeds.plus(ReefAlignment.getReefAlignSpeeds(reefOverridePose, driveController));
+    }
+
+    s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
+  }
+
+  private Command driveToReef() {
+    return Commands.run(this::driveAuto, s.drive)
+        .until(
+            () -> reefOverridePose == null || driveController.posePidAtSetpoint(reefOverridePose));
+  }
+
+  private Command setReefOveride(Pose2d reefPole) {
+    return Commands.runOnce(() -> this.reefOverridePose = reefPole);
+  }
+
+  private Command setReefOveride(AutoTrajectory trajectory) {
+    return setReefOveride(trajectory.getFinalPose().get());
+  }
+
+  private Command clearReefOveride() {
+    return Commands.runOnce(() -> this.reefOverridePose = null);
+  }
+
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
     trajectory
-        .active()
+        .atTime(prepareAlignEvent)
         .onTrue(
-            Commands.sequence(
-                Commands.waitSeconds(0.5), s.coralFlow.prepareElevator(ReefBranch.branchL4)));
+            s.coralFlow
+                .prepareElevator(ReefBranch.branchL4)
+                .alongWith(setReefOveride(new Pose2d(5.32, 5.14, new Rotation2d(4.19)))));
+
     trajectory
         .done()
         .onTrue(
-            s.coralFlow
-                .scoreCoralAuto(ReefBranch.branchL4)
-                .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+            Commands.sequence(
+                driveToReef(),
+                s.coralFlow.scoreCoralAuto(ReefBranch.branchL4),
+                clearReefOveride(),
+                Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
   private void intakeAndScore(
@@ -144,7 +202,7 @@ public class Autos extends SubsystemBase {
 
     routine
         .active()
-        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.spawnCmd()));
 
     scorePreload(scorePreloadTraj, Commands.none());
 
@@ -160,9 +218,9 @@ public class Autos extends SubsystemBase {
 
     routine
         .active()
-        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.spawnCmd()));
 
-    scorePreload(scorePreloadTraj, intakeSecondTraj.cmd());
+    scorePreload(scorePreloadTraj, intakeSecondTraj.spawnCmd());
     intakeAndScore(intakeSecondTraj, scoreSecondTraj, Commands.none());
 
     return routine;
@@ -184,12 +242,10 @@ public class Autos extends SubsystemBase {
 
     routine
         .active()
-        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.cmd()));
+        .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.spawnCmd()));
 
-    scorePreloadTraj.active().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL4));
-
-    scorePreload(scorePreloadTraj, intakeSecondTraj.cmd());
-    intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.cmd());
+    scorePreload(scorePreloadTraj, intakeSecondTraj.spawnCmd());
+    intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.spawnCmd());
     intakeAndScore(intakeThirdTraj, scoreThirdTraj, Commands.none());
 
     return routine;

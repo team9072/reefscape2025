@@ -176,7 +176,7 @@ public class Vision extends SubsystemBase {
     }
 
     // Send vision observation
-    if (true) {
+    if (false) {
       // Precison mode, only chose the best camera
       PoseUpdate bestUpdate = null;
       for (PoseUpdate poseUpdate : allPoseUpdates) {

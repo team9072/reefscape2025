@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.Drive.DrivePid;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -24,7 +25,7 @@ public class ReefAlignment {
   private static final Translation2d reefOffset =
       new Translation2d(Meters.of(0.831723).plus(reefOffsetDistance), Meters.zero());
 
-  private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.5));
+  private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.8));
 
   private ReefAlignment() {}
 
@@ -59,8 +60,36 @@ public class ReefAlignment {
     return new Pose2d(closestPole, reefPose.getRotation());
   }
 
+  private static ChassisSpeeds getReefAlignSpeeds(
+      Pose2d reefPole, DrivePid driveController, double joystickValue) {
+    ChassisSpeeds speeds = new ChassisSpeeds();
+
+    ChassisSpeeds headingCorrection = driveController.getHeadingCorrection(reefPole.getRotation());
+
+    if (!driveController.headingPidAtSetpoint()) {
+      speeds = speeds.plus(headingCorrection);
+    }
+
+    ChassisSpeeds positionCorrection =
+        driveController
+            .getTranslationCorrection(reefPole.getTranslation())
+            .times(Math.max(0, 1 - joystickValue * 10));
+
+    if (!driveController.translationPidAtSetpoint()) {
+      speeds = speeds.plus(positionCorrection);
+    }
+
+    return speeds;
+  }
+
+  public static ChassisSpeeds getReefAlignSpeeds(Pose2d reefPole, DrivePid driveController) {
+    return getReefAlignSpeeds(reefPole, driveController, 0);
+  }
+
   public static Command driveReefAligned(
       Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+
+    DrivePid driveController = drive.getPid();
 
     return Commands.run(
         () -> {
@@ -76,24 +105,11 @@ public class ReefAlignment {
               DriveCommands.getJoystickSpeeds(
                   drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
 
-          ChassisSpeeds headingCorrection = drive.getHeadingCorrection(closestPole.getRotation());
-
-          if (!drive.headingPidAtSetpoint()) {
-            speeds = speeds.plus(headingCorrection);
-          }
-
-          ChassisSpeeds positionCorrection =
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  drive
-                      .getTranslationCorrection(closestPole.getTranslation())
-                      .times(Math.max(0, 1 - joystickValue * 10)),
-                  drive.getRotation());
-
-          if (!drive.positionPidAtSetpoint()) {
-            speeds = speeds.plus(positionCorrection);
-          }
-
-          drive.runVelocity(speeds);
+          drive.runVelocity(
+              speeds.plus(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      getReefAlignSpeeds(closestPole, driveController, joystickValue),
+                      drive.getRotation())));
         },
         drive);
   }

@@ -64,7 +64,9 @@ public class CoralFlow {
   public Command scoreCoral(ReefBranch branch, boolean dontHold) {
     return Commands.sequence(
         prepareElevator(branch, dontHold),
-        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+        coralPlacer
+            .setPosition(CoralPlacerPosition.scorePosition)
+            .until(coralPlacer.pastScorePosition));
   }
 
   public Command scoreCoral(ReefBranch branch) {

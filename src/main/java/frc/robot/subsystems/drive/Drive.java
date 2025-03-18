@@ -15,7 +15,6 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import choreo.trajectory.SwerveSample;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
@@ -40,7 +39,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -53,6 +51,69 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+  public static class DrivePid {
+    private final PIDController xController = new PIDController(4, 0.0, 0.1);
+    private final PIDController yController = new PIDController(4, 0.0, 0.1);
+    private final PIDController headingController = new PIDController(5, 0.0, 0.1);
+
+    private final Distance positionErrorTolerance = Inches.of(0.5);
+    private final Angle headingErrorTolerance = Degrees.of(0.5);
+
+    private final Drive drive;
+
+    DrivePid(Drive drive) {
+      this.drive = drive;
+
+      headingController.enableContinuousInput(-Math.PI, Math.PI);
+      headingController.setTolerance(headingErrorTolerance.in(Radians));
+
+      xController.setTolerance(positionErrorTolerance.in(Meters));
+      yController.setTolerance(positionErrorTolerance.in(Meters));
+    }
+
+    public ChassisSpeeds getTranslationCorrection(Translation2d targetTranslation) {
+      Pose2d pose = getPose();
+
+      return new ChassisSpeeds(
+          xController.calculate(pose.getX(), targetTranslation.getX()),
+          yController.calculate(pose.getY(), targetTranslation.getY()),
+          0);
+    }
+
+    public boolean translationPidAtSetpoint() {
+      return xController.atSetpoint() && yController.atSetpoint();
+    }
+
+    public ChassisSpeeds getHeadingCorrection(Rotation2d targetRotaion) {
+      return new ChassisSpeeds(
+          0,
+          0,
+          headingController.calculate(
+              getPose().getRotation().getRadians(), targetRotaion.getRadians()));
+    }
+
+    public boolean headingPidAtSetpoint() {
+      return headingController.atSetpoint();
+    }
+
+    public ChassisSpeeds getPoseCorrection(Pose2d targetPose) {
+      return getTranslationCorrection(targetPose.getTranslation())
+          .plus(getHeadingCorrection(targetPose.getRotation()));
+    }
+
+    public boolean posePidAtSetpoint(Pose2d targetPose) {
+      return translationPidAtSetpoint() && headingPidAtSetpoint();
+    }
+
+    public Pose2d getPose() {
+      return drive.getPose();
+    }
+
+    public Rotation2d getRotation() {
+      return drive.getRotation();
+    }
+  }
+
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -91,14 +152,7 @@ public class Drive extends SubsystemBase {
           VecBuilder.fill(0.1, 0.1, 0.1),
           VecBuilder.fill(1000, 1000, 1000));
 
-  // PID controllers for choreo path following
-  private final PIDController xController = new PIDController(4, 0.0, 0.1);
-  private final PIDController yController = new PIDController(4, 0.0, 0.1);
-  private final PIDController headingController = new PIDController(5, 0.0, 0.1);
-
-  private final Distance positionErrorTolerance = Inches.of(0.5);
   private final Distance positionVisionTolerance = Inches.of(1.5);
-  private final Angle headingErrorTolerance = Degrees.of(0.5);
   private final Angle headingVisionTolerance = Degrees.of(1);
 
   public Drive(
@@ -107,12 +161,6 @@ public class Drive extends SubsystemBase {
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
-    headingController.setTolerance(headingErrorTolerance.in(Radians));
-
-    xController.setTolerance(positionErrorTolerance.in(Meters));
-    yController.setTolerance(positionErrorTolerance.in(Meters));
-
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
@@ -138,12 +186,6 @@ public class Drive extends SubsystemBase {
                 }),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
-
-    SmartDashboard.putNumber("Tuning/headingP", headingController.getP());
-    SmartDashboard.putNumber("Tuning/headingD", headingController.getD());
-
-    SmartDashboard.putNumber("Tuning/driveP", xController.getP());
-    SmartDashboard.putNumber("Tuning/driveD", xController.getD());
   }
 
   @Override
@@ -161,15 +203,6 @@ public class Drive extends SubsystemBase {
       for (var module : modules) {
         module.stop();
       }
-
-      headingController.setP(SmartDashboard.getNumber("Tuning/headingP", 0));
-      headingController.setD(SmartDashboard.getNumber("Tuning/headingD", 0));
-
-      xController.setP(SmartDashboard.getNumber("Tuning/driveP", 0));
-      xController.setD(SmartDashboard.getNumber("Tuning/driveD", 0));
-
-      yController.setP(SmartDashboard.getNumber("Tuning/driveP", 0));
-      yController.setD(SmartDashboard.getNumber("Tuning/driveD", 0));
     }
 
     // Log empty setpoint states when disabled
@@ -212,6 +245,10 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+  }
+
+  public DrivePid getPid() {
+    return new DrivePid(this);
   }
 
   /**
@@ -261,62 +298,6 @@ public class Drive extends SubsystemBase {
     }
     kinematics.resetHeadings(headings);
     stop();
-  }
-
-  /**
-   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified translation. Useful
-   * for merging human and pid control
-   */
-  public ChassisSpeeds getTranslationCorrection(Translation2d targetTranslation) {
-    Pose2d pose = getPose();
-
-    return new ChassisSpeeds(
-        xController.calculate(pose.getX(), targetTranslation.getX()),
-        yController.calculate(pose.getY(), targetTranslation.getY()),
-        0);
-  }
-
-  public boolean positionPidAtSetpoint() {
-    return xController.atSetpoint() && yController.atSetpoint();
-  }
-
-  /**
-   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified heading. Useful for
-   * merging human and pid control
-   */
-  public ChassisSpeeds getHeadingCorrection(Rotation2d targetRotaion) {
-
-    return new ChassisSpeeds(
-        0,
-        0,
-        headingController.calculate(
-            getPose().getRotation().getRadians(), targetRotaion.getRadians()));
-  }
-
-  public boolean headingPidAtSetpoint() {
-    return headingController.atSetpoint();
-  }
-
-  /**
-   * Adds a pid value to the supplied ChassisSpeeds correcting for a specified position and rotation
-   * (pose). Useful for merging human and pid control
-   */
-  public ChassisSpeeds getPoseCorrection(Pose2d targetPose) {
-    return getTranslationCorrection(targetPose.getTranslation())
-        .plus(getHeadingCorrection(targetPose.getRotation()));
-  }
-
-  /** Follow a choreo trajectory atthe provided sample point */
-  public void followTrajectory(SwerveSample sample) {
-    Pose2d pose = getPose();
-
-    ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
-    targetSpeeds.vxMetersPerSecond += xController.calculate(pose.getX(), sample.x);
-    targetSpeeds.vyMetersPerSecond += yController.calculate(pose.getY(), sample.y);
-    targetSpeeds.omegaRadiansPerSecond +=
-        headingController.calculate(pose.getRotation().getRadians(), sample.heading);
-
-    runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, getRotation()));
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

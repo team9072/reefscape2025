@@ -29,6 +29,7 @@ public class CoralPlacerConstants {
     scorePosition(Rotations.of(0.03));
 
     public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(0.05);
+    public static final Angle scoreCompleteThreshold = Rotations.of(-0.01);
 
     public Angle angle;
 
