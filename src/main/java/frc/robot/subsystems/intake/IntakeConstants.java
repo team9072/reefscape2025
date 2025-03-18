@@ -15,7 +15,6 @@ public class IntakeConstants {
   public static final CanID pivotCanId = new CanID(19, canBus);
   public static final CanID rollerCanId = new CanID(18); // Intake rollers are on rio can bus
   public static final CanID passthroughCanId = new CanID(17, canBus);
-  public static final CanID stagingRollerCanId = new CanID(16, canBus);
 
   public static final int beamBreakDioId = 1;
 
@@ -31,12 +30,6 @@ public class IntakeConstants {
   public static final Current passthroughReverseTorqueCurrent = Amps.of(-100);
   public static final double passthroughTorqueDutyCycle = 0.55;
 
-  public static final Current stagingTorqueCurrent = Amps.of(50);
-  public static final Current stagingReverseTorqueCurrent = Amps.of(-50);
-  public static final double stagingTorqueDutyCycle = 0.15;
-  public static final Current stagingIdleTorqueCurrent = Amps.of(20);
-  public static final double stagingIdleDutyCycle = 0.1;
-
   public static PivotConstants pivot =
       new PivotConstants(pivotCanId, InvertedValue.Clockwise_Positive);
   public static RollerConstants roller =
@@ -48,13 +41,6 @@ public class IntakeConstants {
 
   public static RollerConstants pasthrough =
       new RollerConstants(passthroughCanId)
-          .withInvert(InvertedValue.Clockwise_Positive)
-          .withBaseCurrentLimit(Amps.of(20))
-          .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
-          .withStatorCurrentLimit(Amps.of(500));
-
-  public static RollerConstants stagingRoller =
-      new RollerConstants(stagingRollerCanId)
           .withInvert(InvertedValue.Clockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
           .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))

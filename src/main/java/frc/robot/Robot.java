@@ -109,7 +109,6 @@ public class Robot {
                 new PivotIOTalonFX(IntakeConstants.pivot),
                 new RollerIOTalonFX(IntakeConstants.roller),
                 new RollerIOTalonFX(IntakeConstants.pasthrough),
-                new RollerIOTalonFX(IntakeConstants.stagingRoller),
                 new BeamBreakIODio(IntakeConstants.beamBreakDioId));
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
@@ -140,7 +139,6 @@ public class Robot {
                 new PivotIOSim(IntakeConstants.pivot),
                 new RollerIOSim(IntakeConstants.roller),
                 new RollerIOSim(IntakeConstants.pasthrough),
-                new RollerIOSim(IntakeConstants.stagingRoller),
                 new BeamBreakIO() {});
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
@@ -172,11 +170,7 @@ public class Robot {
 
         intake =
             new Intake(
-                new PivotIO() {},
-                new RollerIO() {},
-                new RollerIO() {},
-                new RollerIO() {},
-                new BeamBreakIO() {});
+                new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
@@ -206,8 +200,6 @@ public class Robot {
                 s.drive, () -> -mainController.getLeftY(), () -> -mainController.getLeftX()));
 
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
-
-    s.intake.setDefaultCommand(s.intake.idleStagingRoller());
 
     mainController
         .leftBumper()

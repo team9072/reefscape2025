@@ -26,9 +26,6 @@ public class Intake extends SubsystemBase {
   private final RollerIO passthroughIO;
   private final RollerIOInputsAutoLogged passthroughInputs = new RollerIOInputsAutoLogged();
 
-  private final RollerIO stagingIO;
-  private final RollerIOInputsAutoLogged stagingInputs = new RollerIOInputsAutoLogged();
-
   private final BeamBreakIO beamBreakIO;
 
   private final BeamBreakIOInputsAutoLogged beamBreakInputs = new BeamBreakIOInputsAutoLogged();
@@ -44,15 +41,10 @@ public class Intake extends SubsystemBase {
   public Trigger coralDetected = new Trigger(() -> beamBreakInputs.objectDetected);
 
   public Intake(
-      PivotIO pivotIO,
-      RollerIO rollerIO,
-      RollerIO passthroughIO,
-      RollerIO stagingIO,
-      BeamBreakIO beamBreakIO) {
+      PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO, BeamBreakIO beamBreakIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
-    this.stagingIO = stagingIO;
     this.beamBreakIO = beamBreakIO;
 
     pivotIO.setFloating();
@@ -68,9 +60,6 @@ public class Intake extends SubsystemBase {
 
     passthroughIO.updateInputs(passthroughInputs);
     Logger.processInputs("Intake/Passthrough", passthroughInputs);
-
-    stagingIO.updateInputs(stagingInputs);
-    Logger.processInputs("Intake/Staging", stagingInputs);
 
     beamBreakIO.updateInputs(beamBreakInputs);
     Logger.processInputs("Intake/Beam Break", beamBreakInputs);
@@ -133,7 +122,6 @@ public class Intake extends SubsystemBase {
   private void stopRollers() {
     rollerIO.stop();
     passthroughIO.stop();
-    stagingIO.stop();
   }
 
   @AutoLogOutput(key = "Intake/ShouldSpinIntakeRollers")
@@ -149,9 +137,6 @@ public class Intake extends SubsystemBase {
 
     passthroughIO.setTorque(
         IntakeConstants.passthroughTorqueCurrent, IntakeConstants.passthroughTorqueDutyCycle);
-
-    stagingIO.setTorque(
-        IntakeConstants.stagingTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
   }
 
   private void reverseRollers() {
@@ -163,9 +148,6 @@ public class Intake extends SubsystemBase {
     passthroughIO.setTorque(
         IntakeConstants.passthroughReverseTorqueCurrent,
         IntakeConstants.passthroughTorqueDutyCycle);
-
-    stagingIO.setTorque(
-        IntakeConstants.stagingReverseTorqueCurrent, IntakeConstants.stagingTorqueDutyCycle);
   }
 
   public Command intake() {
@@ -179,14 +161,6 @@ public class Intake extends SubsystemBase {
                 IntakeConstants.intakeAlgaeTorqueCurrent,
                 IntakeConstants.intakeAlgaeTorqueDutyCycle),
         this::stopRollers);
-  }
-
-  public Command idleStagingRoller() {
-    return this.runEnd(
-        () ->
-            stagingIO.setTorque(
-                IntakeConstants.stagingIdleTorqueCurrent, IntakeConstants.stagingIdleDutyCycle),
-        () -> stagingIO.stop());
   }
 
   public Command reverse() {
