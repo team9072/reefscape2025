@@ -197,7 +197,10 @@ public class Robot {
         .leftTrigger()
         .whileTrue(
             ReefAlignment.driveReefAligned(
-                s.drive, () -> -mainController.getLeftY(), () -> -mainController.getLeftX()));
+                s.drive,
+                () -> -mainController.getLeftY(),
+                () -> -mainController.getLeftX(),
+                s.coralFlow::getMemorizedBranch));
 
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 

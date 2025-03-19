@@ -10,26 +10,42 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.CoralFlow.ReefBranch;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import java.util.function.DoubleSupplier;
-import org.littletonrobotics.junction.Logger;
+import java.util.function.Supplier;
 
 public class ReefAlignment {
-  private static final Distance reefBumberOffset = Inches.of(16);
-  private static final Distance reefOffsetDistance = reefBumberOffset.plus(Inches.of(5.5));
+  private static final Distance reefLowerOffsetDistance = Inches.of(5.5);
+  private static final Distance reefL4OffsetDistance = Inches.of(7);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
+
   // Make the front of the robot go to the tag, not the center
-  private static final Translation2d reefOffset =
-      new Translation2d(Meters.of(0.831723).plus(reefOffsetDistance), Meters.zero());
+  private static final Distance reefTagOffsetDistance = Meters.of(0.831723);
+  private static final Distance reefBumperOffsetDistance = Inches.of(16);
+  private static final Distance reefBaseOffsetDistance =
+      reefTagOffsetDistance.plus(reefBumperOffsetDistance);
 
   private static final Translation2d poleOffset = new Translation2d(Meters.zero(), Inches.of(6.8));
 
   private ReefAlignment() {}
 
-  private static Pose2d findClosestReef(Pose2d robotPose) {
+  private static Translation2d getReefOffset(ReefBranch branch) {
+    Distance reefOffset =
+        switch (branch) {
+          case branchL2, branchL3:
+            yield reefLowerOffsetDistance;
+          case branchL4:
+            yield reefL4OffsetDistance;
+        };
+
+    return new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero());
+  }
+
+  private static Pose2d findClosestReef(Pose2d robotPose, ReefBranch branch) {
     // Get the correct reef based on which side of the field the robot is on
     Translation2d reefCenter = robotPose.getX() < 8.774176 ? blueReefCenter : redReefCenter;
     double rotationsToReefCenter =
@@ -39,7 +55,7 @@ public class ReefAlignment {
     rotationsToReefCenter = Math.round(rotationsToReefCenter * 6) / 6.0;
     Rotation2d angleToReefCenter = Rotation2d.fromRotations(rotationsToReefCenter);
 
-    Translation2d reefSide = reefCenter.plus(reefOffset.rotateBy(angleToReefCenter));
+    Translation2d reefSide = reefCenter.plus(getReefOffset(branch).rotateBy(angleToReefCenter));
 
     return new Pose2d(reefSide, angleToReefCenter.rotateBy(Rotation2d.k180deg));
   }
@@ -87,17 +103,17 @@ public class ReefAlignment {
   }
 
   public static Command driveReefAligned(
-      Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
+      Drive drive,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      Supplier<ReefBranch> branchSupplier) {
 
     DrivePid driveController = drive.getPid();
 
     return Commands.run(
         () -> {
-          Pose2d closestReef = findClosestReef(drive.getPose());
-          Logger.recordOutput("ReefAlign/Closest Side", closestReef);
-
+          Pose2d closestReef = findClosestReef(drive.getPose(), branchSupplier.get());
           Pose2d closestPole = findClosestPole(drive.getPose(), closestReef);
-          Logger.recordOutput("ReefAlign/Closest Pole", closestPole);
 
           double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 

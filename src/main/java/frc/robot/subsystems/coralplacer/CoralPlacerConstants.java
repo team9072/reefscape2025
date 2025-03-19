@@ -16,7 +16,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class CoralPlacerConstants {
@@ -55,7 +54,7 @@ public class CoralPlacerConstants {
   public static final MomentOfInertia armMoi =
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
 
-  public static final String canBus = TunerConstants.kCANBus.getName();
+  public static final String canBus = ""; // On rio bus
   public static final CanID motorCanId = new CanID(15, canBus);
 
   public static final int beamBreakDioId = 0;
