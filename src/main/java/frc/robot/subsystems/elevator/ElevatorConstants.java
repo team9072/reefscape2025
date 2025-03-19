@@ -22,11 +22,11 @@ public class ElevatorConstants {
    * constructor determines how far up the elevator starts, which is subtracted from each position.
    */
   public enum ElevatorPosition {
-    grabPosition(Rotations.of(1)),
-    readyPosition(Rotations.of(2.8)),
-    reefL2Position(Rotations.of(2.2)),
-    reefL3Position(Rotations.of(5)),
-    reefL4Position(Rotations.of(10.35));
+    grabPosition(Rotations.of(-0.55)),
+    readyPosition(Rotations.of(1.25)),
+    reefL2Position(Rotations.of(1.2)),
+    reefL3Position(Rotations.of(4.25)),
+    reefL4Position(Rotations.of(10.1));
 
     public static final Angle grabZoneMax = Rotations.of(1.75);
 
@@ -36,8 +36,7 @@ public class ElevatorConstants {
     public Angle angle;
 
     ElevatorPosition(Angle angle) {
-      final Angle startingPosition = Rotations.of(1.55);
-      this.angle = angle.minus(startingPosition);
+      this.angle = angle;
     }
 
     public boolean withinTolerance(Angle angle) {
@@ -48,8 +47,8 @@ public class ElevatorConstants {
   public static final Current currentLimit = Amps.of(70);
   public static final Current statorLimit = Amps.of(120);
 
-  public static final Angle minDistance = Rotations.of(-0.4);
-  public static final Angle maxDistance = Rotations.of(11.45);
+  public static final Angle minDistance = Rotations.of(-0.2);
+  public static final Angle maxDistance = Rotations.of(11);
 
   public static final double kP = 10;
   public static final double kV = 0;

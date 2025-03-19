@@ -86,7 +86,10 @@ public class CoralFlow {
                 .unless(() -> elevator.atPosition(branch.position)),
             elevator.setPosition(branch.position),
             coralPlacer
-                .setPosition(CoralPlacerPosition.preScoreHoldPosition)
+                .setPosition(
+                    branch == ReefBranch.branchL4
+                        ? CoralPlacerPosition.preScoreHoldPositionL4
+                        : CoralPlacerPosition.preScoreHoldPosition)
                 .unless(() -> dontHold));
   }
 

@@ -25,6 +25,7 @@ public class CoralPlacerConstants {
 
     holdPosition(Rotations.of(-0.25)),
     preScoreHoldPosition(Rotations.of(-0.15)),
+    preScoreHoldPositionL4(Rotations.of(-0.1)),
     scorePosition(Rotations.of(0.03));
 
     public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(0.05);
