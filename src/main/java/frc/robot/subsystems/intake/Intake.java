@@ -26,9 +26,13 @@ public class Intake extends SubsystemBase {
   private final RollerIO passthroughIO;
   private final RollerIOInputsAutoLogged passthroughInputs = new RollerIOInputsAutoLogged();
 
-  private final BeamBreakIO beamBreakIO;
+  private final BeamBreakIO passthroughBeamBreakIO;
+  private final BeamBreakIOInputsAutoLogged passthroughBeamBreakInputs =
+      new BeamBreakIOInputsAutoLogged();
 
-  private final BeamBreakIOInputsAutoLogged beamBreakInputs = new BeamBreakIOInputsAutoLogged();
+  private final BeamBreakIO stagingBeamBreakIO;
+  private final BeamBreakIOInputsAutoLogged stagingBeamBreakInputs =
+      new BeamBreakIOInputsAutoLogged();
 
   private PivotPosition lastSetpoint = PivotPosition.stow;
   private Trigger isAtZeroVelocity =
@@ -38,14 +42,21 @@ public class Intake extends SubsystemBase {
   private Timer waitForHoming = new Timer();
   private Timer homingDelay = new Timer();
 
-  public Trigger coralDetected = new Trigger(() -> beamBreakInputs.objectDetected);
+  public Trigger coralInPassthrough = new Trigger(() -> passthroughBeamBreakInputs.objectDetected);
+  public Trigger coralStaged =
+      new Trigger(() -> stagingBeamBreakInputs.objectDetected).debounce(0.2);
 
   public Intake(
-      PivotIO pivotIO, RollerIO rollerIO, RollerIO passthroughIO, BeamBreakIO beamBreakIO) {
+      PivotIO pivotIO,
+      RollerIO rollerIO,
+      RollerIO passthroughIO,
+      BeamBreakIO passthroughBeamBreakIO,
+      BeamBreakIO stagingBeamBreakIO) {
     this.pivotIO = pivotIO;
     this.rollerIO = rollerIO;
     this.passthroughIO = passthroughIO;
-    this.beamBreakIO = beamBreakIO;
+    this.passthroughBeamBreakIO = passthroughBeamBreakIO;
+    this.stagingBeamBreakIO = stagingBeamBreakIO;
 
     pivotIO.setFloating();
   }
@@ -61,8 +72,11 @@ public class Intake extends SubsystemBase {
     passthroughIO.updateInputs(passthroughInputs);
     Logger.processInputs("Intake/Passthrough", passthroughInputs);
 
-    beamBreakIO.updateInputs(beamBreakInputs);
-    Logger.processInputs("Intake/Beam Break", beamBreakInputs);
+    passthroughBeamBreakIO.updateInputs(passthroughBeamBreakInputs);
+    Logger.processInputs("Intake/Passthrough Beam Break", passthroughBeamBreakInputs);
+
+    stagingBeamBreakIO.updateInputs(stagingBeamBreakInputs);
+    Logger.processInputs("Intake/Staging Beam Break", stagingBeamBreakInputs);
 
     if (lastSetpoint.shouldFloat && lastSetpoint.withinTolerance(pivotInputs.position)) {
       pivotIO.setFloating();

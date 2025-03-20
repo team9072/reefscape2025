@@ -16,6 +16,12 @@ public class CoralPlacer extends SubsystemBase {
   public final Trigger pastScorePosition =
       new Trigger(() -> coralPlacerInputs.position.gt(CoralPlacerPosition.scoreCompleteThreshold));
 
+  public final Trigger clearsReef =
+      new Trigger(
+          () ->
+              atPosition(CoralPlacerPosition.scorePosition)
+                  || coralPlacerInputs.position.lt(CoralPlacerPosition.scorePosition.angle));
+
   public CoralPlacer(CoralPlacerIO coralPlacerIO) {
     this.coralPlacerIO = coralPlacerIO;
   }
@@ -26,13 +32,20 @@ public class CoralPlacer extends SubsystemBase {
     Logger.processInputs("Coral Placer", coralPlacerInputs);
   }
 
-  private boolean isAtPosition(CoralPlacerPosition position) {
+  private boolean atPosition(CoralPlacerPosition position) {
     return position.angle.isNear(coralPlacerInputs.position, Degrees.of(2))
         && coralPlacerInputs.velocity.isNear(
             RotationsPerSecond.zero(), CoralPlacerPosition.velocityTolerance);
   }
 
   public Command setPosition(CoralPlacerPosition position) {
-    return run(() -> coralPlacerIO.setPosition(position)).until(() -> isAtPosition(position));
+    return run(() -> {
+          if (position == CoralPlacerPosition.removeAlgaePosition) {
+            coralPlacerIO.setPositionAlgae(position.angle);
+          } else {
+            coralPlacerIO.setPosition(position.angle);
+          }
+        })
+        .until(() -> atPosition(position));
   }
 }

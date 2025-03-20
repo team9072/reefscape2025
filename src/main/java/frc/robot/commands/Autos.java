@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.commands.CoralFlow.ReefBranch;
+import frc.robot.commands.CoralFlow.ReefPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -131,7 +131,7 @@ public class Autos extends SubsystemBase {
         .atTime(prepareAlignEvent)
         .onTrue(
             s.coralFlow
-                .prepareElevator(ReefBranch.branchL4)
+                .prepareElevator(ReefPosition.branchL4)
                 .alongWith(setReefOveride(new Pose2d(5.32, 5.14, new Rotation2d(4.19)))));
 
     trajectory
@@ -139,7 +139,7 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 driveToReef(),
-                s.coralFlow.scoreCoralAuto(ReefBranch.branchL4),
+                s.coralFlow.reefActionAuto(ReefPosition.branchL4),
                 clearReefOveride(),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
@@ -154,12 +154,12 @@ public class Autos extends SubsystemBase {
         .onTrue(
             s.intake.setPosition(PivotPosition.deploy).withTimeout(0).andThen(s.intake.intake()));
 
-    Time coralDetectDelay = Seconds.of(0.9);
+    Time coralDetectDelay = Seconds.of(0.2);
 
     intakeTrajectory
         .active()
         .or(scoreTrajectory.active())
-        .and(s.intake.coralDetected)
+        .and(s.intake.coralStaged)
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> coralDetected.set(true)),
@@ -170,9 +170,12 @@ public class Autos extends SubsystemBase {
                         Commands.sequence(
                             s.coralFlow.grabCoral(),
                             Commands.runOnce(() -> coralGrabbed.set(true)),
-                            s.coralFlow.prepareElevator(ReefBranch.branchL4))))));
+                            s.coralFlow.prepareElevator(ReefPosition.branchL4))))));
 
-    intakeTrajectory.active().and(s.intake.coralDetected).onTrue(scoreTrajectory.cmd());
+    intakeTrajectory
+        .active()
+        .and(s.intake.coralInPassthrough.or(s.intake.coralStaged))
+        .onTrue(scoreTrajectory.cmd());
     intakeTrajectory.chain(scoreTrajectory);
 
     scoreTrajectory
@@ -192,7 +195,7 @@ public class Autos extends SubsystemBase {
         .and(coralGrabbed::get)
         .onTrue(
             s.coralFlow
-                .scoreCoralAuto(ReefBranch.branchL4)
+                .reefActionAuto(ReefPosition.branchL4)
                 .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 

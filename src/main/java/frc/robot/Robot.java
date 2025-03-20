@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
-import frc.robot.commands.CoralFlow.ReefBranch;
+import frc.robot.commands.CoralFlow.ReefPosition;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
@@ -109,7 +109,8 @@ public class Robot {
                 new PivotIOTalonFX(IntakeConstants.pivot),
                 new RollerIOTalonFX(IntakeConstants.roller),
                 new RollerIOTalonFX(IntakeConstants.pasthrough),
-                new BeamBreakIODio(IntakeConstants.beamBreakDioId));
+                new BeamBreakIODio(IntakeConstants.passthroughBeamBreakDioId),
+                new BeamBreakIODio(IntakeConstants.stagingBeamBreakDioId));
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
 
@@ -139,6 +140,7 @@ public class Robot {
                 new PivotIOSim(IntakeConstants.pivot),
                 new RollerIOSim(IntakeConstants.roller),
                 new RollerIOSim(IntakeConstants.pasthrough),
+                new BeamBreakIO() {},
                 new BeamBreakIO() {});
 
         coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
@@ -170,7 +172,11 @@ public class Robot {
 
         intake =
             new Intake(
-                new PivotIO() {}, new RollerIO() {}, new RollerIO() {}, new BeamBreakIO() {});
+                new PivotIO() {},
+                new RollerIO() {},
+                new RollerIO() {},
+                new BeamBreakIO() {},
+                new BeamBreakIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
@@ -193,15 +199,6 @@ public class Robot {
             () -> -mainController.getLeftX(),
             () -> -mainController.getRightX()));
 
-    mainController
-        .leftTrigger()
-        .whileTrue(
-            ReefAlignment.driveReefAligned(
-                s.drive,
-                () -> -mainController.getLeftY(),
-                () -> -mainController.getLeftX(),
-                s.coralFlow::getMemorizedBranch));
-
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     mainController
@@ -220,11 +217,22 @@ public class Robot {
 
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
-        s.coralFlow.scoreCoralOnTrigger(s.coralFlow::getMemorizedBranch, scoreTrigger.negate()));
+        s.coralFlow.reefActionOnTrigger(s.coralFlow::getMemorizedPosition, scoreTrigger.negate()));
 
-    mainController.x().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL2));
-    mainController.b().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL3));
-    mainController.y().onTrue(s.coralFlow.memorizeBranch(ReefBranch.branchL4));
+    Trigger alignTrigger = mainController.leftTrigger();
+
+    alignTrigger.onTrue(
+        s.coralFlow.reefActionOnTrigger(s.coralFlow::getMemorizedPosition, alignTrigger.negate()));
+    alignTrigger.whileTrue(
+        ReefAlignment.driveReefAligned(
+            s.drive,
+            () -> -mainController.getLeftY(),
+            () -> -mainController.getLeftX(),
+            s.coralFlow::getMemorizedPosition));
+
+    mainController.x().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL2));
+    mainController.b().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL3));
+    mainController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL4));
 
     mainController.povLeft().whileTrue(s.intake.setPosition(PivotPosition.coralL1));
     mainController.povLeft().onFalse(s.intake.removeForL1().withTimeout(1));
@@ -241,7 +249,10 @@ public class Robot {
         .whileTrue(
             s.intake.setPosition(PivotPosition.unjam).withTimeout(0.4).andThen(s.intake.reverse()));
 
-    secondaryController.rightTrigger().onTrue(s.coralFlow.prepareElevator(ReefBranch.branchL2));
+    secondaryController.rightTrigger().onTrue(s.coralFlow.prepareElevator(ReefPosition.branchL2));
+
+    secondaryController.a().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL2));
+    secondaryController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL3));
 
     secondaryController
         .leftTrigger()

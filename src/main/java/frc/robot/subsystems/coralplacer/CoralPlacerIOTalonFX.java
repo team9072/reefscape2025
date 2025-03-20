@@ -44,6 +44,16 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   private final MotionMagicVoltage positionRequest =
       new MotionMagicVoltage(CoralPlacerPosition.stowPosition.angle);
 
+  private final MotionMagicConfigs normalMotionMagicConfigs =
+      new MotionMagicConfigs()
+          .withMotionMagicCruiseVelocity(CoralPlacerConstants.rampVelocity)
+          .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration);
+
+  private final MotionMagicConfigs algaeMotionMagicConfigs =
+      new MotionMagicConfigs()
+          .withMotionMagicCruiseVelocity(CoralPlacerConstants.rampVelocityRemoveAlgae)
+          .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration);
+
   public CoralPlacerIOTalonFX() {
     motor = CoralPlacerConstants.motorCanId.getTalon();
     positionRot = motor.getPosition();
@@ -68,10 +78,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
             .withKG(CoralPlacerConstants.kG)
             .withGravityType(GravityTypeValue.Arm_Cosine));
 
-    config.withMotionMagic(
-        new MotionMagicConfigs()
-            .withMotionMagicCruiseVelocity(CoralPlacerConstants.rampVelocity)
-            .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration));
+    config.withMotionMagic(normalMotionMagicConfigs);
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
     tryUntilOk(5, () -> motor.setPosition(CoralPlacerPosition.stowPosition.angle, 0.25));
@@ -92,7 +99,14 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   }
 
   @Override
-  public void setPosition(CoralPlacerPosition positon) {
-    motor.setControl(positionRequest.withPosition(positon.angle));
+  public void setPosition(Angle positon) {
+    motor.getConfigurator().apply(normalMotionMagicConfigs, 0.25);
+    motor.setControl(positionRequest.withPosition(positon));
+  }
+
+  @Override
+  public void setPositionAlgae(Angle positon) {
+    motor.getConfigurator().apply(algaeMotionMagicConfigs, 0.25);
+    motor.setControl(positionRequest.withPosition(positon));
   }
 }

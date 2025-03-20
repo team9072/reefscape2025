@@ -12,25 +12,43 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class CoralFlow {
-  public enum ReefBranch {
+  public enum ReefPosition {
     branchL2(ElevatorPosition.reefL2Position),
     branchL3(ElevatorPosition.reefL3Position),
-    branchL4(ElevatorPosition.reefL4Position);
+    branchL4(ElevatorPosition.reefL4Position),
 
-    public ElevatorPosition position;
+    algaeL2(ElevatorPosition.algaeL2Position),
+    algaeL3(ElevatorPosition.algaeL3Position);
 
-    ReefBranch(ElevatorPosition position) {
-      this.position = position;
+    public final ElevatorPosition elevatorPosition;
+
+    ReefPosition(ElevatorPosition position) {
+      this.elevatorPosition = position;
+    }
+
+    public boolean isAlgae() {
+      switch (this) {
+        case algaeL2, algaeL3:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    public boolean isCoral() {
+      switch (this) {
+        case branchL2, branchL3, branchL4:
+          return true;
+        default:
+          return false;
+      }
     }
   }
 
   private final Intake intake;
   private final Elevator elevator;
   private final CoralPlacer coralPlacer;
-
-  // TODO: account for pre-load
-  private boolean hasCoral = false;
-  private ReefBranch memorizedBranch = ReefBranch.branchL4;
+  private ReefPosition memorizedPosition = ReefPosition.branchL4;
 
   public CoralFlow(Intake intake, Elevator elevator, CoralPlacer coralPlacer) {
     this.intake = intake;
@@ -38,12 +56,12 @@ public class CoralFlow {
     this.coralPlacer = coralPlacer;
   }
 
-  public ReefBranch getMemorizedBranch() {
-    return memorizedBranch;
+  public ReefPosition getMemorizedPosition() {
+    return memorizedPosition;
   }
 
-  public Command memorizeBranch(ReefBranch branch) {
-    return Commands.runOnce(() -> memorizedBranch = branch);
+  public Command memorizePosition(ReefPosition position) {
+    return Commands.runOnce(() -> memorizedPosition = position);
   }
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
@@ -61,68 +79,79 @@ public class CoralFlow {
     return elevator.clearCoral();
   }
 
-  public Command scoreCoral(ReefBranch branch, boolean dontHold) {
+  private Command reefAction(ReefPosition position, boolean isAuto) {
+    if (position.isAlgae()) {
+      // Remove algae
+      return Commands.sequence(
+          prepareElevator(position, isAuto),
+          coralPlacer.setPosition(CoralPlacerPosition.removeAlgaePosition));
+    } else {
+      // Score coral
+      return Commands.sequence(
+          prepareElevator(position, isAuto),
+          coralPlacer
+              .setPosition(CoralPlacerPosition.scorePosition)
+              .until(coralPlacer.pastScorePosition));
+    }
+  }
+
+  public Command reefAction(ReefPosition position) {
+    return reefAction(position, false);
+  }
+
+  public Command reefActionAuto(ReefPosition position) {
+    return reefAction(position, true);
+  }
+
+  private Command prepareElevator(ReefPosition position, boolean isAuto) {
     return Commands.sequence(
-        prepareElevator(branch, dontHold),
+        elevator.clearCoral(),
         coralPlacer
-            .setPosition(CoralPlacerPosition.scorePosition)
-            .until(coralPlacer.pastScorePosition));
+            .setPosition(
+                position.isAlgae()
+                    ? CoralPlacerPosition.grabPosition
+                    : CoralPlacerPosition.holdPosition)
+            .unless(() -> elevator.atPosition(position.elevatorPosition) && position.isCoral()),
+        elevator.setPosition(position.elevatorPosition),
+        coralPlacer
+            .setPosition(
+                position == ReefPosition.branchL4
+                    ? CoralPlacerPosition.preScoreHoldPositionL4
+                    : CoralPlacerPosition.preScoreHoldPosition)
+            .unless(() -> isAuto || !position.isCoral()));
   }
 
-  public Command scoreCoral(ReefBranch branch) {
-    return scoreCoral(branch, false);
-  }
-
-  public Command scoreCoralAuto(ReefBranch branch) {
-    return scoreCoral(branch, true);
-  }
-
-  public Command prepareElevator(ReefBranch branch, boolean dontHold) {
-    return elevator
-        .clearCoral()
-        .andThen(
-            coralPlacer
-                .setPosition(CoralPlacerPosition.holdPosition)
-                .unless(() -> elevator.atPosition(branch.position)),
-            elevator.setPosition(branch.position),
-            coralPlacer
-                .setPosition(
-                    branch == ReefBranch.branchL4
-                        ? CoralPlacerPosition.preScoreHoldPositionL4
-                        : CoralPlacerPosition.preScoreHoldPosition)
-                .unless(() -> dontHold));
-  }
-
-  public Command prepareElevator(ReefBranch branch) {
-    return prepareElevator(branch, false);
+  public Command prepareElevator(ReefPosition position) {
+    return prepareElevator(position, false);
   }
 
   /** Does not hold coral for alignment */
-  public Command prepareElevatorAuto(ReefBranch branch) {
-    return prepareElevator(branch, true);
+  public Command prepareElevatorAuto(ReefPosition position) {
+    return prepareElevator(position, true);
   }
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
    * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
-  public Command scoreCoralOnTrigger(ReefBranch branch, BooleanSupplier scoreOrCancel) {
+  public Command reefActionOnTrigger(ReefPosition position, BooleanSupplier scoreOrCancel) {
     // If the trigger returned true before the command exited normally, return instead of scoring
     return Commands.sequence(
-        prepareElevator(branch).until(scoreOrCancel),
-        Commands.waitUntil(scoreOrCancel),
-        coralPlacer
-            .setPosition(CoralPlacerPosition.scorePosition)
-            .onlyIf(() -> elevator.atPosition(branch.position)));
+            prepareElevator(position).until(scoreOrCancel),
+            Commands.waitUntil(scoreOrCancel),
+            reefAction(position).onlyIf(() -> elevator.atPosition(position.elevatorPosition)))
+        .onlyIf(coralPlacer.clearsReef.or(() -> position.isAlgae()));
   }
 
   /**
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
    * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
-  public Command scoreCoralOnTrigger(Supplier<ReefBranch> branch, BooleanSupplier scoreOrCancel) {
+  public Command reefActionOnTrigger(
+      Supplier<ReefPosition> positionSupplier, BooleanSupplier scoreOrCancel) {
     return Commands.defer(
-        () -> scoreCoralOnTrigger(branch.get(), scoreOrCancel), Set.of(elevator, coralPlacer));
+        () -> reefActionOnTrigger(positionSupplier.get(), scoreOrCancel),
+        Set.of(elevator, coralPlacer));
   }
 
   public Command grabCoral() {
