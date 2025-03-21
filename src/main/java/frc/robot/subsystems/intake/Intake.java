@@ -199,23 +199,21 @@ public class Intake extends SubsystemBase {
   }
 
   public Command setPosition(PivotPosition position) {
-    return Commands.sequence(
-        runOnce(
-            () -> {
-              stopHoming();
-              homedSinceLastSetpoint = false;
-              pivotIO.setPosition(position.angle);
-              lastSetpoint = position;
-            }),
-        Commands.waitUntil(() -> position.withinTolerance(pivotInputs.position)));
+    return run(() -> {
+          stopHoming();
+          homedSinceLastSetpoint = false;
+          pivotIO.setPosition(position.angle);
+          lastSetpoint = position;
+        })
+        .until(() -> position.withinTolerance(pivotInputs.position));
   }
 
   public Command toggleDeploy() {
     return Commands.either(
-        setPosition(PivotPosition.stow),
         setPosition(PivotPosition.deploy),
+        setPosition(PivotPosition.stow),
         () -> {
-          return (lastSetpoint != PivotPosition.stow);
+          return (lastSetpoint != PivotPosition.deploy);
         });
   }
 }
