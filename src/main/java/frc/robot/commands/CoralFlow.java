@@ -7,12 +7,15 @@ import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 public class CoralFlow {
   public enum ReefPosition {
+    troughL1(null),
+
     branchL2(ElevatorPosition.reefL2Position),
     branchL3(ElevatorPosition.reefL3Position),
     branchL4(ElevatorPosition.reefL4Position),
@@ -35,7 +38,16 @@ public class CoralFlow {
       }
     }
 
-    public boolean isCoral() {
+    public boolean isTrough() {
+      switch (this) {
+        case troughL1:
+          return true;
+        default:
+          return false;
+      }
+    }
+
+    public boolean isBranch() {
       switch (this) {
         case branchL2, branchL3, branchL4:
           return true;
@@ -48,7 +60,9 @@ public class CoralFlow {
   private final Intake intake;
   private final Elevator elevator;
   private final CoralPlacer coralPlacer;
-  private ReefPosition memorizedPosition = ReefPosition.branchL4;
+
+  private ReefPosition memorizedBranchPosition = ReefPosition.branchL4;
+  private ReefPosition memorizedPosition = memorizedBranchPosition;
 
   public CoralFlow(Intake intake, Elevator elevator, CoralPlacer coralPlacer) {
     this.intake = intake;
@@ -61,7 +75,13 @@ public class CoralFlow {
   }
 
   public Command memorizePosition(ReefPosition position) {
-    return Commands.runOnce(() -> memorizedPosition = position);
+    return Commands.runOnce(
+        () -> {
+          memorizedPosition = position;
+          if (position.isBranch()) {
+            memorizedBranchPosition = position;
+          }
+        });
   }
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
@@ -80,7 +100,10 @@ public class CoralFlow {
   }
 
   private Command reefAction(ReefPosition position, boolean isAuto) {
-    if (position.isAlgae()) {
+    if (position.isTrough()) {
+      // Score with intake
+      return intake.removeForL1().withTimeout(1.5);
+    } else if (position.isAlgae()) {
       // Remove algae
       return Commands.sequence(
           prepareElevator(position, isAuto),
@@ -104,6 +127,10 @@ public class CoralFlow {
   }
 
   private Command prepareElevator(ReefPosition position, boolean isAuto) {
+    if (position.isTrough()) {
+      return prepareTroughScore();
+    }
+
     return Commands.sequence(
         elevator.clearCoral(),
         coralPlacer
@@ -111,14 +138,14 @@ public class CoralFlow {
                 position.isAlgae()
                     ? CoralPlacerPosition.grabPosition
                     : CoralPlacerPosition.holdPosition)
-            .unless(() -> elevator.atPosition(position.elevatorPosition) && position.isCoral()),
+            .unless(() -> elevator.atPosition(position.elevatorPosition) && position.isBranch()),
         elevator.setPosition(position.elevatorPosition),
         coralPlacer
             .setPosition(
                 position == ReefPosition.branchL4
                     ? CoralPlacerPosition.preScoreHoldPositionL4
                     : CoralPlacerPosition.preScoreHoldPosition)
-            .unless(() -> isAuto || !position.isCoral()));
+            .unless(() -> isAuto || !position.isBranch()));
   }
 
   public Command prepareElevator(ReefPosition position) {
@@ -139,8 +166,10 @@ public class CoralFlow {
     return Commands.sequence(
             prepareElevator(position).until(scoreOrCancel),
             Commands.waitUntil(scoreOrCancel),
-            reefAction(position).onlyIf(() -> elevator.atPosition(position.elevatorPosition)))
-        .onlyIf(coralPlacer.clearsReef.or(() -> position.isAlgae()));
+            reefAction(position)
+                .onlyIf(
+                    () -> position.isTrough() || elevator.atPosition(position.elevatorPosition)))
+        .onlyIf(coralPlacer.clearsReef.or(() -> !position.isBranch()));
   }
 
   /**
@@ -157,11 +186,16 @@ public class CoralFlow {
   public Command grabCoral() {
     return Commands.sequence(
         Commands.parallel(
+            memorizePosition(memorizedBranchPosition),
             coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
         elevator.setPosition(ElevatorPosition.grabPosition),
         Commands.waitSeconds(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition));
+  }
+
+  public Command prepareTroughScore() {
+    return intake.setPosition(PivotPosition.coralL1);
   }
 }

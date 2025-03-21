@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Distance;
@@ -37,21 +38,35 @@ public class ReefAlignment {
 
   private ReefAlignment() {}
 
-  private static Translation2d[] getPoleOffsets(Distance reefOffset) {
-    return new Translation2d[] {
-      new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero()).plus(poleOffset),
-      new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero()).minus(poleOffset),
+  private static Transform2d[] getPoleOffsets(Distance reefOffset) {
+    return new Transform2d[] {
+      new Transform2d(
+          new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero())
+              .plus(poleOffset),
+          Rotation2d.k180deg),
+      new Transform2d(
+          new Translation2d(reefBaseOffsetDistance.minus(reefOffset), Meters.zero())
+              .plus(poleOffset),
+          Rotation2d.k180deg),
     };
   }
 
-  private static Translation2d[] getSingleOffset(Distance reefOffset) {
-    return new Translation2d[] {
-      new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero()),
+  private static Transform2d[] getSingleOffset(Distance reefOffset, Rotation2d rotation) {
+    return new Transform2d[] {
+      new Transform2d(
+          new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero()), rotation),
     };
   }
 
-  private static Translation2d[] getReefOffsets(ReefPosition position) {
+  private static Transform2d[] getSingleOffset(Distance reefOffset) {
+    return getSingleOffset(reefOffset, Rotation2d.k180deg);
+  }
+
+  private static Transform2d[] getReefOffsets(ReefPosition position) {
     switch (position) {
+      case troughL1:
+        return getSingleOffset(Meters.zero(), Rotation2d.kZero);
+
       case branchL2, branchL3:
         return getPoleOffsets(reefLowerOffsetDistance);
       case branchL4:
@@ -76,37 +91,34 @@ public class ReefAlignment {
     rotationsToReefCenter = Math.round(rotationsToReefCenter * 6) / 6.0;
     Rotation2d angleToReefCenter = Rotation2d.fromRotations(rotationsToReefCenter);
 
-    return new Pose2d(reefCenter, angleToReefCenter.rotateBy(Rotation2d.k180deg));
+    return new Pose2d(reefCenter, angleToReefCenter);
   }
 
   private static Pose2d findClosestOffset(
       Pose2d robotPose, Pose2d reefPose, ReefPosition position) {
-    Translation2d reefCenter = reefPose.getTranslation();
-    Rotation2d reefAngle = reefPose.getRotation();
-
-    Translation2d[] reefOffsets = getReefOffsets(position);
-    Translation2d closestOffset =
+    Transform2d[] reefOffsets = getReefOffsets(position);
+    Pose2d closestOffset =
         Arrays.stream(reefOffsets)
             .map(
                 (offset) -> {
-                  Translation2d offsetCenter =
-                      reefCenter.plus(offset.rotateBy(reefAngle.plus(Rotation2d.k180deg)));
-                  double offsetDistance = robotPose.getTranslation().getDistance(offsetCenter);
+                  Pose2d offsetPose = reefPose.transformBy(offset);
+                  double offsetDistance =
+                      robotPose.getTranslation().getDistance(offsetPose.getTranslation());
 
-                  return new Pair<>(offsetCenter, offsetDistance);
+                  return new Pair<>(offsetPose, offsetDistance);
                 })
             .min((a, b) -> Double.compare(a.getSecond(), b.getSecond()))
             .map((pair) -> pair.getFirst())
             .get();
 
-    return new Pose2d(closestOffset, reefAngle);
+    return closestOffset;
   }
 
   private static ChassisSpeeds getReefAlignSpeeds(
-      Pose2d reefPole, DrivePid driveController, double joystickValue) {
+      Pose2d alignPose, DrivePid driveController, double joystickValue) {
     ChassisSpeeds speeds = new ChassisSpeeds();
 
-    ChassisSpeeds headingCorrection = driveController.getHeadingCorrection(reefPole.getRotation());
+    ChassisSpeeds headingCorrection = driveController.getHeadingCorrection(alignPose.getRotation());
 
     if (!driveController.headingPidAtSetpoint()) {
       speeds = speeds.plus(headingCorrection);
@@ -114,7 +126,7 @@ public class ReefAlignment {
 
     ChassisSpeeds positionCorrection =
         driveController
-            .getTranslationCorrection(reefPole.getTranslation())
+            .getTranslationCorrection(alignPose.getTranslation())
             .times(Math.max(0, 1 - joystickValue * 10));
 
     if (!driveController.translationPidAtSetpoint()) {

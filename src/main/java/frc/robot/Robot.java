@@ -234,8 +234,12 @@ public class Robot {
     mainController.b().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL3));
     mainController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL4));
 
-    mainController.povLeft().whileTrue(s.intake.setPosition(PivotPosition.coralL1));
-    mainController.povLeft().onFalse(s.intake.removeForL1().withTimeout(1));
+    mainController
+        .povLeft()
+        .onTrue(
+            s.coralFlow
+                .memorizePosition(ReefPosition.troughL1)
+                .alongWith(s.coralFlow.prepareTroughScore()));
 
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
