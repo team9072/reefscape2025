@@ -45,8 +45,8 @@ public class ReefAlignment {
               .plus(poleOffset),
           Rotation2d.k180deg),
       new Transform2d(
-          new Translation2d(reefBaseOffsetDistance.minus(reefOffset), Meters.zero())
-              .plus(poleOffset),
+          new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero())
+              .minus(poleOffset),
           Rotation2d.k180deg),
     };
   }
