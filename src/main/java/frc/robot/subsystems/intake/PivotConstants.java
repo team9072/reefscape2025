@@ -56,8 +56,8 @@ public class PivotConstants {
   public static final double kD = 4;
   public static final double kV = 2.4;
 
-  public static final double rampVelocity = 3;
-  public static final double rampAcceleration = 3;
+  public static final double rampVelocity = 5;
+  public static final double rampAcceleration = 5;
 
   public final CanID canId;
   public final InvertedValue invertedValue;
