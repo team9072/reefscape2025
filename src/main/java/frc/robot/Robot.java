@@ -236,8 +236,8 @@ public class Robot {
 
     mainController
         .povLeft()
-        .onTrue(
-            s.coralFlow.prepareTroughScore()).onFalse(s.intake.removeForL1().withTimeout(1.5));
+        .onTrue(s.coralFlow.prepareTroughScore())
+        .onFalse(s.intake.removeForL1().withTimeout(1.5));
 
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
@@ -255,6 +255,8 @@ public class Robot {
 
     secondaryController.a().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL2));
     secondaryController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL3));
+
+    secondaryController.x().onTrue(s.coralFlow.unstuckCoralPlacer());
 
     secondaryController
         .leftTrigger()

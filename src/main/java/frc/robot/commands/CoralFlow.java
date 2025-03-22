@@ -202,4 +202,15 @@ public class CoralFlow {
   public Command prepareTroughScore() {
     return intake.setPosition(PivotPosition.coralL1);
   }
+
+  public Command unstuckCoralPlacer() {
+    return Commands.sequence(
+        coralPlacer.setPosition(CoralPlacerPosition.unstuckPosition).withTimeout(0),
+        elevator.setPosition(ElevatorPosition.grabPosition),
+        coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
+  }
+
+  public Command coralPlacerForwardAuto() {
+    return coralPlacer.setPosition(CoralPlacerPosition.scorePosition);
+  }
 }

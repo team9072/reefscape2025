@@ -123,6 +123,8 @@ public class Autos extends SubsystemBase {
   }
 
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
+    trajectory.active().onTrue(s.coralFlow.coralPlacerForwardAuto());
+
     trajectory
         .atTime(prepareAlignEvent)
         .onTrue(
