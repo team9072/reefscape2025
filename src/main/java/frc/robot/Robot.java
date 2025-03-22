@@ -237,9 +237,7 @@ public class Robot {
     mainController
         .povLeft()
         .onTrue(
-            s.coralFlow
-                .memorizePosition(ReefPosition.troughL1)
-                .alongWith(s.coralFlow.prepareTroughScore()));
+            s.coralFlow.prepareTroughScore()).onFalse(s.intake.removeForL1().withTimeout(1.5));
 
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
