@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -10,11 +8,9 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.commands.CoralFlow.ReefPosition;
@@ -132,7 +128,7 @@ public class Autos extends SubsystemBase {
         .onTrue(
             s.coralFlow
                 .prepareElevator(ReefPosition.branchL4)
-                .alongWith(setReefOveride(new Pose2d(5.32, 5.14, new Rotation2d(4.19)))));
+                .alongWith(setReefOveride(trajectory)));
 
     trajectory
         .done()
@@ -154,49 +150,37 @@ public class Autos extends SubsystemBase {
         .onTrue(
             s.intake.setPosition(PivotPosition.deploy).withTimeout(0).andThen(s.intake.intake()));
 
-    Time coralDetectDelay = Seconds.of(0.2);
-
-    intakeTrajectory
-        .active()
-        .or(scoreTrajectory.active())
-        .and(s.intake.coralStaged)
-        .onTrue(
-            Commands.sequence(
-                Commands.runOnce(() -> coralDetected.set(true)),
-                Commands.waitTime(coralDetectDelay),
-                new ScheduleCommand(
-                    Commands.parallel(
-                        s.intake.setPosition(PivotPosition.stow),
-                        Commands.sequence(
-                            s.coralFlow.grabCoral(),
-                            Commands.runOnce(() -> coralGrabbed.set(true)),
-                            s.coralFlow.prepareElevator(ReefPosition.branchL4))))));
-
     intakeTrajectory
         .active()
         .and(s.intake.coralInPassthrough.or(s.intake.coralStaged))
         .onTrue(scoreTrajectory.cmd());
     intakeTrajectory.chain(scoreTrajectory);
 
-    scoreTrajectory
-        .done()
+    Command grabCoral =
+        Commands.sequence(
+            Commands.runOnce(() -> coralDetected.set(true)),
+            s.coralFlow.grabCoral(),
+            setReefOveride(scoreTrajectory),
+            Commands.runOnce(() -> coralGrabbed.set(true)),
+            s.coralFlow.prepareElevator(ReefPosition.branchL4));
+
+    intakeTrajectory
+        .active()
+        .or(scoreTrajectory.active())
+        .and(s.intake.coralStaged)
         .and(() -> !coralDetected.get())
-        .onTrue(
-            Commands.parallel(
-                Commands.sequence(
-                    Commands.runOnce(() -> coralDetected.set(true)),
-                    Commands.waitTime(coralDetectDelay),
-                    s.coralFlow.grabCoral(),
-                    Commands.runOnce(() -> coralGrabbed.set(true))),
-                s.intake.setPosition(PivotPosition.stow).withTimeout(0)));
+        .onTrue(grabCoral);
+
+    scoreTrajectory.atTime(prepareAlignEvent).and(() -> !coralGrabbed.get()).onTrue(grabCoral);
 
     scoreTrajectory
         .recentlyDone()
         .and(coralGrabbed::get)
         .onTrue(
-            s.coralFlow
-                .reefActionAuto(ReefPosition.branchL4)
-                .andThen(Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+            Commands.sequence(
+                s.coralFlow.reefActionAuto(ReefPosition.branchL4),
+                clearReefOveride(),
+                Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
   private AutoRoutine preload1p(String name, String preloadTrajName) {

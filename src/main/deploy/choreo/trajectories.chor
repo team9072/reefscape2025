@@ -21,8 +21,15 @@
    "PoleOffset":{
     "dimension":"Length",
     "var":{
-     "exp":"6.5 in",
-     "val":0.1651
+     "exp":"6.8 in",
+     "val":0.17271999999999998
+    }
+   },
+   "PrepareAlignTime":{
+    "dimension":"Time",
+    "var":{
+     "exp":"0.75 s",
+     "val":0.75
     }
    },
    "R1Angle":{
@@ -67,18 +74,25 @@
      "val":2.0943951023931953
     }
    },
+   "ReefBaseOffsetDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"0.831723 m + 16 in",
+     "val":1.238123
+    }
+   },
+   "ReefL4OffsetDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"ReefBaseOffsetDistance + 8 in",
+     "val":1.441323
+    }
+   },
    "ReefMaxAccel":{
     "dimension":"LinAcc",
     "var":{
-     "exp":"2 m / s ^ 2",
-     "val":2.0
-    }
-   },
-   "ReefOffset":{
-    "dimension":"Length",
-    "var":{
-     "exp":"0.831723 m + 16 in + 5.5 in",
-     "val":1.3778229999999998
+     "exp":"1.5 m / s ^ 2",
+     "val":1.5
     }
    },
    "Spike1Y":{
@@ -197,12 +211,12 @@
    },
    "R1P1":{
     "x":{
-     "exp":"Reef.x + (cos(R1Angle - 180 deg) * ReefOffset) + (cos(R1Angle + 90 deg) * PoleOffset)",
-     "val":5.867146
+     "exp":"ReefCenter.x + (cos(R1Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R1Angle + 90 deg) * PoleOffset)",
+     "val":5.930645999999999
     },
     "y":{
-     "exp":"Reef.y + (sin(R1Angle - 180 deg) * ReefOffset) + (sin(R1Angle + 90 deg) * PoleOffset)",
-     "val":3.8608
+     "exp":"ReefCenter.y + (sin(R1Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R1Angle + 90 deg) * PoleOffset)",
+     "val":3.85318
     },
     "heading":{
      "exp":"R1Angle",
@@ -211,12 +225,12 @@
    },
    "R1P2":{
     "x":{
-     "exp":"Reef.x + (cos(R1Angle - 180 deg) * ReefOffset) + (cos(R1Angle + 90 deg) * PoleOffset)",
-     "val":5.867146
+     "exp":"ReefCenter.x + (cos(R1Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R1Angle + 90 deg) * PoleOffset)",
+     "val":5.930645999999999
     },
     "y":{
-     "exp":"Reef.y + (sin(R1Angle - 180 deg) * ReefOffset) + (sin(R1Angle - 90 deg) * PoleOffset)",
-     "val":4.191
+     "exp":"ReefCenter.y + (sin(R1Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R1Angle - 90 deg) * PoleOffset)",
+     "val":4.19862
     },
     "heading":{
      "exp":"R1Angle",
@@ -225,12 +239,12 @@
    },
    "R2P1":{
     "x":{
-     "exp":"Reef.x + (cos(R2Angle - 180 deg) * ReefOffset) + (cos(R2Angle + 90 deg) * PoleOffset)",
-     "val":5.321215294164811
+     "exp":"ReefCenter.x + (cos(R2Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R2Angle + 90 deg) * PoleOffset)",
+     "val":5.359564407741648
     },
     "y":{
-     "exp":"Reef.y + (sin(R2Angle - 180 deg) * ReefOffset) + (sin(R2Angle + 90 deg) * PoleOffset)",
-     "val":5.136579719918486
+     "exp":"ReefCenter.y + (sin(R2Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R2Angle + 90 deg) * PoleOffset)",
+     "val":5.1877623330587985
     },
     "heading":{
      "exp":"R2Angle",
@@ -239,12 +253,12 @@
    },
    "R2P2":{
     "x":{
-     "exp":"Reef.x + (cos(R2Angle - 180 deg) * ReefOffset) + (cos(R2Angle - 90 deg) * PoleOffset)",
-     "val":5.035253705835189
+     "exp":"ReefCenter.x + (cos(R2Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R2Angle - 90 deg) * PoleOffset)",
+     "val":5.060404592258352
     },
     "y":{
-     "exp":"Reef.y + (sin(R2Angle - 180 deg) * ReefOffset) + (sin(R2Angle - 90 deg) * PoleOffset)",
-     "val":5.301679719918487
+     "exp":"ReefCenter.y + (sin(R2Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R2Angle - 90 deg) * PoleOffset)",
+     "val":5.3604823330587985
     },
     "heading":{
      "exp":"R2Angle",
@@ -253,12 +267,12 @@
    },
    "R3P1":{
     "x":{
-     "exp":"Reef.x + (cos(R3Angle - 180 deg) * ReefOffset) + (cos(R3Angle + 90 deg) * PoleOffset)",
-     "val":3.9433922941648105
+     "exp":"ReefCenter.x + (cos(R3Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R3Angle + 90 deg) * PoleOffset)",
+     "val":3.918241407741648
     },
     "y":{
-     "exp":"Reef.y + (sin(R3Angle - 180 deg) * ReefOffset) + (sin(R3Angle + 90 deg) * PoleOffset)",
-     "val":5.301679719918487
+     "exp":"ReefCenter.y + (sin(R3Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R3Angle + 90 deg) * PoleOffset)",
+     "val":5.3604823330587985
     },
     "heading":{
      "exp":"R3Angle",
@@ -267,12 +281,12 @@
    },
    "R3P2":{
     "x":{
-     "exp":"Reef.x + (cos(R3Angle - 180 deg) * ReefOffset) + (cos(R3Angle - 90 deg) * PoleOffset)",
-     "val":3.6574307058351887
+     "exp":"ReefCenter.x + (cos(R3Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R3Angle - 90 deg) * PoleOffset)",
+     "val":3.6190815922583512
     },
     "y":{
-     "exp":"Reef.y + (sin(R3Angle - 180 deg) * ReefOffset) + (sin(R3Angle - 90 deg) * PoleOffset)",
-     "val":5.136579719918486
+     "exp":"ReefCenter.y + (sin(R3Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R3Angle - 90 deg) * PoleOffset)",
+     "val":5.1877623330587985
     },
     "heading":{
      "exp":"R3Angle",
@@ -281,12 +295,12 @@
    },
    "R4P1":{
     "x":{
-     "exp":"Reef.x + (cos(R4Angle - 180 deg) * ReefOffset) + (cos(R4Angle + 90 deg) * PoleOffset)",
-     "val":3.1115
+     "exp":"ReefCenter.x + (cos(R4Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R4Angle + 90 deg) * PoleOffset)",
+     "val":3.048
     },
     "y":{
-     "exp":"Reef.y + (sin(R4Angle - 180 deg) * ReefOffset) + (sin(R4Angle + 90 deg) * PoleOffset)",
-     "val":4.191
+     "exp":"ReefCenter.y + (sin(R4Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R4Angle + 90 deg) * PoleOffset)",
+     "val":4.19862
     },
     "heading":{
      "exp":"R4Angle",
@@ -295,12 +309,12 @@
    },
    "R4P2":{
     "x":{
-     "exp":"Reef.x + (cos(R4Angle - 180 deg) * ReefOffset) + (cos(R4Angle - 90 deg) * PoleOffset)",
-     "val":3.1115
+     "exp":"ReefCenter.x + (cos(R4Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R4Angle - 90 deg) * PoleOffset)",
+     "val":3.048
     },
     "y":{
-     "exp":"Reef.y + (sin(R4Angle - 180 deg) * ReefOffset) + (sin(R4Angle - 90 deg) * PoleOffset)",
-     "val":3.8608
+     "exp":"ReefCenter.y + (sin(R4Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R4Angle - 90 deg) * PoleOffset)",
+     "val":3.85318
     },
     "heading":{
      "exp":"R4Angle",
@@ -309,12 +323,12 @@
    },
    "R5P1":{
     "x":{
-     "exp":"Reef.x + (cos(R5Angle - 180 deg) * ReefOffset) + (cos(R5Angle + 90 deg) * PoleOffset)",
-     "val":3.6574307058351887
+     "exp":"ReefCenter.x + (cos(R5Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R5Angle + 90 deg) * PoleOffset)",
+     "val":3.6190815922583512
     },
     "y":{
-     "exp":"Reef.y + (sin(R5Angle - 180 deg) * ReefOffset) + (sin(R5Angle + 90 deg) * PoleOffset)",
-     "val":2.9152202800815137
+     "exp":"ReefCenter.y + (sin(R5Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R5Angle + 90 deg) * PoleOffset)",
+     "val":2.8640376669412015
     },
     "heading":{
      "exp":"R5Angle",
@@ -323,12 +337,12 @@
    },
    "R5P2":{
     "x":{
-     "exp":"Reef.x + (cos(R5Angle - 180 deg) * ReefOffset) + (cos(R5Angle - 90 deg) * PoleOffset)",
-     "val":3.9433922941648105
+     "exp":"ReefCenter.x + (cos(R5Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R5Angle - 90 deg) * PoleOffset)",
+     "val":3.918241407741648
     },
     "y":{
-     "exp":"Reef.y + (sin(R5Angle - 180 deg) * ReefOffset) + (sin(R5Angle - 90 deg) * PoleOffset)",
-     "val":2.750120280081514
+     "exp":"ReefCenter.y + (sin(R5Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R5Angle - 90 deg) * PoleOffset)",
+     "val":2.6913176669412016
     },
     "heading":{
      "exp":"R5Angle",
@@ -337,12 +351,12 @@
    },
    "R6P1":{
     "x":{
-     "exp":"Reef.x + (cos(R6Angle - 180 deg) * ReefOffset) + (cos(R6Angle + 90 deg) * PoleOffset)",
-     "val":5.0352537058351885
+     "exp":"ReefCenter.x + (cos(R6Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R6Angle + 90 deg) * PoleOffset)",
+     "val":5.060404592258351
     },
     "y":{
-     "exp":"Reef.y + (sin(R6Angle - 180 deg) * ReefOffset) + (sin(R6Angle + 90 deg) * PoleOffset)",
-     "val":2.750120280081514
+     "exp":"ReefCenter.y + (sin(R6Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R6Angle + 90 deg) * PoleOffset)",
+     "val":2.6913176669412016
     },
     "heading":{
      "exp":"R6Angle",
@@ -351,19 +365,19 @@
    },
    "R6P2":{
     "x":{
-     "exp":"Reef.x + (cos(R6Angle - 180 deg) * ReefOffset) + (cos(R6Angle - 90 deg) * PoleOffset)",
-     "val":5.32121529416481
+     "exp":"ReefCenter.x + (cos(R6Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R6Angle - 90 deg) * PoleOffset)",
+     "val":5.359564407741647
     },
     "y":{
-     "exp":"Reef.y + (sin(R6Angle - 180 deg) * ReefOffset) + (sin(R6Angle - 90 deg) * PoleOffset)",
-     "val":2.9152202800815137
+     "exp":"ReefCenter.y + (sin(R6Angle - 180 deg) * ReefL4OffsetDistance) + (sin(R6Angle - 90 deg) * PoleOffset)",
+     "val":2.8640376669412015
     },
     "heading":{
      "exp":"R6Angle",
      "val":2.0943951023931953
     }
    },
-   "Reef":{
+   "ReefCenter":{
     "x":{
      "exp":"4.489323 m",
      "val":4.489323

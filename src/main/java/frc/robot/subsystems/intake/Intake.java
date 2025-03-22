@@ -43,8 +43,7 @@ public class Intake extends SubsystemBase {
   private Timer homingDelay = new Timer();
 
   public Trigger coralInPassthrough = new Trigger(() -> passthroughBeamBreakInputs.objectDetected);
-  public Trigger coralStaged =
-      new Trigger(() -> stagingBeamBreakInputs.objectDetected).debounce(0.2);
+  public Trigger coralStaged = new Trigger(() -> stagingBeamBreakInputs.objectDetected);
 
   public Intake(
       PivotIO pivotIO,
