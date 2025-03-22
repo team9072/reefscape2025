@@ -81,7 +81,7 @@ public class VisionConstants {
       if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
         return ReefTags.blue.includesTag(tagId);
       } else {
-        return ReefTags.blue.includesTag(tagId);
+        return ReefTags.red.includesTag(tagId);
       }
     }
   }
