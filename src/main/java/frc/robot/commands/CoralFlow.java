@@ -213,4 +213,8 @@ public class CoralFlow {
   public Command coralPlacerForwardAuto() {
     return coralPlacer.setPosition(CoralPlacerPosition.scorePosition);
   }
+
+  public Command unstuckElevator(ElevatorPosition position) {
+    return elevator.setPosition(position);
+  }
 }

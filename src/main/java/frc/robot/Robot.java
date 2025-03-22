@@ -26,6 +26,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -272,6 +273,17 @@ public class Robot {
                 .withTimeout(0)
                 .andThen(s.intake.intakeAlgae()));
     secondaryController.leftTrigger().onFalse(s.intake.reverseAlgae().withTimeout(1));
+
+    // Elevator unstuck
+    secondaryController
+        .povDown()
+        .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL2Position));
+    secondaryController
+        .povLeft()
+        .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL3Position));
+    secondaryController
+        .povUp()
+        .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL4Position));
 
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
