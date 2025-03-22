@@ -56,8 +56,6 @@ public class Intake extends SubsystemBase {
     this.passthroughIO = passthroughIO;
     this.passthroughBeamBreakIO = passthroughBeamBreakIO;
     this.stagingBeamBreakIO = stagingBeamBreakIO;
-
-    pivotIO.setFloating();
   }
 
   @Override
@@ -76,10 +74,6 @@ public class Intake extends SubsystemBase {
 
     stagingBeamBreakIO.updateInputs(stagingBeamBreakInputs);
     Logger.processInputs("Intake/Staging Beam Break", stagingBeamBreakInputs);
-
-    if (lastSetpoint.shouldFloat && lastSetpoint.withinTolerance(pivotInputs.position)) {
-      pivotIO.setFloating();
-    }
 
     if (lastSetpoint == PivotPosition.stow && !homedSinceLastSetpoint && !isHoming()) {
       startWaitForHoming();

@@ -20,19 +20,17 @@ import frc.robot.util.CanID;
 
 public class PivotConstants {
   public enum PivotPosition {
-    stow(Rotations.of(-0.3), false),
-    unjam(Rotations.of(0.05), false),
-    algae(Rotations.of(-0.08), true),
-    coralL1(Rotations.of(-0.21), false),
-    deploy(Rotations.of(0.13), false);
+    stow(Rotations.of(-0.3)),
+    unjam(Rotations.of(0.05)),
+    algae(Rotations.of(-0.08)),
+    coralL1(Rotations.of(-0.21)),
+    deploy(Rotations.of(0.13));
 
     public Angle angle;
-    public boolean shouldFloat;
     public static final Angle tolerance = Degrees.of(3);
 
-    PivotPosition(Angle angle, boolean shouldFloat) {
+    PivotPosition(Angle angle) {
       this.angle = angle;
-      this.shouldFloat = shouldFloat;
     }
 
     public boolean withinTolerance(Angle angle) {

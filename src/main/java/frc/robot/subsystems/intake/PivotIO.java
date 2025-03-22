@@ -22,8 +22,6 @@ public interface PivotIO {
 
   public default void updateInputs(PivotIOInputs inputs) {}
 
-  public default void setFloating() {}
-
   public default void setPosition(Angle positon) {}
 
   public default void setHomePosition(Angle newPosition) {}

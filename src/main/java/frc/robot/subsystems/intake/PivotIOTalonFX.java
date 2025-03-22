@@ -19,10 +19,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -41,8 +39,7 @@ public class PivotIOTalonFX implements PivotIO {
   private final StatusSignal<Voltage> appliedVolts;
   private final StatusSignal<Current> currentAmps;
 
-  private final PositionVoltage floatRequest = new PositionVoltage(0).withSlot(0);
-  private final MotionMagicVoltage deployRequest = new MotionMagicVoltage(0).withSlot(1);
+  private final MotionMagicVoltage deployRequest = new MotionMagicVoltage(0);
 
   public PivotIOTalonFX(PivotConstants constants) {
     motor = constants.canId.getTalon();
@@ -60,12 +57,8 @@ public class PivotIOTalonFX implements PivotIO {
 
     config.Feedback.SensorToMechanismRatio = PivotConstants.motorReduction;
 
-    // Floating
     config.withSlot0(
-        new Slot0Configs().withKG(PivotConstants.kG).withGravityType(GravityTypeValue.Arm_Cosine));
-
-    config.withSlot1(
-        new Slot1Configs()
+        new Slot0Configs()
             .withKP(PivotConstants.kP)
             .withKD(PivotConstants.kD)
             .withKV(PivotConstants.kV)
@@ -96,13 +89,7 @@ public class PivotIOTalonFX implements PivotIO {
   }
 
   @Override
-  public void setFloating() {
-    motor.setControl(floatRequest);
-  }
-
-  @Override
   public void setPosition(Angle positon) {
-    floatRequest.withPosition(positon);
     motor.setControl(deployRequest.withPosition(positon));
   }
 
