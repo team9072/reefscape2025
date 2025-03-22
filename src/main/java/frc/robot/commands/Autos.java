@@ -88,13 +88,16 @@ public class Autos extends SubsystemBase {
   }
 
   private Command drivePose(Pose2d targetPose) {
-    return Commands.run(() -> {
-      ChassisSpeeds targetSpeeds = ReefAlignment.getReefAlignSpeeds(targetPose, driveController);
-    
-      s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
-    }, s.drive)
-        .until(
-            () -> driveController.posePidAtSetpoint(targetPose));
+    return Commands.run(
+            () -> {
+              ChassisSpeeds targetSpeeds =
+                  ReefAlignment.getReefAlignSpeeds(targetPose, driveController);
+
+              s.drive.runVelocity(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
+            },
+            s.drive)
+        .until(() -> driveController.posePidAtSetpoint(targetPose));
   }
 
   private Command completeAlign(AutoTrajectory trajectory) {
@@ -104,11 +107,7 @@ public class Autos extends SubsystemBase {
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
     trajectory.active().onTrue(s.coralFlow.coralPlacerForwardAuto());
 
-    trajectory
-        .atTime(prepareAlignEvent)
-        .onTrue(
-            s.coralFlow
-                .prepareElevator(ReefPosition.branchL4));
+    trajectory.atTime(prepareAlignEvent).onTrue(s.coralFlow.prepareElevator(ReefPosition.branchL4));
 
     trajectory
         .done()
