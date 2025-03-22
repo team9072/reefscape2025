@@ -16,6 +16,7 @@ package frc.robot.subsystems.drive;
 import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -116,7 +117,7 @@ public class Drive extends SubsystemBase {
 
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
-      new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
+      new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 100.0 : 100.0;
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
           Math.max(
@@ -245,6 +246,12 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    CANBusStatus status = TunerConstants.kCANBus.getStatus();
+    Logger.recordOutput("CanBus/Utilization", status.BusUtilization);
+    Logger.recordOutput("CanBus/StatusCode", status.Status.getName());
+    Logger.recordOutput("CanBus/BusOffCount", status.BusOffCount);
+    Logger.recordOutput("CanBus/TxFullCount", status.TxFullCount);
   }
 
   public DrivePid getPid() {
