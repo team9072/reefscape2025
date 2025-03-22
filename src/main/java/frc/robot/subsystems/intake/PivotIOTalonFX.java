@@ -75,7 +75,7 @@ public class PivotIOTalonFX implements PivotIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
-    motor.optimizeBusUtilization();
+    // TODO: fix when ctre does motor.optimizeBusUtilization();
   }
 
   @Override

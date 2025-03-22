@@ -79,7 +79,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
-    primaryMotor.optimizeBusUtilization();
+    // TODO: fix when ctre does primaryMotor.optimizeBusUtilization();
+    // TODO: fix when ctre does secondaryMotor.optimizeBusUtilization();
   }
 
   @Override

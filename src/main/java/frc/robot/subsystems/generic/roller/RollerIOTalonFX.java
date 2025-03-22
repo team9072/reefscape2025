@@ -63,7 +63,7 @@ public class RollerIOTalonFX implements RollerIO {
 
     BaseStatusSignal.setUpdateFrequencyForAll(
         50.0, positionRot, velocityRotPerSec, appliedVolts, currentAmps);
-    roller.optimizeBusUtilization();
+    // TODO: fix when ctre does roller.optimizeBusUtilization();
   }
 
   @Override
