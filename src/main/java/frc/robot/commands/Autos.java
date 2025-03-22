@@ -51,7 +51,6 @@ public class Autos extends SubsystemBase {
   private final Robot.Subsystems s;
 
   private final DrivePid driveController;
-  private Pose2d reefOverridePose = null;
 
   public Autos(Robot.Subsystems s) {
     driveController = s.drive.getPid();
@@ -82,44 +81,24 @@ public class Autos extends SubsystemBase {
   private void drivePath(SwerveSample sample) {
     ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
 
-    if (reefOverridePose != null) {
-      targetSpeeds =
-          targetSpeeds.plus(ReefAlignment.getReefAlignSpeeds(reefOverridePose, driveController));
-    } else {
-      Pose2d samplePose = new Pose2d(sample.x, sample.y, Rotation2d.fromRadians(sample.heading));
-      targetSpeeds = targetSpeeds.plus(driveController.getPoseCorrection(samplePose));
-    }
+    Pose2d samplePose = new Pose2d(sample.x, sample.y, Rotation2d.fromRadians(sample.heading));
+    targetSpeeds = targetSpeeds.plus(driveController.getPoseCorrection(samplePose));
 
     s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
   }
 
-  private void driveAuto() {
-    ChassisSpeeds targetSpeeds = new ChassisSpeeds();
-
-    if (reefOverridePose != null) {
-      targetSpeeds =
-          targetSpeeds.plus(ReefAlignment.getReefAlignSpeeds(reefOverridePose, driveController));
-    }
-
-    s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
-  }
-
-  private Command driveToReef() {
-    return Commands.run(this::driveAuto, s.drive)
+  private Command drivePose(Pose2d targetPose) {
+    return Commands.run(() -> {
+      ChassisSpeeds targetSpeeds = ReefAlignment.getReefAlignSpeeds(targetPose, driveController);
+    
+      s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
+    }, s.drive)
         .until(
-            () -> reefOverridePose == null || driveController.posePidAtSetpoint(reefOverridePose));
+            () -> driveController.posePidAtSetpoint(targetPose));
   }
 
-  private Command setReefOveride(Pose2d reefPole) {
-    return Commands.runOnce(() -> this.reefOverridePose = reefPole);
-  }
-
-  private Command setReefOveride(AutoTrajectory trajectory) {
-    return setReefOveride(trajectory.getFinalPose().get());
-  }
-
-  private Command clearReefOveride() {
-    return Commands.runOnce(() -> this.reefOverridePose = null);
+  private Command completeAlign(AutoTrajectory trajectory) {
+    return drivePose(trajectory.getFinalPose().get());
   }
 
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
@@ -129,16 +108,14 @@ public class Autos extends SubsystemBase {
         .atTime(prepareAlignEvent)
         .onTrue(
             s.coralFlow
-                .prepareElevator(ReefPosition.branchL4)
-                .alongWith(setReefOveride(trajectory)));
+                .prepareElevator(ReefPosition.branchL4));
 
     trajectory
         .done()
         .onTrue(
             Commands.sequence(
-                driveToReef(),
+                completeAlign(trajectory),
                 s.coralFlow.reefActionAuto(ReefPosition.branchL4),
-                clearReefOveride(),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
@@ -162,7 +139,6 @@ public class Autos extends SubsystemBase {
         Commands.sequence(
             Commands.runOnce(() -> coralDetected.set(true)),
             s.coralFlow.grabCoral(),
-            setReefOveride(scoreTrajectory),
             Commands.runOnce(() -> coralGrabbed.set(true)),
             s.coralFlow.prepareElevator(ReefPosition.branchL4));
 
@@ -181,7 +157,6 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 s.coralFlow.reefActionAuto(ReefPosition.branchL4),
-                clearReefOveride(),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
