@@ -253,8 +253,14 @@ public class Robot {
 
     secondaryController.rightTrigger().onTrue(s.coralFlow.prepareElevator(ReefPosition.branchL2));
 
-    secondaryController.a().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL2));
-    secondaryController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.algaeL3));
+    secondaryController
+        .a()
+        .onTrue(s.coralFlow.prepareElevator(ReefPosition.algaeL2))
+        .onFalse(s.coralFlow.reefAction(ReefPosition.algaeL2));
+    secondaryController
+        .y()
+        .onTrue(s.coralFlow.prepareElevator(ReefPosition.algaeL2))
+        .onFalse(s.coralFlow.reefAction(ReefPosition.algaeL3));
 
     secondaryController.x().onTrue(s.coralFlow.unstuckCoralPlacer());
 
