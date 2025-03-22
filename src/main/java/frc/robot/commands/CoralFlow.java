@@ -11,6 +11,7 @@ import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class CoralFlow {
   public enum ReefPosition {
@@ -81,6 +82,9 @@ public class CoralFlow {
           if (position.isBranch()) {
             memorizedBranchPosition = position;
           }
+
+          Logger.recordOutput("CoralFlow/MemorizedPosition", memorizedPosition.name());
+          Logger.recordOutput("CoralFlow/MemorizedBranch", memorizedBranchPosition.name());
         });
   }
 
@@ -186,7 +190,7 @@ public class CoralFlow {
   public Command grabCoral() {
     return Commands.sequence(
         Commands.parallel(
-            memorizePosition(memorizedBranchPosition),
+            Commands.defer(() -> memorizePosition(memorizedBranchPosition), Set.of()),
             coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
         elevator.setPosition(ElevatorPosition.grabPosition),
