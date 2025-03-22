@@ -141,14 +141,7 @@ public class Autos extends SubsystemBase {
             Commands.runOnce(() -> coralGrabbed.set(true)),
             s.coralFlow.prepareElevator(ReefPosition.branchL4));
 
-    intakeTrajectory
-        .active()
-        .or(scoreTrajectory.active())
-        .and(s.intake.coralStaged)
-        .and(() -> !coralDetected.get())
-        .onTrue(grabCoral);
-
-    scoreTrajectory.atTime(prepareAlignEvent).and(() -> !coralGrabbed.get()).onTrue(grabCoral);
+    scoreTrajectory.atTime(prepareAlignEvent).onTrue(grabCoral);
 
     scoreTrajectory
         .recentlyDone()
