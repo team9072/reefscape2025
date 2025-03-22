@@ -23,7 +23,7 @@ public class ElevatorConstants {
    */
   public enum ElevatorPosition {
     grabPosition(Rotations.of(-0.55)),
-    readyPosition(Rotations.of(1.25)),
+    readyPosition(Rotations.of(1.65)),
 
     reefL2Position(Rotations.of(1.2)),
     reefL3Position(Rotations.of(4.25)),
