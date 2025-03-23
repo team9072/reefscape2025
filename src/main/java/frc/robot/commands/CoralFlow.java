@@ -115,7 +115,8 @@ public class CoralFlow {
     } else {
       // Score coral
       return Commands.sequence(
-          prepareElevator(position, isAuto),
+          prepareElevator(position, isAuto)
+              .unless(() -> elevator.atPosition(position.elevatorPosition)),
           coralPlacer
               .setPosition(CoralPlacerPosition.scorePosition)
               .until(coralPlacer.pastScorePosition));
