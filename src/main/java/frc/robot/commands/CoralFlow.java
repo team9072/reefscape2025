@@ -217,4 +217,12 @@ public class CoralFlow {
   public Command unstuckElevator(ElevatorPosition position) {
     return elevator.setPosition(position);
   }
+
+  public Command jogCoralPlacerUp() {
+    return coralPlacer.jog(CoralPlacerPosition.jogAmmount.unaryMinus());
+  }
+
+  public Command jogCoralPlacerDown() {
+    return coralPlacer.jog(CoralPlacerPosition.jogAmmount);
+  }
 }

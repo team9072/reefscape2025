@@ -1,8 +1,11 @@
 package frc.robot.subsystems.coralplacer;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -13,14 +16,21 @@ public class CoralPlacer extends SubsystemBase {
   private final CoralPlacerIO coralPlacerIO;
   private final CoralPlacerInputsAutoLogged coralPlacerInputs = new CoralPlacerInputsAutoLogged();
 
+  private MutAngle jogOffset = Rotations.mutable(0);
+  private CoralPlacerPosition lastPosition = CoralPlacerPosition.stowPosition;
+
   public final Trigger pastScorePosition =
-      new Trigger(() -> coralPlacerInputs.position.gt(CoralPlacerPosition.scoreCompleteThreshold));
+      new Trigger(
+          () ->
+              coralPlacerInputs.position.gt(
+                  getModifiedAngle(CoralPlacerPosition.scoreCompleteThreshold)));
 
   public final Trigger clearsReef =
       new Trigger(
           () ->
               atPosition(CoralPlacerPosition.scorePosition)
-                  || coralPlacerInputs.position.lt(CoralPlacerPosition.scorePosition.angle));
+                  || coralPlacerInputs.position.lt(
+                      getModifiedAngle(CoralPlacerPosition.scorePosition.angle)));
 
   public CoralPlacer(CoralPlacerIO coralPlacerIO) {
     this.coralPlacerIO = coralPlacerIO;
@@ -32,20 +42,42 @@ public class CoralPlacer extends SubsystemBase {
     Logger.processInputs("Coral Placer", coralPlacerInputs);
   }
 
+  private Angle getModifiedAngle(Angle angle) {
+    return angle.plus(jogOffset);
+  }
+
   private boolean atPosition(CoralPlacerPosition position) {
-    return position.angle.isNear(coralPlacerInputs.position, Degrees.of(2))
+    return getModifiedAngle(position.angle).isNear(coralPlacerInputs.position, Degrees.of(2))
         && coralPlacerInputs.velocity.isNear(
             RotationsPerSecond.zero(), CoralPlacerPosition.velocityTolerance);
   }
 
+  private void setPositionWithJog() {
+    if (lastPosition == CoralPlacerPosition.removeAlgaePosition) {
+      coralPlacerIO.setPositionAlgae(getModifiedAngle(lastPosition.angle));
+    } else {
+      coralPlacerIO.setPosition(getModifiedAngle(lastPosition.angle));
+    }
+  }
+
+  private void setPositionWithJog(CoralPlacerPosition position) {
+    lastPosition = position;
+    setPositionWithJog();
+  }
+
   public Command setPosition(CoralPlacerPosition position) {
     return run(() -> {
-          if (position == CoralPlacerPosition.removeAlgaePosition) {
-            coralPlacerIO.setPositionAlgae(position.angle);
-          } else {
-            coralPlacerIO.setPosition(position.angle);
-          }
+          jogOffset.mut_replace(Rotations.zero());
+          setPositionWithJog(position);
         })
         .until(() -> atPosition(position));
+  }
+
+  public Command jog(Angle offsetAngle) {
+    return runOnce(
+        () -> {
+          jogOffset.mut_plus(offsetAngle);
+          setPositionWithJog();
+        });
   }
 }

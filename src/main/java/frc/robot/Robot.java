@@ -277,13 +277,15 @@ public class Robot {
     // Elevator unstuck
     secondaryController
         .povDown()
-        .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL2Position));
-    secondaryController
-        .povLeft()
         .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL3Position));
     secondaryController
         .povUp()
         .onTrue(s.coralFlow.unstuckElevator(ElevatorPosition.reefL4Position));
+
+    // Coral Placer jog
+    secondaryController.povLeft().onTrue(s.coralFlow.jogCoralPlacerUp());
+
+    secondaryController.povRight().onTrue(s.coralFlow.jogCoralPlacerDown());
 
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
