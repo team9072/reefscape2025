@@ -16,7 +16,6 @@ import frc.robot.Robot;
 import frc.robot.commands.CoralFlow.ReefPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -119,10 +118,10 @@ public class Autos extends SubsystemBase {
   }
 
   private void intakeAndScore(
-      AutoTrajectory intakeTrajectory, AutoTrajectory scoreTrajectory, Command afterScore) {
-    final AtomicBoolean coralDetected = new AtomicBoolean(false);
-    final AtomicBoolean coralGrabbed = new AtomicBoolean(false);
-
+      AutoTrajectory intakeTrajectory,
+      AutoTrajectory prepareTrajectory,
+      AutoTrajectory scoreTrajectory,
+      Command afterScore) {
     intakeTrajectory
         .active()
         .onTrue(
@@ -131,21 +130,19 @@ public class Autos extends SubsystemBase {
     intakeTrajectory
         .active()
         .and(s.intake.coralInPassthrough.or(s.intake.coralStaged))
-        .onTrue(scoreTrajectory.cmd());
-    intakeTrajectory.chain(scoreTrajectory);
+        .onTrue(prepareTrajectory.cmd());
+    intakeTrajectory.chain(prepareTrajectory);
 
-    Command grabCoral =
-        Commands.sequence(
-            Commands.runOnce(() -> coralDetected.set(true)),
-            s.coralFlow.grabCoral(),
-            Commands.runOnce(() -> coralGrabbed.set(true)),
-            s.coralFlow.prepareElevator(ReefPosition.branchL4));
-
-    scoreTrajectory.atTime(prepareAlignEvent).onTrue(grabCoral);
+    prepareTrajectory
+        .done()
+        .onTrue(
+            Commands.sequence(
+                s.coralFlow.grabCoral(),
+                s.coralFlow.prepareElevator(ReefPosition.branchL4),
+                scoreTrajectory.cmd()));
 
     scoreTrajectory
         .recentlyDone()
-        .and(coralGrabbed::get)
         .onTrue(
             Commands.sequence(
                 s.coralFlow.reefActionAuto(ReefPosition.branchL4),
@@ -170,14 +167,15 @@ public class Autos extends SubsystemBase {
     AutoRoutine routine = autoFactory.newRoutine(name);
     AutoTrajectory scorePreloadTraj = routine.trajectory(preloadTrajName);
     AutoTrajectory intakeSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 0);
-    AutoTrajectory scoreSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 1);
+    AutoTrajectory prepareSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 1);
+    AutoTrajectory scoreSecondTraj = routine.trajectory(intakeAndScoreSecondTrajName, 2);
 
     routine
         .active()
         .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.spawnCmd()));
 
     scorePreload(scorePreloadTraj, intakeSecondTraj.spawnCmd());
-    intakeAndScore(intakeSecondTraj, scoreSecondTraj, Commands.none());
+    intakeAndScore(intakeSecondTraj, prepareSecondTraj, scoreSecondTraj, Commands.none());
 
     return routine;
   }
@@ -201,8 +199,8 @@ public class Autos extends SubsystemBase {
         .onTrue(Commands.sequence(scorePreloadTraj.resetOdometry(), scorePreloadTraj.spawnCmd()));
 
     scorePreload(scorePreloadTraj, intakeSecondTraj.spawnCmd());
-    intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.spawnCmd());
-    intakeAndScore(intakeThirdTraj, scoreThirdTraj, Commands.none());
+    // TODO: FIXME intakeAndScore(intakeSecondTraj, scoreSecondTraj, intakeThirdTraj.spawnCmd());
+    // TODO: FIXME intakeAndScore(intakeThirdTraj, scoreThirdTraj, Commands.none());
 
     return routine;
   }
@@ -214,24 +212,24 @@ public class Autos extends SubsystemBase {
     autoChooser.addRoutine("C2S [Aliance color] 1p", () -> preload1p("C2S 1p", "C2S to R2P1"));
     autoChooser.addRoutine(
         "C2S [Alliance color] 2p", () -> preload2p("C2S 2p", "C2S to R2P1", "R2P1 to S1 to R3P2"));
-    autoChooser.addRoutine(
-        "C2S [Alliance color] 3p",
-        () ->
-            preload3p(
-                "C2S [Alliance color] 3p",
-                "C2S to R2P1",
-                "R2P1 to S1 to R3P2",
-                "R3P2 to S2 to R4P1"));
+    /*TODO: FIXME autoChooser.addRoutine(
+    "C2S [Alliance color] 3p",
+    () ->
+        preload3p(
+            "C2S [Alliance color] 3p",
+            "C2S to R2P1",
+            "R2P1 to S1 to R3P2",
+            "R3P2 to S2 to R4P1"));*/
 
     /** C5S (Opposite color start) */
     autoChooser.addRoutine("C5S [Opposite color] 1p", () -> preload1p("C5S 1p", "C5S to R6P2"));
     autoChooser.addRoutine(
         "C5S [Opposite color] 2p", () -> preload2p("C5S 2p", "C5S to R6P2", "R6P2 to S3 to R5P1"));
-    autoChooser.addRoutine(
-        "C5S [Opposite color] 3p",
-        () ->
-            preload3p(
-                "C5S [Opposite] 3p", "C5S to R6P2", "R6P2 to S3 to R5P1", "R5P1 to S2 to R4P1"));
+    /*TODO: FIXME autoChooser.addRoutine(
+    "C5S [Opposite color] 3p",
+    () ->
+        preload3p(
+            "C5S [Opposite] 3p", "C5S to R6P2", "R6P2 to S3 to R5P1", "R5P1 to S2 to R4P1"));*/
 
     SmartDashboard.putData("Selected Auto", autoChooser);
     return autoChooser;

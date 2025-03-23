@@ -168,11 +168,10 @@ public class CoralFlow {
   public Command reefActionOnTrigger(ReefPosition position, BooleanSupplier scoreOrCancel) {
     // If the trigger returned true before the command exited normally, return instead of scoring
     return Commands.sequence(
-            prepareElevator(position).until(scoreOrCancel),
-            Commands.waitUntil(scoreOrCancel),
-            reefAction(position)
-                .onlyIf(
-                    () -> position.isTrough() || elevator.atPosition(position.elevatorPosition)));
+        prepareElevator(position).until(scoreOrCancel),
+        Commands.waitUntil(scoreOrCancel),
+        reefAction(position)
+            .onlyIf(() -> position.isTrough() || elevator.atPosition(position.elevatorPosition)));
   }
 
   /**
