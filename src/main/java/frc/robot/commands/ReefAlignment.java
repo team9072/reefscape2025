@@ -127,7 +127,7 @@ public class ReefAlignment {
     ChassisSpeeds positionCorrection =
         driveController
             .getTranslationCorrection(alignPose.getTranslation())
-            .times(Math.max(0, 1 - joystickValue * 10));
+            .times(Math.max(0, 1 - joystickValue * 200));
 
     if (!driveController.translationPidAtSetpoint()) {
       speeds = speeds.plus(positionCorrection);
