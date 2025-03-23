@@ -172,8 +172,7 @@ public class CoralFlow {
             Commands.waitUntil(scoreOrCancel),
             reefAction(position)
                 .onlyIf(
-                    () -> position.isTrough() || elevator.atPosition(position.elevatorPosition)))
-        .onlyIf(coralPlacer.clearsReef.or(() -> !position.isBranch()));
+                    () -> position.isTrough() || elevator.atPosition(position.elevatorPosition)));
   }
 
   /**
