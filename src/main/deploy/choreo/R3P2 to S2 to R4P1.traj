@@ -157,5 +157,5 @@
   "splits":[0,56]
  },
  "events":[
-   {"name":"PrepareAlign", "from":{"target":3, "targetTimestamp":4.75532, "offset":{"exp":"-PrepareAlignTime", "val":-0.75}}, "event":null}]
+   {"name":"PrepareCoral", "from":{"target":3, "targetTimestamp":4.75532, "offset":{"exp":"-PrepareAlignTime", "val":-0.75}}, "event":null}]
 }

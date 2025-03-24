@@ -25,13 +25,6 @@
      "val":0.17271999999999998
     }
    },
-   "PrepareAlignTime":{
-    "dimension":"Time",
-    "var":{
-     "exp":"0.75 s",
-     "val":0.75
-    }
-   },
    "R1Angle":{
     "dimension":"Angle",
     "var":{
@@ -100,6 +93,13 @@
     "var":{
      "exp":"0.7 m",
      "val":0.7
+    }
+   },
+   "ReefSafeDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"ReefBaseOffsetDistance + 10 in",
+     "val":1.492123
     }
    },
    "Spike1Y":{

@@ -145,6 +145,7 @@ public class Autos extends SubsystemBase {
         .recentlyDone()
         .onTrue(
             Commands.sequence(
+                completeAlign(scoreTrajectory),
                 s.coralFlow.reefActionAuto(ReefPosition.branchL4),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
