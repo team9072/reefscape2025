@@ -55,7 +55,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
           .withMotionMagicAcceleration(CoralPlacerConstants.rampAcceleration);
 
   public CoralPlacerIOTalonFX() {
-    motor = CoralPlacerConstants.motorCanId.getTalon();
+    motor = CoralPlacerConstants.pivotCanId.getTalon();
     positionRot = motor.getPosition();
     velocityRotPerSec = motor.getVelocity();
     appliedVolts = motor.getMotorVoltage();

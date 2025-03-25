@@ -16,6 +16,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacer;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
@@ -113,7 +114,9 @@ public class Robot {
                 new BeamBreakIODio(IntakeConstants.passthroughBeamBreakDioId),
                 new BeamBreakIODio(IntakeConstants.stagingBeamBreakDioId));
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIOTalonFX());
+        coralPlacer =
+            new CoralPlacer(
+                new CoralPlacerIOTalonFX(), new RollerIOTalonFX(CoralPlacerConstants.roller));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
 
@@ -144,7 +147,8 @@ public class Robot {
                 new BeamBreakIO() {},
                 new BeamBreakIO() {});
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIOSim());
+        coralPlacer =
+            new CoralPlacer(new CoralPlacerIOSim(), new RollerIOSim(CoralPlacerConstants.roller));
 
         elevator = new Elevator(new ElevatorIOSim());
 
@@ -167,7 +171,7 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIO() {});
+        coralPlacer = new CoralPlacer(new CoralPlacerIO() {}, new RollerIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
 

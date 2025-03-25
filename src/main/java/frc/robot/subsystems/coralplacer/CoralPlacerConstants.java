@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
+import frc.robot.subsystems.generic.roller.RollerConstants;
 import frc.robot.util.CanID;
 
 public class CoralPlacerConstants {
@@ -62,7 +63,10 @@ public class CoralPlacerConstants {
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
 
   public static final String canBus = ""; // On rio bus
-  public static final CanID motorCanId = new CanID(15, canBus);
+  public static final CanID pivotCanId = new CanID(15, canBus);
+  public static final CanID rollerCanId = new CanID(16, canBus);
 
   public static final int beamBreakDioId = 0;
+
+  public static final RollerConstants roller = new RollerConstants(rollerCanId);
 }
