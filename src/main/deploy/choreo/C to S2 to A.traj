@@ -1,5 +1,5 @@
 {
- "name":"R5P1 to S2 to R4P1",
+ "name":"C to S2 to A",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -20,10 +20,10 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"R5P1.x", "val":3.6190815922583512}, "y":{"exp":"R5P1.y", "val":2.8640376669412015}, "heading":{"exp":"R5P1.heading", "val":1.0471975511965976}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"C.x", "val":3.6190815922583512}, "y":{"exp":"C.y", "val":2.8640376669412015}, "heading":{"exp":"C.heading", "val":1.0471975511965976}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
     {"x":{"exp":"2.261531352996826 m", "val":2.261531352996826}, "y":{"exp":"3.09022544556 m", "val":3.09022544556}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":31, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
     {"x":{"exp":"0.8438009023666382 m", "val":0.8438009023666382}, "y":{"exp":"4.37368649178 m", "val":4.37368649178}, "heading":{"exp":"0.28438465594988394 rad", "val":0.28438465594988394}, "intervals":53, "split":true, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false},
-    {"x":{"exp":"R4P1.x", "val":3.048}, "y":{"exp":"R4P1.y", "val":4.19862}, "heading":{"exp":"R4P1.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"A.x", "val":3.048}, "y":{"exp":"A.y", "val":4.19862}, "heading":{"exp":"A.heading", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

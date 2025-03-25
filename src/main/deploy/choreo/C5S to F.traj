@@ -1,5 +1,5 @@
 {
- "name":"C5S to R6P2",
+ "name":"C5S to F",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -17,7 +17,7 @@
  "params":{
   "waypoints":[
     {"x":{"exp":"Cage5S.x", "val":7.22}, "y":{"exp":"Cage5S.y", "val":1.9018206596374512}, "heading":{"exp":"Cage5S.heading", "val":3.141592653589793}, "intervals":36, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"R6P2.x", "val":5.359564407741647}, "y":{"exp":"R6P2.y", "val":2.8640376669412015}, "heading":{"exp":"R6P2.heading", "val":2.0943951023931953}, "intervals":39, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"F.x", "val":5.359564407741647}, "y":{"exp":"F.y", "val":2.8640376669412015}, "heading":{"exp":"F.heading", "val":2.0943951023931953}, "intervals":39, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
