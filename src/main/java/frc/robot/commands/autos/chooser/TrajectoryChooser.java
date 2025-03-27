@@ -9,8 +9,8 @@ import frc.robot.commands.autos.AutoTrajectories.AutoTrajectory;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 class TrajectoryChooser<V extends AutoTrajectory> implements Sendable {
   private static final String NONE_NAME = "None";
@@ -33,19 +33,27 @@ class TrajectoryChooser<V extends AutoTrajectory> implements Sendable {
   }
 
   public void filterOptions(Predicate<V> filterPredicate) {
-    Set<String> keys = optionValueMap.keySet();
-    options = keys.toArray(new String[keys.size() + 1]);
+    Stream<String> keys =
+        optionValueMap.entrySet().stream()
+            .filter((entry) -> filterPredicate.test(entry.getValue()))
+            .map(Map.Entry::getKey);
+    options = keys.toArray((size) -> new String[size + 1]);
     options[options.length - 1] = NONE_NAME;
   }
 
   public void select(String selectStr) {
-    if (selected.equals(NONE_NAME) || optionValueMap.containsKey(selectStr)) {
+    if (selected.equals(NONE_NAME)
+        || Arrays.asList(options).contains(selectStr) && optionValueMap.containsKey(selectStr)) {
       selectedNonexistentTrajectory.set(false);
       selected = selectStr;
     } else {
       selectedNonexistentTrajectory.set(true);
       selected = NONE_NAME;
     }
+  }
+
+  public void select(V selected) {
+    select(selected != null ? selected.displayName() : NONE_NAME);
   }
 
   private String getSelectedName() {

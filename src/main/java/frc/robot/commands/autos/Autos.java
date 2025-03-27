@@ -8,7 +8,6 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -54,7 +53,6 @@ public class Autos extends SubsystemBase {
   private final Robot.Subsystems s;
 
   private final DrivePid driveController;
-  private Field2d f = new Field2d();
 
   public Autos(Robot.Subsystems s) {
     driveController = s.drive.getPid();
@@ -76,8 +74,6 @@ public class Autos extends SubsystemBase {
   @Override
   public void periodic() {
     Logger.processInputs("Auto", inputs);
-
-    SmartDashboard.putData("EEE", f);
   }
 
   public Command getSelectedAuto() {
@@ -147,8 +143,6 @@ public class Autos extends SubsystemBase {
                 s.scoring.grabCoral(),
                 s.scoring.prepareElevator(ScoringPosition.branchL4),
                 scoreTrajectory.cmd()));
-
-    f.getObject("Traj").setPoses(scoreTrajectory.getRawTrajectory().getPoses());
 
     scoreTrajectory
         .recentlyDone()

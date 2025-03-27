@@ -48,12 +48,12 @@ public class AutoTrajectories {
       this.startingPosition = startingPosition;
       this.endingPole = endingPole;
 
-      this.trajectory = loadTrajectory(displayName());
+      this.trajectory = loadTrajectory(startingPosition.name() + " to " + endingPole.name());
     }
 
     @Override
     public String displayName() {
-      return startingPosition.name() + " to " + endingPole.name();
+      return startingPosition.displayName() + " to " + endingPole.displayName();
     }
 
     @Override
@@ -88,12 +88,18 @@ public class AutoTrajectories {
       this.coralSpike = coralSpike;
       this.endingPole = endingPole;
 
-      this.trajectory = loadTrajectory(displayName());
+      this.trajectory =
+          loadTrajectory(
+              startingPole.name() + " to " + coralSpike.name() + " to " + endingPole.name());
     }
 
     @Override
     public String displayName() {
-      return startingPole.name() + " to " + coralSpike.name() + " to " + endingPole.name();
+      return startingPole.displayName()
+          + " to "
+          + coralSpike.displayName()
+          + " to "
+          + endingPole.displayName();
     }
 
     @Override
