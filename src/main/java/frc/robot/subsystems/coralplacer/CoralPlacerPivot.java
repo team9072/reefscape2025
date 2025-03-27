@@ -11,15 +11,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.generic.roller.RollerIO;
-import frc.robot.subsystems.generic.roller.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
-public class CoralPlacer extends SubsystemBase {
+public class CoralPlacerPivot extends SubsystemBase {
   private final CoralPlacerIO coralPlacerIO;
   private final CoralPlacerInputsAutoLogged coralPlacerInputs = new CoralPlacerInputsAutoLogged();
-
-  private final RollerIO rollerIO;
-  private final RollerIOInputsAutoLogged rollerInputs = new RollerIOInputsAutoLogged();
 
   private MutAngle jogOffset = Rotations.mutable(0);
   private CoralPlacerPosition lastPosition = CoralPlacerPosition.stowPosition;
@@ -37,18 +33,14 @@ public class CoralPlacer extends SubsystemBase {
                   || coralPlacerInputs.position.lt(
                       getModifiedAngle(CoralPlacerPosition.scorePosition.angle)));
 
-  public CoralPlacer(CoralPlacerIO coralPlacerIO, RollerIO rollerIO) {
+  public CoralPlacerPivot(CoralPlacerIO coralPlacerIO, RollerIO rollerIO) {
     this.coralPlacerIO = coralPlacerIO;
-    this.rollerIO = rollerIO;
   }
 
   @Override
   public void periodic() {
     coralPlacerIO.updateInputs(coralPlacerInputs);
     Logger.processInputs("Coral Placer/Pivot", coralPlacerInputs);
-
-    rollerIO.updateInputs(rollerInputs);
-    Logger.processInputs("Coral Placer/Rollers", rollerInputs);
   }
 
   private Angle getModifiedAngle(Angle angle) {

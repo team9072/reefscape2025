@@ -17,14 +17,18 @@ import static frc.robot.util.PhoenixUtil.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -36,6 +40,8 @@ import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition
  */
 public class CoralPlacerIOTalonFX implements CoralPlacerIO {
   protected final TalonFX motor;
+  protected final CANcoder encoder;
+
   private final StatusSignal<Angle> positionRot;
   private final StatusSignal<AngularVelocity> velocityRotPerSec;
   private final StatusSignal<Voltage> appliedVolts;
@@ -61,14 +67,22 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     appliedVolts = motor.getMotorVoltage();
     currentAmps = motor.getSupplyCurrent();
 
+    encoder = CoralPlacerConstants.pivotEncoderCanId.getCancoder();
+
     var config = new TalonFXConfiguration();
+    var cancoderConfig = new CANcoderConfiguration();
 
     config.CurrentLimits.withSupplyCurrentLimit(CoralPlacerConstants.currentLimit);
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.SensorToMechanismRatio = CoralPlacerConstants.motorReduction;
+    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
+    config.Feedback.RotorToSensorRatio = CoralPlacerConstants.rotorToSensor;
+    config.Feedback.SensorToMechanismRatio = CoralPlacerConstants.sensorToMechanism;
+
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
 
     config.withSlot0(
         new Slot0Configs()
@@ -81,6 +95,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     config.withMotionMagic(normalMotionMagicConfigs);
 
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 0.25));
+    tryUntilOk(5, () -> encoder.getConfigurator().apply(cancoderConfig, 0.25));
     tryUntilOk(5, () -> motor.setPosition(CoralPlacerPosition.stowPosition.angle, 0.25));
 
     BaseStatusSignal.setUpdateFrequencyForAll(

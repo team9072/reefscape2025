@@ -46,10 +46,13 @@ public class CoralPlacerConstants {
 
   public static final Current currentLimit = Amps.of(40);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
-  public static final double motorReduction = (72.0 / 18.0) * (54.0 / 26.0) * 3;
 
-  public static final double kG = -0.5;
-  public static final double kP = 120;
+  public static final double rotorToSensor = (72.0 / 18.0) * 5.0;
+  public static final double sensorToMechanism = (72.0 / 18.0);
+  public static final double motorReduction = rotorToSensor * sensorToMechanism;
+
+  public static final double kG = 0;
+  public static final double kP = 0.1;
   public static final double kD = 0.1;
   public static final double kV = 1.1;
 
@@ -64,9 +67,14 @@ public class CoralPlacerConstants {
 
   public static final String canBus = ""; // On rio bus
   public static final CanID pivotCanId = new CanID(15, canBus);
+  public static final CanID pivotEncoderCanId = new CanID(5, canBus);
   public static final CanID rollerCanId = new CanID(16, canBus);
 
   public static final int beamBreakDioId = 0;
 
-  public static final RollerConstants roller = new RollerConstants(rollerCanId);
+  public static final RollerConstants roller =
+      new RollerConstants(rollerCanId).withNeutralMode(NeutralModeValue.Coast);
+
+  public static final Current rollerGrabTorque = Amps.of(100);
+  public static final double rollerGrabDutyCycle = 0.25;
 }

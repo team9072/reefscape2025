@@ -15,11 +15,11 @@ import frc.robot.commands.CoralFlow.ReefPosition;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.coralplacer.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
+import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -66,7 +66,7 @@ public class Robot {
     Subsystems(
         Drive drive,
         Intake intake,
-        CoralPlacer coralPlacer,
+        CoralPlacerPivot coralPlacer,
         Elevator elevator,
         Vision vision,
         QuestNav questNav) {
@@ -90,7 +90,7 @@ public class Robot {
   public Robot() {
     final Drive drive;
     final Intake intake;
-    final CoralPlacer coralPlacer;
+    final CoralPlacerPivot coralPlacer;
     final Elevator elevator;
     final Vision vision;
     final QuestNav questNav;
@@ -115,7 +115,7 @@ public class Robot {
                 new BeamBreakIODio(IntakeConstants.stagingBeamBreakDioId));
 
         coralPlacer =
-            new CoralPlacer(
+            new CoralPlacerPivot(
                 new CoralPlacerIOTalonFX(), new RollerIOTalonFX(CoralPlacerConstants.roller));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
@@ -148,7 +148,8 @@ public class Robot {
                 new BeamBreakIO() {});
 
         coralPlacer =
-            new CoralPlacer(new CoralPlacerIOSim(), new RollerIOSim(CoralPlacerConstants.roller));
+            new CoralPlacerPivot(
+                new CoralPlacerIOSim(), new RollerIOSim(CoralPlacerConstants.roller));
 
         elevator = new Elevator(new ElevatorIOSim());
 
@@ -171,7 +172,7 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        coralPlacer = new CoralPlacer(new CoralPlacerIO() {}, new RollerIO() {});
+        coralPlacer = new CoralPlacerPivot(new CoralPlacerIO() {}, new RollerIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
 

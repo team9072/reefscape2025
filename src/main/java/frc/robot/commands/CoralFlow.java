@@ -2,8 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.coralplacer.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
+import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.intake.Intake;
@@ -60,12 +60,12 @@ public class CoralFlow {
 
   private final Intake intake;
   private final Elevator elevator;
-  private final CoralPlacer coralPlacer;
+  private final CoralPlacerPivot coralPlacer;
 
   private ReefPosition memorizedBranchPosition = ReefPosition.branchL4;
   private ReefPosition memorizedPosition = memorizedBranchPosition;
 
-  public CoralFlow(Intake intake, Elevator elevator, CoralPlacer coralPlacer) {
+  public CoralFlow(Intake intake, Elevator elevator, CoralPlacerPivot coralPlacer) {
     this.intake = intake;
     this.elevator = elevator;
     this.coralPlacer = coralPlacer;
