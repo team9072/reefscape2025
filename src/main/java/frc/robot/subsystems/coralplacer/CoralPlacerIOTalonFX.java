@@ -75,6 +75,11 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(CoralPlacerConstants.maxAngle);
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.withReverseSoftLimitThreshold(CoralPlacerConstants.minAngle);
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
     /*config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
     config.Feedback.RotorToSensorRatio = CoralPlacerConstants.rotorToSensor;*/

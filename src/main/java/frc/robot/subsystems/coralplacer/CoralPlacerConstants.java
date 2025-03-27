@@ -45,20 +45,23 @@ public class CoralPlacerConstants {
   }
 
   public static final Current currentLimit = Amps.of(40);
-  public static final NeutralModeValue neutralMode = NeutralModeValue.Coast;
+  public static final NeutralModeValue neutralMode = NeutralModeValue.Brake;
 
   public static final double rotorToSensor = (72.0 / 18.0) * 5.0;
   public static final double sensorToMechanism = (72.0 / 18.0);
   public static final double motorReduction = rotorToSensor * sensorToMechanism;
 
-  public static final double kG = 0;
-  public static final double kP = 0.1;
-  public static final double kD = 0.1;
-  public static final double kV = 1.1;
+  public static final Angle maxAngle = Rotations.of(0.255);
+  public static final Angle minAngle = Rotations.of(-0.32);
 
-  public static final double rampVelocity = 3;
+  public static final double kG = -0.07;
+  public static final double kP = 100.0;
+  public static final double kD = 0.0;
+  public static final double kV = 10;
+
+  public static final double rampVelocity = 2;
   public static final double rampVelocityRemoveAlgae = 1;
-  public static final double rampAcceleration = 10;
+  public static final double rampAcceleration = 5;
 
   public static final Distance armLength = Inches.of(5);
   public static final Mass armMass = Pounds.of(1.3);
