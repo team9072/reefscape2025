@@ -22,7 +22,7 @@ import frc.robot.util.CanID;
 public class CoralPlacerConstants {
   public enum CoralPlacerPosition {
     stowPosition(Rotations.of(0.25)),
-    grabPosition(Rotations.of(0.245)),
+    grabPosition(Rotations.of(0.25)),
 
     holdPosition(Rotations.of(-0.25)),
     preScoreHoldPosition(Rotations.of(-0.15)),
@@ -64,6 +64,10 @@ public class CoralPlacerConstants {
   public static final Mass armMass = Pounds.of(1.3);
   public static final MomentOfInertia armMoi =
       KilogramSquareMeters.of(Math.pow(armLength.in(Meters) / 2, 2) * armMass.in(Kilograms));
+
+  public static final Angle encoderOffsetStow = Rotations.of(0.0);
+  public static final Angle encoderOffset =
+      encoderOffsetStow.minus(CoralPlacerPosition.stowPosition.angle.div(sensorToMechanism));
 
   public static final String canBus = ""; // On rio bus
   public static final CanID pivotCanId = new CanID(15, canBus);

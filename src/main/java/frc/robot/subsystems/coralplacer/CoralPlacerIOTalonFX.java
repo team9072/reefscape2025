@@ -24,11 +24,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -77,12 +75,13 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    /*config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.FeedbackRemoteSensorID = encoder.getDeviceID();
-    config.Feedback.RotorToSensorRatio = CoralPlacerConstants.rotorToSensor;
-    config.Feedback.SensorToMechanismRatio = CoralPlacerConstants.sensorToMechanism;
+    config.Feedback.RotorToSensorRatio = CoralPlacerConstants.rotorToSensor;*/
+    config.Feedback.SensorToMechanismRatio = CoralPlacerConstants.motorReduction;
 
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    /*cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    cancoderConfig.MagnetSensor.withMagnetOffset(0.064697265625);*/
 
     config.withSlot0(
         new Slot0Configs()
