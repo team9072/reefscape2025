@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Autos;
+import frc.robot.commands.autos.Autos;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
@@ -99,7 +99,7 @@ public class Robot {
   // private final CommandXboxController sysIdController = new CommandXboxController(3);
 
   private final Subsystems s;
-  private final Autos autos;
+  private final frc.robot.commands.autos.Autos autos;
   private final ScoringMemory scoringMemory;
 
   public Robot() {

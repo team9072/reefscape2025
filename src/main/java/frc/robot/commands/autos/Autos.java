@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.autos;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -8,12 +8,15 @@ import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.commands.scoring.ScoringPosition;
+import frc.robot.commands.ReefAlignment;
+import frc.robot.commands.autos.chooser.AutoBuilder;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import org.littletonrobotics.junction.LogTable;
@@ -22,7 +25,8 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public class Autos extends SubsystemBase {
   private static class AutoInputs implements LoggableInputs {
-    final AutoChooser autoChooser;
+    private final AutoChooser autoChooser;
+    private final AutoBuilder builder = new AutoBuilder("AutoBuilder");
 
     public AutoInputs(AutoChooser autoChooser) {
       this.autoChooser = autoChooser;
@@ -50,6 +54,7 @@ public class Autos extends SubsystemBase {
   private final Robot.Subsystems s;
 
   private final DrivePid driveController;
+  private Field2d f = new Field2d();
 
   public Autos(Robot.Subsystems s) {
     driveController = s.drive.getPid();
@@ -71,6 +76,8 @@ public class Autos extends SubsystemBase {
   @Override
   public void periodic() {
     Logger.processInputs("Auto", inputs);
+
+    SmartDashboard.putData("EEE", f);
   }
 
   public Command getSelectedAuto() {
@@ -106,9 +113,7 @@ public class Autos extends SubsystemBase {
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
     trajectory.active().onTrue(s.scoring.stowHold());
 
-    trajectory
-        .atTime(prepareAlignEvent)
-        .onTrue(s.scoring.prepareElevator(ScoringPosition.branchL4));
+    trajectory.atTime(prepareAlignEvent).onTrue(s.scoring.prepareElevator(ScoringPosition.branchL4));
 
     trajectory
         .done()
@@ -142,6 +147,8 @@ public class Autos extends SubsystemBase {
                 s.scoring.grabCoral(),
                 s.scoring.prepareElevator(ScoringPosition.branchL4),
                 scoreTrajectory.cmd()));
+
+    f.getObject("Traj").setPoses(scoreTrajectory.getRawTrajectory().getPoses());
 
     scoreTrajectory
         .recentlyDone()
