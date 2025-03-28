@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
 import frc.robot.commands.CoralFlow;
 import frc.robot.commands.CoralFlow.ReefPosition;
+import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.generated.TunerConstants;
@@ -20,6 +21,7 @@ import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOTalonFX;
 import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
+import frc.robot.subsystems.coralplacer.CoralPlacerRollers;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -66,7 +68,8 @@ public class Robot {
     Subsystems(
         Drive drive,
         Intake intake,
-        CoralPlacerPivot coralPlacer,
+        CoralPlacerPivot coralPlacerPivot,
+        CoralPlacerRollers coralPlacerRollers,
         Elevator elevator,
         Vision vision,
         QuestNav questNav) {
@@ -75,7 +78,8 @@ public class Robot {
       this.vision = vision;
       this.questNav = questNav;
 
-      coralFlow = new CoralFlow(intake, elevator, coralPlacer);
+      coralFlow =
+          new CoralFlow(intake, elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
     }
   }
 
@@ -90,7 +94,8 @@ public class Robot {
   public Robot() {
     final Drive drive;
     final Intake intake;
-    final CoralPlacerPivot coralPlacer;
+    final CoralPlacerPivot coralPlacerPivot;
+    final CoralPlacerRollers coralPlacerRollers;
     final Elevator elevator;
     final Vision vision;
     final QuestNav questNav;
@@ -114,9 +119,14 @@ public class Robot {
                 new BeamBreakIODio(IntakeConstants.passthroughBeamBreakDioId),
                 new BeamBreakIODio(IntakeConstants.stagingBeamBreakDioId));
 
-        coralPlacer =
+        coralPlacerPivot =
             new CoralPlacerPivot(
                 new CoralPlacerIOTalonFX(), new RollerIOTalonFX(CoralPlacerConstants.roller));
+
+        coralPlacerRollers =
+            new CoralPlacerRollers(
+                new RollerIOTalonFX(CoralPlacerConstants.roller),
+                new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
 
@@ -147,9 +157,13 @@ public class Robot {
                 new BeamBreakIO() {},
                 new BeamBreakIO() {});
 
-        coralPlacer =
+        coralPlacerPivot =
             new CoralPlacerPivot(
                 new CoralPlacerIOSim(), new RollerIOSim(CoralPlacerConstants.roller));
+
+        coralPlacerRollers =
+            new CoralPlacerRollers(
+                new RollerIOSim(CoralPlacerConstants.roller), new BeamBreakIO() {});
 
         elevator = new Elevator(new ElevatorIOSim());
 
@@ -172,7 +186,9 @@ public class Robot {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        coralPlacer = new CoralPlacerPivot(new CoralPlacerIO() {}, new RollerIO() {});
+        coralPlacerPivot = new CoralPlacerPivot(new CoralPlacerIO() {}, new RollerIO() {});
+
+        coralPlacerRollers = new CoralPlacerRollers(new RollerIO() {}, new BeamBreakIO() {});
 
         elevator = new Elevator(new ElevatorIO() {});
 
@@ -190,7 +206,9 @@ public class Robot {
       }
     }
 
-    s = new Subsystems(drive, intake, coralPlacer, elevator, vision, questNav);
+    s =
+        new Subsystems(
+            drive, intake, coralPlacerPivot, coralPlacerRollers, elevator, vision, questNav);
     autos = new Autos(s);
 
     configureBindings();

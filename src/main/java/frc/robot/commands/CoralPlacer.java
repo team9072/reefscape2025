@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
@@ -21,6 +22,14 @@ public class CoralPlacer {
     this.rollers = rollers;
   }
 
+  public Subsystem pivot() {
+    return pivot;
+  }
+
+  public Subsystem rollers() {
+    return rollers;
+  }
+
   public Command setPosition(CoralPlacerPosition position) {
     return pivot.setPosition(position);
   }
@@ -29,7 +38,11 @@ public class CoralPlacer {
     return pivot.jog(offsetAngle);
   }
 
-  public Command rollersGrab() {
-    return rollers.grab();
+  public Command grab() {
+    return pivot.setPosition(CoralPlacerPosition.grabPosition).alongWith(rollers.grab());
+  }
+
+  public Command expel() {
+    return rollers.reverse();
   }
 }

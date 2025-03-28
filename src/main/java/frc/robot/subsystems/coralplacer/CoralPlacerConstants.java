@@ -24,7 +24,7 @@ public class CoralPlacerConstants {
     stowPosition(Rotations.of(0.25)),
     grabPosition(Rotations.of(0.25)),
 
-    holdPosition(Rotations.of(-0.25)),
+    holdPosition(Rotations.of(-0.24)),
     preScoreHoldPosition(Rotations.of(-0.15)),
     preScoreHoldPositionL4(Rotations.of(-0.1)),
 
@@ -77,11 +77,14 @@ public class CoralPlacerConstants {
   public static final CanID pivotEncoderCanId = new CanID(5, canBus);
   public static final CanID rollerCanId = new CanID(16, canBus);
 
-  public static final int beamBreakDioId = 0;
+  public static final int beamBreakDioId = 6;
 
   public static final RollerConstants roller =
       new RollerConstants(rollerCanId).withNeutralMode(NeutralModeValue.Coast);
 
   public static final Current rollerGrabTorque = Amps.of(100);
   public static final double rollerGrabDutyCycle = 0.25;
+
+  public static final Current rollerReverseTorque = Amps.of(100);
+  public static final double rollerReverseDutyCycle = 0.25;
 }
