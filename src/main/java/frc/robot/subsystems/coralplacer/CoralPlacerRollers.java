@@ -16,7 +16,7 @@ public class CoralPlacerRollers extends SubsystemBase {
   private final BeamBreakIO beamBreakIO;
   private final BeamBreakIOInputsAutoLogged beamBreakInputs = new BeamBreakIOInputsAutoLogged();
 
-  public final Trigger hasCoral = new Trigger(() -> beamBreakInputs.objectDetected);
+  public final Trigger hasObject = new Trigger(() -> beamBreakInputs.objectDetected);
 
   public CoralPlacerRollers(RollerIO rollerIO, BeamBreakIO beamBreakIO) {
     this.rollerIO = rollerIO;
@@ -32,12 +32,13 @@ public class CoralPlacerRollers extends SubsystemBase {
     Logger.processInputs("Coral Placer/Beam Break", beamBreakInputs);
   }
 
+  private void setIdle() {
+    rollerIO.setTorque(
+        CoralPlacerConstants.rollerGrabTorque, CoralPlacerConstants.rollerGrabDutyCycle);
+  }
+
   public Command grab() {
-    return runEnd(
-        () ->
-            rollerIO.setTorque(
-                CoralPlacerConstants.rollerGrabTorque, CoralPlacerConstants.rollerGrabDutyCycle),
-        () -> rollerIO.stop());
+    return runEnd(this::setIdle, this::setIdle);
   }
 
   public Command reverse() {
@@ -46,6 +47,10 @@ public class CoralPlacerRollers extends SubsystemBase {
             rollerIO.setTorque(
                 CoralPlacerConstants.rollerReverseTorque,
                 CoralPlacerConstants.rollerReverseDutyCycle),
-        () -> rollerIO.stop());
+        this::setIdle);
+  }
+
+  public Command neutral() {
+    return runEnd(rollerIO::stop, this::setIdle);
   }
 }

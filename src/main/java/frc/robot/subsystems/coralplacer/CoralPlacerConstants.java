@@ -28,13 +28,13 @@ public class CoralPlacerConstants {
     preScoreHoldPosition(Rotations.of(-0.15)),
     preScoreHoldPositionL4(Rotations.of(-0.1)),
 
-    scorePosition(Rotations.of(0.03)),
-    removeAlgaePosition(Rotations.of(-0.32)),
+    scorePosition(Rotations.of(0.14)),
+    grabAlgaePosition(Rotations.of(0.0)),
 
     unstuckPosition(Rotations.of(-0.56));
 
     public static final AngularVelocity velocityTolerance = RotationsPerSecond.of(0.05);
-    public static final Angle scoreCompleteThreshold = Rotations.of(-0.01);
+    public static final Angle scoreCompleteThreshold = Rotations.of(0.13);
     public static final Angle jogAmmount = Rotations.of(0.025);
 
     public Angle angle;
@@ -85,6 +85,6 @@ public class CoralPlacerConstants {
   public static final Current rollerGrabTorque = Amps.of(100);
   public static final double rollerGrabDutyCycle = 0.25;
 
-  public static final Current rollerReverseTorque = Amps.of(100);
+  public static final Current rollerReverseTorque = Amps.of(-100);
   public static final double rollerReverseDutyCycle = 0.25;
 }

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 public class ReefAlignment {
   private static final Distance reefLowerOffsetDistance = Inches.of(6.5);
-  private static final Distance reefL4OffsetDistance = Inches.of(10);
+  private static final Distance reefL4OffsetDistance = Inches.of(8);
   private static final Distance algaeL2OffsetDistance = Inches.of(7);
   private static final Distance algaeL3OffsetDistance = Inches.of(1);
 

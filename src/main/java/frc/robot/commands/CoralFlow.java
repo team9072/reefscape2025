@@ -107,18 +107,14 @@ public class CoralFlow {
       // Score with intake
       return intake.removeForL1().withTimeout(1.5);
     } else if (position.isAlgae()) {
-      // Remove algae
-      return Commands.sequence(
-          prepareElevator(position, isAuto),
-          coralPlacer.setPosition(CoralPlacerPosition.removeAlgaePosition));
+      // Prepare for grabbing algae
+      return Commands.sequence(prepareElevator(position, isAuto), coralPlacer.grabObject());
     } else {
       // Score coral
       return Commands.sequence(
           prepareElevator(position, isAuto)
               .unless(() -> elevator.atPosition(position.elevatorPosition)),
-          coralPlacer
-              .setPosition(CoralPlacerPosition.scorePosition)
-              .until(coralPlacer.pastScorePosition));
+          coralPlacer.scoreAndExpel());
     }
   }
 
@@ -140,7 +136,7 @@ public class CoralFlow {
         coralPlacer
             .setPosition(
                 position.isAlgae()
-                    ? CoralPlacerPosition.grabPosition
+                    ? CoralPlacerPosition.grabAlgaePosition
                     : CoralPlacerPosition.holdPosition)
             .unless(() -> elevator.atPosition(position.elevatorPosition) && position.isBranch()),
         elevator.setPosition(position.elevatorPosition),
@@ -182,7 +178,7 @@ public class CoralFlow {
       Supplier<ReefPosition> positionSupplier, BooleanSupplier scoreOrCancel) {
     return Commands.defer(
         () -> reefActionOnTrigger(positionSupplier.get(), scoreOrCancel),
-        Set.of(elevator, coralPlacer.pivot()));
+        Set.of(elevator, coralPlacer.pivot(), coralPlacer.rollers()));
   }
 
   public Command grabCoral() {
@@ -192,7 +188,7 @@ public class CoralFlow {
             coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
             elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
         elevator.setPosition(ElevatorPosition.grabPosition),
-        Commands.waitSeconds(0.2),
+        Commands.waitUntil(coralPlacer.hasObject).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition));
   }

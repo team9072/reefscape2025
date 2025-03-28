@@ -33,6 +33,12 @@ public class CoralPlacerPivot extends SubsystemBase {
                   || coralPlacerInputs.position.lt(
                       getModifiedAngle(CoralPlacerPosition.scorePosition.angle)));
 
+  public final Trigger atLowVelocity =
+      new Trigger(
+          () ->
+              coralPlacerInputs.velocity.isNear(
+                  RotationsPerSecond.zero(), CoralPlacerPosition.velocityTolerance));
+
   public CoralPlacerPivot(CoralPlacerIO coralPlacerIO, RollerIO rollerIO) {
     this.coralPlacerIO = coralPlacerIO;
   }
@@ -54,7 +60,7 @@ public class CoralPlacerPivot extends SubsystemBase {
   }
 
   private void setPositionWithJog() {
-    if (lastPosition == CoralPlacerPosition.removeAlgaePosition) {
+    if (false) {
       coralPlacerIO.setPositionAlgae(getModifiedAngle(lastPosition.angle));
     } else {
       coralPlacerIO.setPosition(getModifiedAngle(lastPosition.angle));
