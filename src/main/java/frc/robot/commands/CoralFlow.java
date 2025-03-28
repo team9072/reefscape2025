@@ -2,11 +2,11 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -103,10 +103,7 @@ public class CoralFlow {
   }
 
   private Command reefAction(ReefPosition position, boolean isAuto) {
-    if (position.isTrough()) {
-      // Score with intake
-      return intake.removeForL1().withTimeout(1.5);
-    } else if (position.isAlgae()) {
+    if (position.isAlgae()) {
       // Prepare for grabbing algae
       return Commands.sequence(prepareElevator(position, isAuto), coralPlacer.grabObject());
     } else {
@@ -127,10 +124,6 @@ public class CoralFlow {
   }
 
   private Command prepareElevator(ReefPosition position, boolean isAuto) {
-    if (position.isTrough()) {
-      return prepareTroughScore();
-    }
-
     return Commands.sequence(
         elevator.clearCoral(),
         coralPlacer
@@ -193,10 +186,6 @@ public class CoralFlow {
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition));
   }
 
-  public Command prepareTroughScore() {
-    return intake.setPosition(PivotPosition.coralL1);
-  }
-
   public Command unstuckCoralPlacer() {
     return Commands.sequence(
         coralPlacer.setPosition(CoralPlacerPosition.unstuckPosition).withTimeout(0),
@@ -218,5 +207,17 @@ public class CoralFlow {
 
   public Command jogCoralPlacerDown() {
     return coralPlacer.jog(CoralPlacerPosition.jogAmmount);
+  }
+
+  public Command scoreIntoBargeOnTrigger(Trigger scoreOrCancel) {
+    Command prepare =
+        Commands.sequence(
+            coralPlacer.setPosition(CoralPlacerPosition.scoreAlgaePosition),
+            elevator.setPosition(ElevatorPosition.reefL4Position));
+
+    return Commands.sequence(
+        prepare.until(scoreOrCancel),
+        Commands.waitUntil(scoreOrCancel),
+        coralPlacer.expel().withTimeout(2));
   }
 }

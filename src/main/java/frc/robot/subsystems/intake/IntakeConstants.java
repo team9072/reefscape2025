@@ -23,10 +23,6 @@ public class IntakeConstants {
   public static final Current intakeReverseTorqueCurrent = Amps.of(-100);
   public static final double intakeTorqueDutyCycle = 1;
 
-  public static final Current intakeAlgaeTorqueCurrent = Amps.of(-30);
-  public static final double intakeAlgaeTorqueDutyCycle = 0.2;
-  public static final double reverseL1TorqueDutyCycle = 0.3;
-
   public static final Current passthroughTorqueCurrent = Amps.of(200);
   public static final Current passthroughReverseTorqueCurrent = Amps.of(-100);
   public static final double passthroughTorqueDutyCycle = 0.55;

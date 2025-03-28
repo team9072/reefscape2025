@@ -65,8 +65,7 @@ public class ReefAlignment {
   private static Transform2d[] getReefOffsets(ReefPosition position) {
     switch (position) {
       case troughL1:
-        return getSingleOffset(Meters.zero(), Rotation2d.kZero);
-
+        return getSingleOffset(reefLowerOffsetDistance);
       case branchL2, branchL3:
         return getPoleOffsets(reefLowerOffsetDistance);
       case branchL4:

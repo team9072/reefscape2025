@@ -258,11 +258,6 @@ public class Robot {
     mainController.b().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL3));
     mainController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL4));
 
-    mainController
-        .povLeft()
-        .onTrue(s.coralFlow.prepareTroughScore())
-        .onFalse(s.intake.removeForL1().withTimeout(1.5));
-
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
 
@@ -288,14 +283,8 @@ public class Robot {
 
     secondaryController.x().onTrue(s.coralFlow.unstuckCoralPlacer());
 
-    secondaryController
-        .leftTrigger()
-        .whileTrue(
-            s.intake
-                .setPosition(PivotPosition.algae)
-                .withTimeout(0)
-                .andThen(s.intake.intakeAlgae()));
-    secondaryController.leftTrigger().onFalse(s.intake.reverseAlgae().withTimeout(1));
+    Trigger scoreAlgaeTrigger = secondaryController.rightTrigger();
+    scoreAlgaeTrigger.onTrue(s.coralFlow.scoreIntoBargeOnTrigger(scoreAlgaeTrigger.negate()));
 
     // Elevator unstuck
     secondaryController

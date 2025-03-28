@@ -22,7 +22,6 @@ public class PivotConstants {
   public enum PivotPosition {
     stow(Rotations.of(-0.3)),
     unjam(Rotations.of(0.05)),
-    algae(Rotations.of(-0.08)),
     coralL1(Rotations.of(-0.21)),
     deploy(Rotations.of(0.13));
 
