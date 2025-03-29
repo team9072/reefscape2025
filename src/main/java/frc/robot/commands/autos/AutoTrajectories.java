@@ -38,7 +38,11 @@ public class AutoTrajectories {
 
   public enum PreloadTrajectory implements AutoTrajectory {
     C2S_I(StartingPosition.C2S, ReefPole.I),
-    C5S_F(StartingPosition.C5S, ReefPole.F);
+    C5S_F(StartingPosition.C5S, ReefPole.F),
+    C1S_A(StartingPosition.C1S, ReefPole.A),
+    C1S_B(StartingPosition.C1S, ReefPole.B),
+    C6S_A(StartingPosition.C6S, ReefPole.A),
+    C6S_B(StartingPosition.C6S, ReefPole.B);
 
     public final StartingPosition startingPosition;
     public final ReefPole endingPole;

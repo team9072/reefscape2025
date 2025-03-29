@@ -51,8 +51,12 @@ class AutoPositions {
   }
 
   public enum StartingPosition implements AutoPosition {
+    C1S("Alliance Left Cage"),
     C2S("Alliance Center Cage"),
-    C5S("Opposite Center Cage");
+    C3S("Alliance Right Cage"),
+    C4S("Opposite Left Cage"),
+    C5S("Opposite Center Cage"),
+    C6S("Opposite Right Cage");
 
     public final String displayName;
 
