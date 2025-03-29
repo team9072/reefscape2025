@@ -12,7 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ScoringManager {
   public enum ScoringPosition {
-    troughL1(null),
+    troughL1(ElevatorPosition.reefTroughPosition),
 
     branchL2(ElevatorPosition.reefL2Position),
     branchL3(ElevatorPosition.reefL3Position),
@@ -99,9 +99,14 @@ public class ScoringManager {
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
   public Command elevatorDown() {
-    return elevator
-        .setPosition(ElevatorPosition.readyPosition)
-        .alongWith(coralPlacer.setPosition(CoralPlacerPosition.grabPosition));
+    return Commands.parallel(
+        elevator.setPosition(ElevatorPosition.readyPosition),
+        Commands.sequence(
+            Commands.sequence(
+                    coralPlacer.setPosition(CoralPlacerPosition.holdPosition),
+                    Commands.waitUntil(elevator.clearsBarge))
+                .onlyIf(() -> coralPlacer.atPosition(CoralPlacerPosition.scoreBargePosition)),
+            coralPlacer.setPosition(CoralPlacerPosition.grabPosition)));
   }
 
   /**
@@ -110,6 +115,12 @@ public class ScoringManager {
    */
   public Command clearElevator() {
     return elevator.clearCoral();
+  }
+
+  private Command clearElevatorIfNeeded(CoralPlacerPosition coralPlacerPosition) {
+    return elevator
+        .clearCoral()
+        .onlyIf(() -> coralPlacer.wouldCrossCupHitZone(coralPlacerPosition));
   }
 
   private Command prepareElevator(ScoringPosition position, boolean isAuto) {
@@ -133,25 +144,32 @@ public class ScoringManager {
       // Prepare to score algae
       final boolean isBarge = position == ScoringPosition.barge;
       coralPlacerGoal =
-          isBarge
-              ? CoralPlacerPosition.scoreBargePosition
-              : CoralPlacerPosition.scoreProcessorPosition;
+          isBarge ? CoralPlacerPosition.holdPosition : CoralPlacerPosition.scoreProcessorPosition;
+
+      CoralPlacerPosition coralPlacerHold =
+          isBarge ? CoralPlacerPosition.holdPosition : CoralPlacerPosition.scoreProcessorPosition;
 
       command =
           Commands.sequence(
-              coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(() -> isBarge),
+              coralPlacer
+                  .setPosition(coralPlacerHold)
+                  .unless(() -> isBarge && elevator.atPosition(position.elevatorPosition))
+                  .until(() -> !isBarge && !coralPlacer.wouldCrossCupHitZone(coralPlacerHold)),
               elevator.setPosition(position.elevatorPosition),
               coralPlacer.setPosition(coralPlacerGoal));
     } else {
       // Score coral
       final boolean isL4 = position == ScoringPosition.branchL4;
+      final boolean isL1 = position == ScoringPosition.troughL1;
 
       coralPlacerGoal =
-          isAuto
-              ? CoralPlacerPosition.holdPosition
-              : isL4
-                  ? CoralPlacerPosition.preScoreHoldPositionL4
-                  : CoralPlacerPosition.preScoreHoldPosition;
+          isL1
+              ? CoralPlacerPosition.scoreTroughPosition
+              : isAuto
+                  ? CoralPlacerPosition.holdPosition
+                  : isL4
+                      ? CoralPlacerPosition.preScoreHoldPositionL4
+                      : CoralPlacerPosition.preScoreHoldPosition;
 
       command =
           Commands.sequence(
@@ -162,7 +180,7 @@ public class ScoringManager {
               coralPlacer.setPosition(coralPlacerGoal));
     }
 
-    return Commands.sequence(elevator.clearCoral(), command)
+    return Commands.sequence(clearElevatorIfNeeded(coralPlacerGoal), command)
         .unless(
             () ->
                 elevator.atPosition(position.elevatorPosition)
@@ -191,6 +209,12 @@ public class ScoringManager {
               Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(1));
 
       command = delayCommand.deadlineFor(coralPlacer.expel());
+    } else if (position.isTrough()) {
+      Command delayCommand =
+          Commands.sequence(
+              Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(0.5));
+
+      command = Commands.sequence(delayCommand.deadlineFor(coralPlacer.expel()), elevatorDown());
     } else {
       // Score coral
       command =
@@ -241,11 +265,10 @@ public class ScoringManager {
 
   public Command grabCoral() {
     return Commands.sequence(
-        Commands.parallel(
-            Commands.defer(() -> memorizePosition(memorizedBranchPosition), Set.of()),
-            coralPlacer.setPosition(CoralPlacerPosition.grabPosition),
-            elevator.setPosition(ElevatorPosition.readyPosition).withTimeout(0)),
+        Commands.defer(() -> memorizePosition(memorizedBranchPosition), Set.of()),
+        elevatorDown().until(() -> coralPlacer.atPosition(CoralPlacerPosition.grabPosition)),
         elevator.setPosition(ElevatorPosition.grabPosition),
+        Commands.waitUntil(elevator.finishedGrab),
         Commands.waitUntil(coralPlacer.hasObject).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(coralPlacer.hasObject));

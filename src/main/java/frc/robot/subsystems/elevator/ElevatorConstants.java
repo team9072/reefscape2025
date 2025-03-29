@@ -25,14 +25,17 @@ public class ElevatorConstants {
     groundPickupPosition(Rotations.of(-0.55)),
 
     grabPosition(Rotations.of(-0.55)),
-    readyPosition(Rotations.of(1.65)),
+    readyPosition(Rotations.of(1.1)),
 
+    reefTroughPosition(Rotations.of(1.2)),
     reefL2Position(Rotations.of(1.65)),
     reefL3Position(Rotations.of(5.05)),
     reefL4Position(Rotations.of(10.3)),
 
     algaeL2Position(Rotations.of(2.35)),
-    algaeL3Position(Rotations.of(5.5));
+    algaeL3Position(Rotations.of(5.5)),
+
+    clearBargePosition(Rotations.of(4.95));
 
     public static final Angle grabZoneMax = Rotations.of(1.75);
 

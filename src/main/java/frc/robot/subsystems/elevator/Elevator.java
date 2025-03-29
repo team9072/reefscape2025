@@ -17,6 +17,12 @@ public class Elevator extends SubsystemBase {
               ElevatorPosition.readyPosition.withinTolerance(elevatorInputs.rotation)
                   || ElevatorPosition.readyPosition.angle.lt(elevatorInputs.rotation));
 
+  public final Trigger clearsBarge =
+      new Trigger(
+          () ->
+              ElevatorPosition.clearBargePosition.withinTolerance(elevatorInputs.rotation)
+                  || ElevatorPosition.clearBargePosition.angle.gt(elevatorInputs.rotation));
+
   public final Trigger finishedGrab =
       new Trigger(() -> elevatorInputs.rotation.lt(ElevatorPosition.grabZoneMax));
 

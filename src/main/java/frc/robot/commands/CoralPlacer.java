@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
 import frc.robot.subsystems.coralplacer.CoralPlacerRollers;
@@ -68,5 +69,26 @@ public class CoralPlacer {
             Commands.sequence(Commands.waitSeconds(0.2), Commands.waitUntil(pivot.atLowVelocity)))
         .andThen(rollers.reverse())
         .until(pastScorePosition);
+  }
+
+  public boolean wouldCrossCupHitZone(CoralPlacerPosition position) {
+    boolean currentlyInZone =
+        CoralPlacerConstants.cupHitMaxAngle.gt(pivot.position())
+            && CoralPlacerConstants.cupHitMinAngle.lt(pivot.position());
+    if (currentlyInZone) {
+      return true;
+    }
+
+    if (CoralPlacerConstants.cupHitMaxAngle.lt(pivot.position())
+        && CoralPlacerConstants.cupHitMinAngle.gt(position.angle)) {
+      return true;
+    }
+
+    if (CoralPlacerConstants.cupHitMinAngle.gt(pivot.position())
+        && CoralPlacerConstants.cupHitMaxAngle.lt(position.angle)) {
+      return true;
+    }
+
+    return false;
   }
 }

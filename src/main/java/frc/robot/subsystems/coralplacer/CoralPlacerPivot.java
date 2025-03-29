@@ -87,4 +87,8 @@ public class CoralPlacerPivot extends SubsystemBase {
           setPositionWithJog();
         });
   }
+
+  public Angle position() {
+    return coralPlacerInputs.position;
+  }
 }

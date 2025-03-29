@@ -237,7 +237,7 @@ public class Robot {
         .rightBumper()
         .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
 
-    mainController.a().whileTrue(s.intake.reverse());
+    mainController.povLeft().whileTrue(s.intake.reverse());
 
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
@@ -256,6 +256,7 @@ public class Robot {
             () -> -mainController.getLeftX(),
             s.coralFlow::getMemorizedPosition));
 
+    mainController.a().onTrue(s.coralFlow.memorizePosition(ScoringPosition.troughL1));
     mainController.x().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL2));
     mainController.b().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL3));
     mainController.y().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL4));

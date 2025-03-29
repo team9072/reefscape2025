@@ -30,6 +30,7 @@ public class CoralPlacerConstants {
     preScoreHoldPositionL4(Rotations.of(-0.1)),
 
     scorePosition(Rotations.of(0.14)),
+    scoreTroughPosition(Rotations.of(0.02)),
 
     grabReefAlgaePosition(Rotations.of(0.0)),
     grabGroundAlgaePosition(Rotations.of(0.1)),
@@ -50,6 +51,9 @@ public class CoralPlacerConstants {
       this.angle = angle;
     }
   }
+
+  public static final Angle cupHitMaxAngle = Rotations.of(0.14);
+  public static final Angle cupHitMinAngle = Rotations.of(0.248);
 
   public static final Current currentLimit = Amps.of(40);
   public static final Current statorCurrentLimit = Amps.of(60);
