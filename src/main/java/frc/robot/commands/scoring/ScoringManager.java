@@ -1,100 +1,22 @@
-package frc.robot.commands;
+package frc.robot.commands.scoring;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
-import org.littletonrobotics.junction.Logger;
 
 public class ScoringManager {
-  public enum ScoringPosition {
-    troughL1(ElevatorPosition.reefTroughPosition),
-
-    branchL2(ElevatorPosition.reefL2Position),
-    branchL3(ElevatorPosition.reefL3Position),
-    branchL4(ElevatorPosition.reefL4Position),
-
-    coralGround(ElevatorPosition.groundPickupPosition),
-    algaeGround(ElevatorPosition.groundPickupPosition),
-    algaeL2(ElevatorPosition.algaeL2Position),
-    algaeL3(ElevatorPosition.algaeL3Position),
-
-    processor(ElevatorPosition.groundPickupPosition),
-    barge(ElevatorPosition.reefL4Position);
-
-    public final ElevatorPosition elevatorPosition;
-
-    ScoringPosition(ElevatorPosition position) {
-      this.elevatorPosition = position;
-    }
-
-    public boolean isObjectIntake() {
-      switch (this) {
-        case coralGround, algaeGround, algaeL2, algaeL3:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    public boolean isAlgaeScore() {
-      switch (this) {
-        case processor, barge:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    public boolean isTrough() {
-      switch (this) {
-        case troughL1:
-          return true;
-        default:
-          return false;
-      }
-    }
-
-    public boolean isBranch() {
-      switch (this) {
-        case branchL2, branchL3, branchL4:
-          return true;
-        default:
-          return false;
-      }
-    }
-  }
-
   private final Elevator elevator;
   private final CoralPlacer coralPlacer;
-
-  private ScoringPosition memorizedBranchPosition = ScoringPosition.branchL4;
-  private ScoringPosition memorizedPosition = memorizedBranchPosition;
 
   public ScoringManager(Elevator elevator, CoralPlacer coralPlacer) {
     this.elevator = elevator;
     this.coralPlacer = coralPlacer;
-  }
-
-  public ScoringPosition getMemorizedPosition() {
-    return memorizedPosition;
-  }
-
-  public Command memorizePosition(ScoringPosition position) {
-    return Commands.runOnce(
-        () -> {
-          memorizedPosition = position;
-          if (position.isBranch()) {
-            memorizedBranchPosition = position;
-          }
-
-          Logger.recordOutput("CoralFlow/MemorizedPosition", memorizedPosition.name());
-          Logger.recordOutput("CoralFlow/MemorizedBranch", memorizedBranchPosition.name());
-        });
   }
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
@@ -265,7 +187,6 @@ public class ScoringManager {
 
   public Command grabCoral() {
     return Commands.sequence(
-        Commands.defer(() -> memorizePosition(memorizedBranchPosition), Set.of()),
         elevatorDown().until(() -> coralPlacer.atPosition(CoralPlacerPosition.grabPosition)),
         elevator.setPosition(ElevatorPosition.grabPosition),
         Commands.waitUntil(elevator.finishedGrab),

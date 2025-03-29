@@ -13,8 +13,9 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
-import frc.robot.commands.ScoringManager;
-import frc.robot.commands.ScoringManager.ScoringPosition;
+import frc.robot.commands.scoring.ScoringManager;
+import frc.robot.commands.scoring.ScoringMemory;
+import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
@@ -90,6 +91,7 @@ public class Robot {
 
   private final Subsystems s;
   private final Autos autos;
+  private final ScoringMemory scoringMemory;
 
   public Robot() {
     final Drive drive;
@@ -210,6 +212,7 @@ public class Robot {
         new Subsystems(
             drive, intake, coralPlacerPivot, coralPlacerRollers, elevator, vision, questNav);
     autos = new Autos(s);
+    scoringMemory = new ScoringMemory(ScoringPosition.branchL4);
 
     configureBindings();
   }
@@ -242,27 +245,29 @@ public class Robot {
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
         s.coralFlow.scoringActionOnTrigger(
-            s.coralFlow::getMemorizedPosition, scoreTrigger.negate()));
+            scoringMemory::getMemorizedPosition, scoreTrigger.negate()));
 
     Trigger alignTrigger = mainController.leftTrigger();
 
     alignTrigger.onTrue(
         s.coralFlow.scoringActionOnTrigger(
-            s.coralFlow::getMemorizedPosition, alignTrigger.negate()));
+            scoringMemory::getMemorizedPosition, alignTrigger.negate()));
     alignTrigger.whileTrue(
         ReefAlignment.driveReefAligned(
             s.drive,
             () -> -mainController.getLeftY(),
             () -> -mainController.getLeftX(),
-            s.coralFlow::getMemorizedPosition));
+            scoringMemory::getMemorizedPosition));
 
-    mainController.a().onTrue(s.coralFlow.memorizePosition(ScoringPosition.troughL1));
-    mainController.x().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL2));
-    mainController.b().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL3));
-    mainController.y().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL4));
+    mainController.a().onTrue(scoringMemory.memorizePosition(ScoringPosition.troughL1));
+    mainController.x().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL2));
+    mainController.b().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL3));
+    mainController.y().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL4));
 
     // Mapped to back buttons
-    mainController.povDown().onTrue(s.coralFlow.grabCoral());
+    mainController
+        .povDown()
+        .onTrue(s.coralFlow.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
     /** Operator Controls */
     secondaryController

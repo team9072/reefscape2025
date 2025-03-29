@@ -12,7 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.ScoringManager.ScoringPosition;
+import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import java.util.Arrays;

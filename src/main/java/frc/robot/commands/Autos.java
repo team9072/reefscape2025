@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.commands.ScoringManager.ScoringPosition;
+import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import org.littletonrobotics.junction.LogTable;
