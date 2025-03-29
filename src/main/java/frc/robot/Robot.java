@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.Autos;
-import frc.robot.commands.CoralFlow;
-import frc.robot.commands.CoralFlow.ReefPosition;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
+import frc.robot.commands.ScoringManager;
+import frc.robot.commands.ScoringManager.ScoringPosition;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
@@ -63,7 +63,7 @@ public class Robot {
     public final QuestNav questNav;
 
     // State
-    public final CoralFlow coralFlow;
+    public final ScoringManager coralFlow;
 
     Subsystems(
         Drive drive,
@@ -79,7 +79,7 @@ public class Robot {
       this.questNav = questNav;
 
       coralFlow =
-          new CoralFlow(intake, elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
+          new ScoringManager(elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
     }
   }
 
@@ -241,12 +241,14 @@ public class Robot {
 
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
-        s.coralFlow.reefActionOnTrigger(s.coralFlow::getMemorizedPosition, scoreTrigger.negate()));
+        s.coralFlow.scoringActionOnTrigger(
+            s.coralFlow::getMemorizedPosition, scoreTrigger.negate()));
 
     Trigger alignTrigger = mainController.leftTrigger();
 
     alignTrigger.onTrue(
-        s.coralFlow.reefActionOnTrigger(s.coralFlow::getMemorizedPosition, alignTrigger.negate()));
+        s.coralFlow.scoringActionOnTrigger(
+            s.coralFlow::getMemorizedPosition, alignTrigger.negate()));
     alignTrigger.whileTrue(
         ReefAlignment.driveReefAligned(
             s.drive,
@@ -254,9 +256,9 @@ public class Robot {
             () -> -mainController.getLeftX(),
             s.coralFlow::getMemorizedPosition));
 
-    mainController.x().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL2));
-    mainController.b().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL3));
-    mainController.y().onTrue(s.coralFlow.memorizePosition(ReefPosition.branchL4));
+    mainController.x().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL2));
+    mainController.b().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL3));
+    mainController.y().onTrue(s.coralFlow.memorizePosition(ScoringPosition.branchL4));
 
     // Mapped to back buttons
     mainController.povDown().onTrue(s.coralFlow.grabCoral());
@@ -270,21 +272,34 @@ public class Robot {
         .whileTrue(
             s.intake.setPosition(PivotPosition.unjam).withTimeout(0.4).andThen(s.intake.reverse()));
 
-    secondaryController.rightTrigger().onTrue(s.coralFlow.prepareElevator(ReefPosition.branchL2));
+    secondaryController
+        .rightTrigger()
+        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.branchL2));
 
     secondaryController
         .a()
-        .onTrue(s.coralFlow.prepareElevator(ReefPosition.algaeL2))
-        .onFalse(s.coralFlow.reefAction(ReefPosition.algaeL2));
+        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.algaeL2))
+        .onFalse(s.coralFlow.scoringAction(ScoringPosition.algaeL2));
     secondaryController
         .y()
-        .onTrue(s.coralFlow.prepareElevator(ReefPosition.algaeL2))
-        .onFalse(s.coralFlow.reefAction(ReefPosition.algaeL3));
+        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.algaeL2))
+        .onFalse(s.coralFlow.scoringAction(ScoringPosition.algaeL3));
+
+    secondaryController
+        .b()
+        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.algaeGround))
+        .onFalse(s.coralFlow.scoringAction(ScoringPosition.algaeGround));
 
     secondaryController.x().onTrue(s.coralFlow.unstuckCoralPlacer());
 
-    Trigger scoreAlgaeTrigger = secondaryController.rightTrigger();
-    scoreAlgaeTrigger.onTrue(s.coralFlow.scoreIntoBargeOnTrigger(scoreAlgaeTrigger.negate()));
+    Trigger scoreBargeTrigger = secondaryController.rightTrigger();
+    scoreBargeTrigger.onTrue(
+        s.coralFlow.scoringActionOnTrigger(ScoringPosition.barge, scoreBargeTrigger.negate()));
+
+    Trigger scoreProcessorTrigger = secondaryController.leftTrigger();
+    scoreProcessorTrigger.onTrue(
+        s.coralFlow.scoringActionOnTrigger(
+            ScoringPosition.processor, scoreProcessorTrigger.negate()));
 
     // Elevator unstuck
     secondaryController

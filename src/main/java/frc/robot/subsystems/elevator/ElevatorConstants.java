@@ -22,6 +22,8 @@ public class ElevatorConstants {
    * constructor determines how far up the elevator starts, which is subtracted from each position.
    */
   public enum ElevatorPosition {
+    groundAlgaePosition(Rotations.of(-0.55)),
+
     grabPosition(Rotations.of(-0.55)),
     readyPosition(Rotations.of(1.65)),
 
@@ -51,7 +53,7 @@ public class ElevatorConstants {
   public static final Current currentLimit = Amps.of(70);
   public static final Current statorLimit = Amps.of(120);
 
-  public static final Angle minDistance = Rotations.of(-0.2);
+  public static final Angle minDistance = Rotations.of(-0.55);
   public static final Angle maxDistance = Rotations.of(10.5);
 
   public static final double kP = 10;

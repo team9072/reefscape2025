@@ -12,10 +12,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.commands.CoralFlow.ReefPosition;
+import frc.robot.commands.ScoringManager.ScoringPosition;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -62,7 +63,7 @@ public class ReefAlignment {
     return getSingleOffset(reefOffset, Rotation2d.k180deg);
   }
 
-  private static Transform2d[] getReefOffsets(ReefPosition position) {
+  private static Transform2d[] getReefOffsets(ScoringPosition position) {
     switch (position) {
       case troughL1:
         return getSingleOffset(reefLowerOffsetDistance);
@@ -75,9 +76,10 @@ public class ReefAlignment {
         return getSingleOffset(algaeL2OffsetDistance);
       case algaeL3:
         return getSingleOffset(algaeL3OffsetDistance);
-    }
 
-    throw new IllegalArgumentException("Unknown ReefPosition " + position.name());
+      default:
+        return new Transform2d[0];
+    }
   }
 
   private static Pose2d findClosestReef(Pose2d robotPose) {
@@ -93,10 +95,10 @@ public class ReefAlignment {
     return new Pose2d(reefCenter, angleToReefCenter);
   }
 
-  private static Pose2d findClosestOffset(
-      Pose2d robotPose, Pose2d reefPose, ReefPosition position) {
+  private static Optional<Pose2d> findClosestOffset(
+      Pose2d robotPose, Pose2d reefPose, ScoringPosition position) {
     Transform2d[] reefOffsets = getReefOffsets(position);
-    Pose2d closestOffset =
+    Optional<Pose2d> closestOffset =
         Arrays.stream(reefOffsets)
             .map(
                 (offset) -> {
@@ -107,8 +109,7 @@ public class ReefAlignment {
                   return new Pair<>(offsetPose, offsetDistance);
                 })
             .min((a, b) -> Double.compare(a.getSecond(), b.getSecond()))
-            .map((pair) -> pair.getFirst())
-            .get();
+            .map((pair) -> pair.getFirst());
 
     return closestOffset;
   }
@@ -143,14 +144,14 @@ public class ReefAlignment {
       Drive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<ReefPosition> branchSupplier) {
+      Supplier<ScoringPosition> branchSupplier) {
 
     DrivePid driveController = drive.getPid();
 
     return Commands.run(
         () -> {
           Pose2d closestReef = findClosestReef(drive.getPose());
-          Pose2d closestOffset =
+          Optional<Pose2d> closestOffset =
               findClosestOffset(drive.getPose(), closestReef, branchSupplier.get());
 
           double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
@@ -162,7 +163,9 @@ public class ReefAlignment {
           drive.runVelocity(
               speeds.plus(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
-                      getReefAlignSpeeds(closestOffset, driveController, joystickValue),
+                      // If no offset was found, just align to the reef
+                      getReefAlignSpeeds(
+                          closestOffset.orElse(drive.getPose()), driveController, joystickValue),
                       drive.getRotation())));
         },
         drive);

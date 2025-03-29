@@ -41,6 +41,10 @@ public class CoralPlacer {
     return rollers;
   }
 
+  public boolean atPosition(CoralPlacerPosition position) {
+    return pivot.atPosition(position);
+  }
+
   public Command setPosition(CoralPlacerPosition position) {
     return pivot.setPosition(position);
   }

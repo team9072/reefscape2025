@@ -53,7 +53,7 @@ public class CoralPlacerPivot extends SubsystemBase {
     return angle.plus(jogOffset);
   }
 
-  private boolean atPosition(CoralPlacerPosition position) {
+  public boolean atPosition(CoralPlacerPosition position) {
     return getModifiedAngle(position.angle).isNear(coralPlacerInputs.position, Degrees.of(2))
         && coralPlacerInputs.velocity.isNear(
             RotationsPerSecond.zero(), CoralPlacerPosition.velocityTolerance);

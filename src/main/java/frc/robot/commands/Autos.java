@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.commands.CoralFlow.ReefPosition;
+import frc.robot.commands.ScoringManager.ScoringPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
 import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import org.littletonrobotics.junction.LogTable;
@@ -106,14 +106,16 @@ public class Autos extends SubsystemBase {
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
     trajectory.active().onTrue(s.coralFlow.coralPlacerForwardAuto());
 
-    trajectory.atTime(prepareAlignEvent).onTrue(s.coralFlow.prepareElevator(ReefPosition.branchL4));
+    trajectory
+        .atTime(prepareAlignEvent)
+        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.branchL4));
 
     trajectory
         .done()
         .onTrue(
             Commands.sequence(
                 completeAlign(trajectory),
-                s.coralFlow.reefActionAuto(ReefPosition.branchL4),
+                s.coralFlow.scoringActionAuto(ScoringPosition.branchL4),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
@@ -138,7 +140,7 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 s.coralFlow.grabCoral(),
-                s.coralFlow.prepareElevator(ReefPosition.branchL4),
+                s.coralFlow.prepareElevator(ScoringPosition.branchL4),
                 scoreTrajectory.cmd()));
 
     scoreTrajectory
@@ -146,7 +148,7 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 completeAlign(scoreTrajectory),
-                s.coralFlow.reefActionAuto(ReefPosition.branchL4),
+                s.coralFlow.scoringActionAuto(ScoringPosition.branchL4),
                 Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
   }
 
