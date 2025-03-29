@@ -72,6 +72,8 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
 
     config.CurrentLimits.withSupplyCurrentLimit(CoralPlacerConstants.currentLimit);
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.withStatorCurrentLimit(CoralPlacerConstants.statorCurrentLimit);
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 

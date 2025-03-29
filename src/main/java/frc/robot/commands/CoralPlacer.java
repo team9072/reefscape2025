@@ -59,11 +59,10 @@ public class CoralPlacer {
 
   public Command scoreAndExpel() {
     return Commands.parallel(
+            rollers.neutral(),
             pivot.setPosition(CoralPlacerPosition.scorePosition),
-            Commands.sequence(
-                Commands.waitSeconds(0.2),
-                Commands.waitUntil(pivot.atLowVelocity),
-                rollers.reverse()))
+            Commands.sequence(Commands.waitSeconds(0.2), Commands.waitUntil(pivot.atLowVelocity)))
+        .andThen(rollers.reverse())
         .until(pastScorePosition);
   }
 }

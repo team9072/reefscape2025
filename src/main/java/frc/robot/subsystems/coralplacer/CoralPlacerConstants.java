@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -47,6 +48,7 @@ public class CoralPlacerConstants {
   }
 
   public static final Current currentLimit = Amps.of(40);
+  public static final Current statorCurrentLimit = Amps.of(60);
   public static final NeutralModeValue neutralMode = NeutralModeValue.Brake;
 
   public static final double rotorToSensor = (72.0 / 18.0) * 5.0;
@@ -82,10 +84,13 @@ public class CoralPlacerConstants {
   public static final int beamBreakDioId = 6;
 
   public static final RollerConstants roller =
-      new RollerConstants(rollerCanId).withNeutralMode(NeutralModeValue.Coast);
+      new RollerConstants(rollerCanId)
+          .withNeutralMode(NeutralModeValue.Coast)
+          .withBaseCurrentLimit(Amps.of(65))
+          .withSpikeCurrentLimit(Amps.of(75), Seconds.of(1));
 
-  public static final Current rollerGrabTorque = Amps.of(100);
-  public static final double rollerGrabDutyCycle = 0.25;
+  public static final Current rollerGrabTorque = Amps.of(200);
+  public static final double rollerGrabDutyCycle = 0.3;
 
   public static final Current rollerReverseTorque = Amps.of(-100);
   public static final double rollerReverseDutyCycle = 0.25;

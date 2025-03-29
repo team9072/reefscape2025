@@ -111,7 +111,10 @@ public class CoralFlow {
       return Commands.sequence(
           prepareElevator(position, isAuto)
               .unless(() -> elevator.atPosition(position.elevatorPosition)),
-          coralPlacer.scoreAndExpel());
+          coralPlacer.scoreAndExpel(),
+          elevatorDown()
+              .onlyIf(
+                  coralPlacer.hasObject.negate().and(() -> (position != ReefPosition.branchL4))));
     }
   }
 
