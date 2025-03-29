@@ -10,13 +10,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.autos.AutoTrajectories.AutoTrajectory;
 import frc.robot.commands.autos.AutoTrajectories.IntakeTrajectory;
 import frc.robot.commands.autos.AutoTrajectories.PreloadTrajectory;
+import java.util.List;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.networktables.LoggedNetworkInput;
 
 public class AutoBuilder extends LoggedNetworkInput {
-  private static class ManagedChooser<V extends AutoTrajectory> {
+  private static class ManagedChooser<V extends Enum<V> & AutoTrajectory> {
     public final String key;
     private final TrajectoryChooser<V> chooser;
     public V selectedTrajectory;
@@ -84,23 +85,30 @@ public class AutoBuilder extends LoggedNetworkInput {
   private final String key;
   private final Field2d autoDisplay = new Field2d();
 
-  private final ManagedChooser<PreloadTrajectory> preloadChooser;
-  private final ManagedChooser<IntakeTrajectory> p2Chooser;
-  private final ManagedChooser<IntakeTrajectory> p3Chooser;
+  private final List<ManagedChooser<?>> choosers;
 
   private final LoggableInputs inputs =
       new LoggableInputs() {
+        private <E extends Enum<E> & AutoTrajectory> void addChooserToLog(
+            ManagedChooser<E> chooser, LogTable table) {
+          table.put(chooser.key, chooser.selectedTrajectory);
+        }
+
         public void toLog(LogTable table) {
-          table.put(preloadChooser.key, preloadChooser.selectedTrajectory);
-          table.put(p2Chooser.key, p2Chooser.selectedTrajectory);
-          table.put(p3Chooser.key, p3Chooser.selectedTrajectory);
+          for (ManagedChooser<?> chooser : choosers) {
+            addChooserToLog(chooser, table);
+          }
+        }
+
+        private <E extends Enum<E> & AutoTrajectory> void setChooserFromLog(
+            ManagedChooser<E> chooser, LogTable table) {
+          chooser.selectedTrajectory = table.get(chooser.key, chooser.selectedTrajectory);
         }
 
         public void fromLog(LogTable table) {
-          preloadChooser.selectedTrajectory =
-              table.get(preloadChooser.key, preloadChooser.selectedTrajectory);
-          p2Chooser.selectedTrajectory = table.get(p2Chooser.key, p2Chooser.selectedTrajectory);
-          p3Chooser.selectedTrajectory = table.get(p2Chooser.key, p2Chooser.selectedTrajectory);
+          for (ManagedChooser<?> chooser : choosers) {
+            setChooserFromLog(chooser, table);
+          }
         }
       };
 
@@ -110,10 +118,14 @@ public class AutoBuilder extends LoggedNetworkInput {
 
   public AutoBuilder(String key) {
     this.key = key;
-    preloadChooser = new ManagedChooser<>(getKey("Preload"), PreloadTrajectory.values(), null);
-    p2Chooser =
+    ManagedChooser<PreloadTrajectory> preloadChooser =
+        new ManagedChooser<>(getKey("Preload"), PreloadTrajectory.values(), null);
+    ManagedChooser<IntakeTrajectory> p2Chooser =
         new ManagedChooser<>(getKey("Second Piece"), IntakeTrajectory.values(), preloadChooser);
-    p3Chooser = new ManagedChooser<>(getKey("Third Piece"), IntakeTrajectory.values(), p2Chooser);
+    ManagedChooser<IntakeTrajectory> p3Chooser =
+        new ManagedChooser<>(getKey("Third Piece"), IntakeTrajectory.values(), p2Chooser);
+
+    choosers = List.of(preloadChooser, p2Chooser, p3Chooser);
 
     SmartDashboard.putData(getKey("Auto Path"), autoDisplay);
     periodic();
@@ -126,18 +138,42 @@ public class AutoBuilder extends LoggedNetworkInput {
 
   public void periodic() {
     if (!Logger.hasReplaySource()) {
-      preloadChooser.updateSelected();
-      p2Chooser.updateSelected();
-      p3Chooser.updateSelected();
+      for (ManagedChooser<?> chooser : choosers) {
+        chooser.updateSelected();
+      }
     }
 
-    p2Chooser.updateFilters(preloadChooser);
-    p3Chooser.updateFilters(p2Chooser);
+    ManagedChooser<?> priorChooser = null;
+    for (ManagedChooser<?> chooser : choosers) {
+      if (priorChooser != null) {
+        chooser.updateFilters(priorChooser);
+      }
+
+      priorChooser = chooser;
+    }
 
     Logger.processInputs(prefix + "/SmartDashboard", inputs);
 
-    preloadChooser.updateDisplay(autoDisplay, true);
-    p2Chooser.updateDisplay(autoDisplay, false);
-    p3Chooser.updateDisplay(autoDisplay, false);
+    boolean firstChooser = true;
+    for (ManagedChooser<?> chooser : choosers) {
+      chooser.updateDisplay(autoDisplay, firstChooser);
+      firstChooser = false;
+    }
+  }
+
+  public List<AutoTrajectory> getTrajectories() {
+    final List<AutoTrajectory> trajectories = List.of();
+
+    for (ManagedChooser<?> chooser : choosers) {
+      AutoTrajectory nullableTrajectory = chooser.selectedTrajectory;
+
+      if (nullableTrajectory == null) {
+        break;
+      }
+
+      trajectories.add(nullableTrajectory);
+    }
+
+    return trajectories;
   }
 }
