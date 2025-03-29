@@ -18,11 +18,12 @@ public class ScoringManager {
     branchL3(ElevatorPosition.reefL3Position),
     branchL4(ElevatorPosition.reefL4Position),
 
-    algaeGround(ElevatorPosition.groundAlgaePosition),
+    coralGround(ElevatorPosition.groundPickupPosition),
+    algaeGround(ElevatorPosition.groundPickupPosition),
     algaeL2(ElevatorPosition.algaeL2Position),
     algaeL3(ElevatorPosition.algaeL3Position),
 
-    processor(ElevatorPosition.groundAlgaePosition),
+    processor(ElevatorPosition.groundPickupPosition),
     barge(ElevatorPosition.reefL4Position);
 
     public final ElevatorPosition elevatorPosition;
@@ -31,9 +32,9 @@ public class ScoringManager {
       this.elevatorPosition = position;
     }
 
-    public boolean isAlgaeIntake() {
+    public boolean isObjectIntake() {
       switch (this) {
-        case algaeGround, algaeL2, algaeL3:
+        case coralGround, algaeGround, algaeL2, algaeL3:
           return true;
         default:
           return false;
@@ -115,12 +116,14 @@ public class ScoringManager {
     final Command command;
     final CoralPlacerPosition coralPlacerGoal;
 
-    if (position.isAlgaeIntake()) {
+    if (position.isObjectIntake()) {
       // Prepare to intake algae
       coralPlacerGoal =
-          position == ScoringPosition.algaeGround
-              ? CoralPlacerPosition.grabGroundAlgaePosition
-              : CoralPlacerPosition.grabReefAlgaePosition;
+          position == ScoringPosition.coralGround
+              ? CoralPlacerPosition.grabGroundCoralPosition
+              : position == ScoringPosition.algaeGround
+                  ? CoralPlacerPosition.grabGroundAlgaePosition
+                  : CoralPlacerPosition.grabReefAlgaePosition;
 
       command =
           Commands.sequence(
@@ -178,7 +181,7 @@ public class ScoringManager {
   private Command scoringAction(ScoringPosition position, boolean isAuto) {
     final Command command;
 
-    if (position.isAlgaeIntake()) {
+    if (position.isObjectIntake()) {
       // Prepare for grabbing algae
       command = coralPlacer.grabObject();
     } else if (position.isAlgaeScore()) {
