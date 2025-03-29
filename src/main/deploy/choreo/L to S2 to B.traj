@@ -156,6 +156,5 @@
     {"t":4.75532, "x":3.048, "y":3.85318, "heading":0.0, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
   "splits":[0,56]
  },
- "events":[
-   {"name":"PrepareCoral", "from":{"target":3, "targetTimestamp":4.75532, "offset":{"exp":"-PrepareAlignTime", "val":-0.75}}, "event":null}]
+ "events":[]
 }

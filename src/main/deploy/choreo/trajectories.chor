@@ -4,11 +4,32 @@
  "type":"Swerve",
  "variables":{
   "expressions":{
+   "CageStraightX":{
+    "dimension":"Length",
+    "var":{
+     "exp":"7.22 m",
+     "val":7.22
+    }
+   },
    "IntakeMaxVelocity":{
     "dimension":"LinVel",
     "var":{
      "exp":"1 m / s",
      "val":1.0
+    }
+   },
+   "KeepAwayExtraDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"10 in",
+     "val":0.254
+    }
+   },
+   "KeepAwayWallDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"2.5 m",
+     "val":2.5
     }
    },
    "MaxVelocity":{
@@ -174,9 +195,9 @@
      "val":1.0471975511965976
     }
    },
-   "Cage1S":{
+   "C1S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
@@ -188,9 +209,9 @@
      "val":3.141592653589793
     }
    },
-   "Cage2S":{
+   "C2S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
@@ -202,9 +223,9 @@
      "val":3.141592653589793
     }
    },
-   "Cage3S":{
+   "C3S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
@@ -216,9 +237,9 @@
      "val":3.141592653589793
     }
    },
-   "Cage4S":{
+   "C4S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
@@ -230,9 +251,9 @@
      "val":3.141592653589793
     }
    },
-   "Cage5S":{
+   "C5S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
@@ -244,9 +265,9 @@
      "val":3.141592653589793
     }
    },
-   "Cage6S":{
+   "C6S":{
     "x":{
-     "exp":"7.22 m",
+     "exp":"CageStraightX",
      "val":7.22
     },
     "y":{
