@@ -5,14 +5,14 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import frc.robot.commands.autos.AutoTrajectories.AutoTrajectory;
+import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-class TrajectoryChooser<V extends AutoTrajectory> implements Sendable {
+class TrajectoryChooser<V extends AutoPathSegment> implements Sendable {
   private static final String NONE_NAME = "None";
   private static final Alert selectedNonexistentTrajectory =
       ChoreoAlert.alert("Selected a trajectory that isn't an option", AlertType.kError);

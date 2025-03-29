@@ -7,9 +7,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.autos.AutoTrajectories.AutoTrajectory;
-import frc.robot.commands.autos.AutoTrajectories.IntakeTrajectory;
-import frc.robot.commands.autos.AutoTrajectories.PreloadTrajectory;
+import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
+import frc.robot.commands.autos.AutoPathSegments.IntakeTrajectory;
+import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
 import java.util.List;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -17,11 +17,11 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.networktables.LoggedNetworkInput;
 
 public class AutoBuilder extends LoggedNetworkInput {
-  private static class ManagedChooser<V extends Enum<V> & AutoTrajectory> {
+  private static class ManagedChooser<V extends Enum<V> & AutoPathSegment> {
     public final String key;
     private final TrajectoryChooser<V> chooser;
     public V selectedTrajectory;
-    private AutoTrajectory priorTrajectory;
+    private AutoPathSegment priorTrajectory;
 
     public ManagedChooser(String key, V[] trajectories, ManagedChooser<?> priorChooser) {
       this.key = key;
@@ -89,7 +89,7 @@ public class AutoBuilder extends LoggedNetworkInput {
 
   private final LoggableInputs inputs =
       new LoggableInputs() {
-        private <E extends Enum<E> & AutoTrajectory> void addChooserToLog(
+        private <E extends Enum<E> & AutoPathSegment> void addChooserToLog(
             ManagedChooser<E> chooser, LogTable table) {
           table.put(chooser.key, chooser.selectedTrajectory);
         }
@@ -100,7 +100,7 @@ public class AutoBuilder extends LoggedNetworkInput {
           }
         }
 
-        private <E extends Enum<E> & AutoTrajectory> void setChooserFromLog(
+        private <E extends Enum<E> & AutoPathSegment> void setChooserFromLog(
             ManagedChooser<E> chooser, LogTable table) {
           chooser.selectedTrajectory = table.get(chooser.key, chooser.selectedTrajectory);
         }
@@ -161,11 +161,11 @@ public class AutoBuilder extends LoggedNetworkInput {
     }
   }
 
-  public List<AutoTrajectory> getTrajectories() {
-    final List<AutoTrajectory> trajectories = List.of();
+  public List<AutoPathSegment> getTrajectories() {
+    final List<AutoPathSegment> trajectories = List.of();
 
     for (ManagedChooser<?> chooser : choosers) {
-      AutoTrajectory nullableTrajectory = chooser.selectedTrajectory;
+      AutoPathSegment nullableTrajectory = chooser.selectedTrajectory;
 
       if (nullableTrajectory == null) {
         break;

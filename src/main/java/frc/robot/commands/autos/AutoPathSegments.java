@@ -9,8 +9,8 @@ import frc.robot.commands.autos.AutoPositions.ReefPole;
 import frc.robot.commands.autos.AutoPositions.StartingPosition;
 import java.util.Optional;
 
-public class AutoTrajectories {
-  public interface AutoTrajectory {
+public class AutoPathSegments {
+  public interface AutoPathSegment {
     String name();
 
     String displayName();
@@ -36,7 +36,7 @@ public class AutoTrajectories {
     }
   }
 
-  public enum PreloadTrajectory implements AutoTrajectory {
+  public enum PreloadTrajectory implements AutoPathSegment {
     C2S_I(StartingPosition.C2S, ReefPole.I),
     C5S_F(StartingPosition.C5S, ReefPole.F),
     C1S_A(StartingPosition.C1S, ReefPole.A),
@@ -76,7 +76,7 @@ public class AutoTrajectories {
     }
   }
 
-  public enum IntakeTrajectory implements AutoTrajectory {
+  public enum IntakeTrajectory implements AutoPathSegment {
     I_S1_L(ReefPole.I, CoralSpike.S1, ReefPole.L),
     L_S2_B(ReefPole.L, CoralSpike.S2, ReefPole.B),
     C_S2_A(ReefPole.C, CoralSpike.S2, ReefPole.A),
