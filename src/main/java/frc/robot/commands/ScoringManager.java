@@ -111,43 +111,6 @@ public class ScoringManager {
     return elevator.clearCoral();
   }
 
-  private Command scoringAction(ScoringPosition position, boolean isAuto) {
-    final Command command;
-
-    if (position.isAlgaeIntake()) {
-      // Prepare for grabbing algae
-      command = coralPlacer.grabObject();
-    } else if (position.isAlgaeScore()) {
-      // Score Algae
-      Command delayCommand =
-          Commands.sequence(
-              Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(1));
-
-      command = delayCommand.deadlineFor(coralPlacer.expel());
-    } else {
-      // Score coral
-      command =
-          Commands.sequence(
-              coralPlacer.scoreAndExpel(),
-              elevatorDown()
-                  .onlyIf(
-                      coralPlacer
-                          .hasObject
-                          .negate()
-                          .and(() -> (position != ScoringPosition.branchL4))));
-    }
-
-    return Commands.sequence(prepareElevator(position, isAuto), command);
-  }
-
-  public Command scoringAction(ScoringPosition position) {
-    return scoringAction(position, false);
-  }
-
-  public Command scoringActionAuto(ScoringPosition position) {
-    return scoringAction(position, true);
-  }
-
   private Command prepareElevator(ScoringPosition position, boolean isAuto) {
     final Command command;
     final CoralPlacerPosition coralPlacerGoal;
@@ -210,6 +173,43 @@ public class ScoringManager {
   /** Does not hold coral for alignment */
   public Command prepareElevatorAuto(ScoringPosition position) {
     return prepareElevator(position, true);
+  }
+
+  private Command scoringAction(ScoringPosition position, boolean isAuto) {
+    final Command command;
+
+    if (position.isAlgaeIntake()) {
+      // Prepare for grabbing algae
+      command = coralPlacer.grabObject();
+    } else if (position.isAlgaeScore()) {
+      // Score Algae
+      Command delayCommand =
+          Commands.sequence(
+              Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(1));
+
+      command = delayCommand.deadlineFor(coralPlacer.expel());
+    } else {
+      // Score coral
+      command =
+          Commands.sequence(
+              coralPlacer.scoreAndExpel(),
+              elevatorDown()
+                  .onlyIf(
+                      coralPlacer
+                          .hasObject
+                          .negate()
+                          .and(() -> (position != ScoringPosition.branchL4))));
+    }
+
+    return Commands.sequence(prepareElevator(position, isAuto), command);
+  }
+
+  public Command scoringAction(ScoringPosition position) {
+    return scoringAction(position, false);
+  }
+
+  public Command scoringActionAuto(ScoringPosition position) {
+    return scoringAction(position, true);
   }
 
   /**
