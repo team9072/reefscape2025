@@ -42,7 +42,8 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static final double DEFAULT_DRIVE_SPEED_PERCENTAGE = 0.85;
+  private static final double DEFAULT_DRIVE_TRANSLATION_SPEED_PERCENTAGE = 0.85;
+  private static final double DEFAULT_DRIVE_ROTATION_SPEED_PERCENTAGE = 0.55;
 
   private DriveCommands() {}
 
@@ -67,7 +68,12 @@ public class DriveCommands {
 
   /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
   public static ChassisSpeeds getJoystickSpeeds(
-      Drive drive, double x, double y, double omega, double maxSpeedPercent) {
+      Drive drive,
+      double x,
+      double y,
+      double omega,
+      double maxTranslationSpeedPercent,
+      double maxRotationSpeedPercent) {
     Translation2d linearVelocity = getLinearVelocityFromJoysticks(x, y);
 
     omega = MathUtil.applyDeadband(omega, DEADBAND);
@@ -75,9 +81,13 @@ public class DriveCommands {
 
     ChassisSpeeds speeds =
         new ChassisSpeeds(
-            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * maxSpeedPercent,
-            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * maxSpeedPercent,
-            omega * drive.getMaxAngularSpeedRadPerSec() * maxSpeedPercent);
+            linearVelocity.getX()
+                * drive.getMaxLinearSpeedMetersPerSec()
+                * maxTranslationSpeedPercent,
+            linearVelocity.getY()
+                * drive.getMaxLinearSpeedMetersPerSec()
+                * maxTranslationSpeedPercent,
+            omega * drive.getMaxAngularSpeedRadPerSec() * maxRotationSpeedPercent);
 
     // Convert to field relative speeds & send command
     return ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -87,30 +97,13 @@ public class DriveCommands {
 
   /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
   public static ChassisSpeeds getJoystickSpeeds(Drive drive, double x, double y, double omega) {
-    return getJoystickSpeeds(drive, x, y, omega, DEFAULT_DRIVE_SPEED_PERCENTAGE);
-  }
-
-  /**
-   * Field relative drive command using two joysticks (controlling linear and angular velocities). A
-   * supplier of an OptionalDouble can be passed to override the default max speed
-   */
-  public static Command joystickDrive(
-      Drive drive,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier,
-      Supplier<OptionalDouble> speedPercentOverrideSupplier) {
-    return Commands.run(
-        () -> {
-          drive.runVelocity(
-              getJoystickSpeeds(
-                  drive,
-                  xSupplier.getAsDouble(),
-                  ySupplier.getAsDouble(),
-                  omegaSupplier.getAsDouble(),
-                  speedPercentOverrideSupplier.get().orElse(DEFAULT_DRIVE_SPEED_PERCENTAGE)));
-        },
-        drive);
+    return getJoystickSpeeds(
+        drive,
+        x,
+        y,
+        omega,
+        DEFAULT_DRIVE_TRANSLATION_SPEED_PERCENTAGE,
+        DEFAULT_DRIVE_ROTATION_SPEED_PERCENTAGE);
   }
 
   /**
@@ -121,7 +114,16 @@ public class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    return joystickDrive(drive, xSupplier, ySupplier, omegaSupplier, () -> OptionalDouble.empty());
+    return Commands.run(
+        () -> {
+          drive.runVelocity(
+              getJoystickSpeeds(
+                  drive,
+                  xSupplier.getAsDouble(),
+                  ySupplier.getAsDouble(),
+                  omegaSupplier.getAsDouble()));
+        },
+        drive);
   }
 
   /**
@@ -142,12 +144,7 @@ public class DriveCommands {
     return Commands.run(
         () -> {
           ChassisSpeeds speeds =
-              getJoystickSpeeds(
-                      drive,
-                      xSupplier.getAsDouble(),
-                      ySupplier.getAsDouble(),
-                      0,
-                      speedPercentOverrideSupplier.get().orElse(DEFAULT_DRIVE_SPEED_PERCENTAGE))
+              getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
                   .plus(driveController.getHeadingCorrection(rotationSupplier.get()));
 
           drive.runVelocity(speeds);

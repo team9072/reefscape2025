@@ -234,12 +234,7 @@ public class Robot {
             Commands.sequence(
                 s.scoring.clearElevator(), s.intake.intake().alongWith(s.scoring.elevatorDown())));
 
-    // Schedule a new command so the old one gets interrupted
-    mainController
-        .rightBumper()
-        .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
-
-    mainController.povLeft().whileTrue(s.intake.reverse());
+    mainController.rightBumper().whileTrue(s.intake.reverse());
 
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
@@ -263,10 +258,15 @@ public class Robot {
     mainController.b().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL3));
     mainController.y().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL4));
 
-    // Mapped to back buttons
+    // D-Pad is mapped to back buttons
     mainController
         .povDown()
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
+
+    // Schedule a new command so the old one gets interrupted
+    mainController
+        .povLeft()
+        .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
 
     /** Operator Controls */
     secondaryController
