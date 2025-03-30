@@ -12,8 +12,13 @@ import frc.robot.Robot;
 import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
 import frc.robot.commands.autos.AutoPathSegments.IntakeTrajectory;
 import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
+import frc.robot.commands.autos.AutoPositions.ReefPole;
+import frc.robot.commands.scoring.ScoringPosition;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SequenceBuilder {
   private final MultiAlert invalidPathType =
@@ -32,10 +37,25 @@ public class SequenceBuilder {
       return routine;
     }
 
+    Map<ReefPole, ScoringPosition> poleScoringMap = new HashMap<>();
+    List<ScoringPosition> scoringPositions = new ArrayList<>();
+    for (AutoPathSegment path : pathSegments) {
+      if (path.finalPosition() instanceof ReefPole finalPole) {
+        ScoringPosition availablePosition =
+            poleScoringMap.getOrDefault(finalPole, ScoringPosition.branchL4);
+        poleScoringMap.put(finalPole, ScoringPosition.branchL2);
+
+        scoringPositions.add(availablePosition);
+      } else {
+        scoringPositions.add(ScoringPosition.branchL4);
+      }
+    }
+
     Collections.reverse(pathSegments);
     AutoTrajectory nextPath = null;
     for (AutoPathSegment path : pathSegments) {
-      nextPath = handlePathSegment(path, routine, nextPath);
+      ScoringPosition scoringPosition = scoringPositions.remove(scoringPositions.size() - 1);
+      nextPath = handlePathSegment(scoringPosition, path, routine, nextPath);
     }
 
     routine.active().onTrue(Commands.sequence(nextPath.resetOdometry(), nextPath.cmd()));
@@ -44,11 +64,14 @@ public class SequenceBuilder {
   }
 
   private AutoTrajectory handlePathSegment(
-      AutoPathSegment path, AutoRoutine routine, AutoTrajectory nextPath) {
+      ScoringPosition scoringPosition,
+      AutoPathSegment path,
+      AutoRoutine routine,
+      AutoTrajectory nextPath) {
     if (path instanceof PreloadTrajectory) {
-      return handlePreloadPath(path.trajectory(), routine, nextPath);
+      return handlePreloadPath(scoringPosition, path.trajectory(), routine, nextPath);
     } else if (path instanceof IntakeTrajectory) {
-      return handleIntakePath(path.trajectory(), routine, nextPath);
+      return handleIntakePath(scoringPosition, path.trajectory(), routine, nextPath);
     } else {
       invalidPathType.addCause(path.getClass().getName());
       return nextPath;
@@ -56,20 +79,26 @@ public class SequenceBuilder {
   }
 
   private AutoTrajectory handlePreloadPath(
-      Trajectory<SwerveSample> trajectory, AutoRoutine routine, AutoTrajectory nextPath) {
+      ScoringPosition scoringPosition,
+      Trajectory<SwerveSample> trajectory,
+      AutoRoutine routine,
+      AutoTrajectory nextPath) {
     AutoTrajectory preloadTrajectory = routine.trajectory(trajectory);
 
-    autoSequences.scorePreload(preloadTrajectory, nextPath);
+    autoSequences.scorePreload(scoringPosition, preloadTrajectory, nextPath);
 
     return preloadTrajectory;
   }
 
   private AutoTrajectory handleIntakePath(
-      Trajectory<SwerveSample> trajectory, AutoRoutine routine, AutoTrajectory nextPath) {
+      ScoringPosition scoringPosition,
+      Trajectory<SwerveSample> trajectory,
+      AutoRoutine routine,
+      AutoTrajectory nextPath) {
     AutoTrajectory intakeTrajectory = routine.trajectory(trajectory.getSplit(0).get());
     AutoTrajectory scoreTrajectory = routine.trajectory(trajectory.getSplit(1).get());
 
-    autoSequences.intakeAndScore(intakeTrajectory, scoreTrajectory, nextPath);
+    autoSequences.intakeAndScore(scoringPosition, intakeTrajectory, scoreTrajectory, nextPath);
 
     return intakeTrajectory;
   }

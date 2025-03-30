@@ -130,19 +130,19 @@ public class AutoSequences {
         clearRotationOverride());
   }
 
-  public void scorePreload(AutoTrajectory preloadTrajectory, AutoTrajectory nextTrajectory) {
+  public void scorePreload(
+      ScoringPosition scoringPosition,
+      AutoTrajectory preloadTrajectory,
+      AutoTrajectory nextTrajectory) {
     preloadTrajectory.active().onTrue(s.scoring.stowHold());
 
-    preloadTrajectory
-        .atTimeBeforeEnd(0.5)
-        .onTrue(s.scoring.prepareElevatorAuto(ScoringPosition.branchL4));
+    preloadTrajectory.atTimeBeforeEnd(0.5).onTrue(s.scoring.prepareElevatorAuto(scoringPosition));
 
-    preloadTrajectory
-        .done()
-        .onTrue(scoreAtEnd(preloadTrajectory, ScoringPosition.branchL4, nextTrajectory));
+    preloadTrajectory.done().onTrue(scoreAtEnd(preloadTrajectory, scoringPosition, nextTrajectory));
   }
 
   public void intakeAndScore(
+      ScoringPosition scoringPosition,
       AutoTrajectory intakeTrajectory,
       AutoTrajectory scoreTrajectory,
       AutoTrajectory nextTrajectory) {
@@ -191,6 +191,6 @@ public class AutoSequences {
     scoreTrajectory
         .recentlyDone()
         .and(grabbedCoral::get)
-        .onTrue(scoreAtEnd(scoreTrajectory, ScoringPosition.branchL4, nextTrajectory));
+        .onTrue(scoreAtEnd(scoreTrajectory, scoringPosition, nextTrajectory));
   }
 }

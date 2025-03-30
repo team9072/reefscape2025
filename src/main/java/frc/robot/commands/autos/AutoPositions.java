@@ -8,17 +8,23 @@ public class AutoPositions {
   }
 
   public enum ReefSide {
-    Front("Front"),
-    FrontRight("Front Right"),
-    BackRight("Back Right"),
-    Back("Back"),
-    BackLeft("Back Left"),
-    FrontLeft("Front Left");
+    Front("Front", true),
+    FrontRight("Front Right", false),
+    BackRight("Back Right", true),
+    Back("Back", false),
+    BackLeft("Back Left", true),
+    FrontLeft("Front Left", false);
 
     public final String displayName;
+    private final boolean hasL3Algae;
 
-    ReefSide(String displayName) {
+    ReefSide(String displayName, boolean hasL3Algae) {
       this.displayName = displayName;
+      this.hasL3Algae = hasL3Algae;
+    }
+
+    public boolean canScoreL2() {
+      return !hasL3Algae;
     }
   }
 

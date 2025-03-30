@@ -81,9 +81,13 @@ public class AutoPathSegments {
     F_S3_C(ReefPole.F, CoralSpike.S3, ReefPole.C),
     I_S1_L(ReefPole.I, CoralSpike.S1, ReefPole.L),
     L_S2_B(ReefPole.L, CoralSpike.S2, ReefPole.B),
-    A_S2_B(ReefPole.A, CoralSpike.S2, ReefPole.B),
+
     A_S1_B(ReefPole.A, CoralSpike.S1, ReefPole.B),
-    B_S2_A(ReefPole.B, CoralSpike.S2, ReefPole.A);
+
+    A_S2_B(ReefPole.A, CoralSpike.S2, ReefPole.B),
+    A_S2_A(ReefPole.A, CoralSpike.S2, ReefPole.A),
+    B_S2_A(ReefPole.B, CoralSpike.S2, ReefPole.A),
+    B_S2_B(ReefPole.B, CoralSpike.S2, ReefPole.B);
 
     public final ReefPole startingPole;
     public final CoralSpike coralSpike;
