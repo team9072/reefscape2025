@@ -18,11 +18,13 @@ public class ScoringManager {
   private boolean trustSensors = true;
   private final Trigger hasObjectAssumeFalse;
   private final Trigger hasObjectAssumeTrue;
+  public final Trigger coralPlacerHasObject;
 
   public ScoringManager(Elevator elevator, CoralPlacer coralPlacer) {
     this.elevator = elevator;
     this.coralPlacer = coralPlacer;
 
+    coralPlacerHasObject = coralPlacer.hasObject;
     hasObjectAssumeFalse = coralPlacer.hasObject.and(() -> trustSensors);
     hasObjectAssumeTrue = coralPlacer.hasObject.or(() -> !trustSensors);
   }

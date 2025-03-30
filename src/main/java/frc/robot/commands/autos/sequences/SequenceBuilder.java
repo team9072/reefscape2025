@@ -66,10 +66,11 @@ public class SequenceBuilder {
 
   private AutoTrajectory handleIntakePath(
       Trajectory<SwerveSample> trajectory, AutoRoutine routine, AutoTrajectory nextPath) {
-    AutoTrajectory preloadTrajectory = routine.trajectory(trajectory);
+    AutoTrajectory intakeTrajectory = routine.trajectory(trajectory.getSplit(0).get());
+    AutoTrajectory scoreTrajectory = routine.trajectory(trajectory.getSplit(1).get());
 
-    // autoSequences.scorePreload(preloadTrajectory, nextPath);
+    autoSequences.intakeAndScore(intakeTrajectory, scoreTrajectory, nextPath);
 
-    return preloadTrajectory;
+    return intakeTrajectory;
   }
 }

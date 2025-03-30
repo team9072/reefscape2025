@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
   private Timer waitForHoming = new Timer();
   private Timer homingDelay = new Timer();
 
-  public Trigger coralInPassthrough = new Trigger(() -> passthroughBeamBreakInputs.objectDetected);
+  public Trigger coralInPassthrough = new Trigger(() -> false);
   public Trigger coralStaged = new Trigger(() -> stagingBeamBreakInputs.objectDetected);
 
   public Intake(
