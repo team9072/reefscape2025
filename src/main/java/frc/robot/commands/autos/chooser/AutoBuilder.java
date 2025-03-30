@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
 import frc.robot.commands.autos.AutoPathSegments.IntakeTrajectory;
 import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
+import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.Logger;
@@ -162,7 +163,7 @@ public class AutoBuilder extends LoggedNetworkInput {
   }
 
   public List<AutoPathSegment> getTrajectories() {
-    final List<AutoPathSegment> trajectories = List.of();
+    final List<AutoPathSegment> trajectories = new ArrayList<>();
 
     for (ManagedChooser<?> chooser : choosers) {
       AutoPathSegment nullableTrajectory = chooser.selectedTrajectory;

@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.autos.Autos;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
+import frc.robot.commands.autos.Autos;
 import frc.robot.commands.scoring.ScoringManager;
 import frc.robot.commands.scoring.ScoringMemory;
 import frc.robot.commands.scoring.ScoringPosition;
@@ -241,6 +242,8 @@ public class Robot {
   }
 
   private void configureBindings() {
+    RobotModeTriggers.disabled().whileTrue(Commands.run(autos::update).ignoringDisable(true));
+
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
@@ -376,6 +379,6 @@ public class Robot {
   }
 
   public Command getAutonomousCommand() {
-    return autos.getSelectedAuto();
+    return autos.selectedAuto();
   }
 }
