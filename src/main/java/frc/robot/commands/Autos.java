@@ -104,19 +104,19 @@ public class Autos extends SubsystemBase {
   }
 
   private void scorePreload(AutoTrajectory trajectory, Command afterScore) {
-    trajectory.active().onTrue(s.coralFlow.coralPlacerForwardAuto());
+    trajectory.active().onTrue(s.scoring.stowHold());
 
     trajectory
         .atTime(prepareAlignEvent)
-        .onTrue(s.coralFlow.prepareElevator(ScoringPosition.branchL4));
+        .onTrue(s.scoring.prepareElevator(ScoringPosition.branchL4));
 
     trajectory
         .done()
         .onTrue(
             Commands.sequence(
                 completeAlign(trajectory),
-                s.coralFlow.scoringActionAuto(ScoringPosition.branchL4),
-                Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+                s.scoring.scoringActionAuto(ScoringPosition.branchL4),
+                Commands.parallel(s.scoring.elevatorDown(), afterScore)));
   }
 
   private void intakeAndScore(
@@ -139,8 +139,8 @@ public class Autos extends SubsystemBase {
         .done()
         .onTrue(
             Commands.sequence(
-                s.coralFlow.grabCoral(),
-                s.coralFlow.prepareElevator(ScoringPosition.branchL4),
+                s.scoring.grabCoral(),
+                s.scoring.prepareElevator(ScoringPosition.branchL4),
                 scoreTrajectory.cmd()));
 
     scoreTrajectory
@@ -148,8 +148,8 @@ public class Autos extends SubsystemBase {
         .onTrue(
             Commands.sequence(
                 completeAlign(scoreTrajectory),
-                s.coralFlow.scoringActionAuto(ScoringPosition.branchL4),
-                Commands.parallel(s.coralFlow.elevatorDown(), afterScore)));
+                s.scoring.scoringActionAuto(ScoringPosition.branchL4),
+                Commands.parallel(s.scoring.elevatorDown(), afterScore)));
   }
 
   private AutoRoutine preload1p(String name, String preloadTrajName) {

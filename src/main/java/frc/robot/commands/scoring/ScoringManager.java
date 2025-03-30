@@ -21,14 +21,16 @@ public class ScoringManager {
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
   public Command elevatorDown() {
-    return Commands.parallel(
-        elevator.setPosition(ElevatorPosition.readyPosition),
-        Commands.sequence(
+    return Commands.sequence(
+        clearElevatorIfNeeded(CoralPlacerPosition.grabPosition),
+        Commands.parallel(
+            elevator.setPosition(ElevatorPosition.readyPosition),
             Commands.sequence(
-                    coralPlacer.setPosition(CoralPlacerPosition.holdPosition),
-                    Commands.waitUntil(elevator.clearsBarge))
-                .onlyIf(() -> coralPlacer.atPosition(CoralPlacerPosition.scoreBargePosition)),
-            coralPlacer.setPosition(CoralPlacerPosition.grabPosition)));
+                coralPlacer
+                    .setPosition(CoralPlacerPosition.holdPosition)
+                    .onlyIf(coralPlacer.pastScorePosition.negate())
+                    .until(() -> elevator.atPosition(ElevatorPosition.readyPosition)),
+                coralPlacer.setPosition(CoralPlacerPosition.grabPosition))));
   }
 
   /**
@@ -195,15 +197,20 @@ public class ScoringManager {
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(coralPlacer.hasObject));
   }
 
+  public Command stowHold() {
+    final CoralPlacerPosition coralPlacerGoal = CoralPlacerPosition.holdPosition;
+
+    return Commands.sequence(
+        clearElevatorIfNeeded(coralPlacerGoal),
+        coralPlacer.setPosition(coralPlacerGoal),
+        elevator.setPosition(ElevatorPosition.readyPosition));
+  }
+
   public Command unstuckCoralPlacer() {
     return Commands.sequence(
         coralPlacer.setPosition(CoralPlacerPosition.unstuckPosition).withTimeout(0),
         elevator.setPosition(ElevatorPosition.grabPosition),
         coralPlacer.setPosition(CoralPlacerPosition.scorePosition));
-  }
-
-  public Command coralPlacerForwardAuto() {
-    return coralPlacer.setPosition(CoralPlacerPosition.scorePosition);
   }
 
   public Command unstuckElevator(ElevatorPosition position) {
