@@ -38,7 +38,7 @@ public class IntakeConstants {
 
   public static RollerConstants pasthrough =
       new RollerConstants(passthroughCanId)
-          .withInvert(InvertedValue.Clockwise_Positive)
+          .withInvert(InvertedValue.CounterClockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
           .withSpikeCurrentLimit(Amps.of(80), Seconds.of(0.2))
           .withStatorCurrentLimit(Amps.of(500));
