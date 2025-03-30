@@ -1,10 +1,5 @@
 package frc.robot.commands.autos.chooser;
 
-import choreo.trajectory.SwerveSample;
-import choreo.trajectory.Trajectory;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
@@ -18,71 +13,6 @@ import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.networktables.LoggedNetworkInput;
 
 public class AutoBuilder extends LoggedNetworkInput {
-  private static class ManagedChooser<V extends Enum<V> & AutoPathSegment> {
-    public final String key;
-    private final TrajectoryChooser<V> chooser;
-    public V selectedTrajectory;
-    private AutoPathSegment priorTrajectory;
-
-    public ManagedChooser(String key, V[] trajectories, ManagedChooser<?> priorChooser) {
-      this.key = key;
-      this.chooser = new TrajectoryChooser<V>(trajectories);
-      if (priorChooser != null) {
-        updateFilters(priorChooser, true);
-      }
-
-      SmartDashboard.putData(key, chooser);
-    }
-
-    public void updateSelected() {
-      selectedTrajectory = chooser.getSelected();
-    }
-
-    public void updateFilters(ManagedChooser<?> priorChooser, boolean force) {
-      if (!force && priorChooser.selectedTrajectory == priorTrajectory) {
-        return;
-      }
-
-      this.priorTrajectory = priorChooser.selectedTrajectory;
-      if (priorTrajectory == null) {
-        chooser.filterOptions((trajectory) -> false);
-      } else {
-        chooser.filterOptions(
-            (trajectory) -> trajectory.initialPosition() == priorTrajectory.finalPosition());
-      }
-    }
-
-    public void updateFilters(ManagedChooser<?> priorChooser) {
-      updateFilters(priorChooser, false);
-    }
-
-    public void updateDisplay(Field2d autoDisplay, boolean setRobotPose) {
-      if (setRobotPose) {
-        Pose2d startingPose = Pose2d.kZero;
-        if (selectedTrajectory != null) {
-          startingPose =
-              selectedTrajectory
-                  .trajectory()
-                  .getInitialPose(flipTrajectoryDisplay())
-                  .orElse(startingPose);
-        }
-
-        autoDisplay.setRobotPose(startingPose);
-      }
-
-      if (selectedTrajectory != null) {
-        Trajectory<SwerveSample> path = selectedTrajectory.trajectory();
-        if (flipTrajectoryDisplay()) {
-          path = path.flipped();
-        }
-
-        autoDisplay.getObject(key).setPoses(path.getPoses());
-      } else {
-        autoDisplay.getObject(key).setPoses();
-      }
-    }
-  }
-
   private final String key;
   private final Field2d autoDisplay = new Field2d();
 
@@ -113,10 +43,6 @@ public class AutoBuilder extends LoggedNetworkInput {
         }
       };
 
-  private static boolean flipTrajectoryDisplay() {
-    return DriverStation.getAlliance().map((alliance) -> alliance == Alliance.Red).orElse(false);
-  }
-
   public AutoBuilder(String key) {
     this.key = key;
     ManagedChooser<PreloadTrajectory> preloadChooser =
@@ -144,13 +70,8 @@ public class AutoBuilder extends LoggedNetworkInput {
       }
     }
 
-    ManagedChooser<?> priorChooser = null;
     for (ManagedChooser<?> chooser : choosers) {
-      if (priorChooser != null) {
-        chooser.updateFilters(priorChooser);
-      }
-
-      priorChooser = chooser;
+      chooser.updateFilters();
     }
 
     Logger.processInputs(prefix + "/SmartDashboard", inputs);

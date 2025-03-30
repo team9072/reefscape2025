@@ -1,6 +1,6 @@
 package frc.robot.commands.autos;
 
-class AutoPositions {
+public class AutoPositions {
   public interface AutoPosition {
     public String name();
 
