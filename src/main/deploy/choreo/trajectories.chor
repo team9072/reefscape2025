@@ -137,6 +137,13 @@
      "val":2.195
     }
    },
+   "SpikePushDistance":{
+    "dimension":"Length",
+    "var":{
+     "exp":"13 in",
+     "val":0.3302
+    }
+   },
    "SpikeX":{
     "dimension":"Length",
     "var":{
