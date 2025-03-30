@@ -28,6 +28,7 @@ public class ScoringManager {
             Commands.sequence(
                 coralPlacer
                     .setPosition(CoralPlacerPosition.holdPosition)
+                    .repeatedly()
                     .onlyIf(coralPlacer.pastScorePosition.negate())
                     .until(() -> elevator.atPosition(ElevatorPosition.readyPosition)),
                 coralPlacer.setPosition(CoralPlacerPosition.grabPosition))));
