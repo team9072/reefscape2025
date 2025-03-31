@@ -60,7 +60,7 @@ public class CoralPlacerConstants {
   public static final NeutralModeValue neutralMode = NeutralModeValue.Brake;
 
   public static final double rotorToSensor = (72.0 / 18.0) * 5.0;
-  public static final double sensorToMechanism = (72.0 / 18.0);
+  public static final double sensorToMechanism = (72.0 / 24.0);
   public static final double motorReduction = rotorToSensor * sensorToMechanism;
 
   public static final Angle maxAngle = Rotations.of(0.255);
