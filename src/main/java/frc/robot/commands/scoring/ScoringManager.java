@@ -81,7 +81,9 @@ public class ScoringManager {
       // Prepare to score algae
       final boolean isBarge = position == ScoringPosition.barge;
       coralPlacerGoal =
-          isBarge ? CoralPlacerPosition.holdPosition : CoralPlacerPosition.scoreProcessorPosition;
+          isBarge
+              ? CoralPlacerPosition.scoreBargePosition
+              : CoralPlacerPosition.scoreProcessorPosition;
 
       CoralPlacerPosition coralPlacerHold =
           isBarge ? CoralPlacerPosition.holdPosition : CoralPlacerPosition.scoreProcessorPosition;
