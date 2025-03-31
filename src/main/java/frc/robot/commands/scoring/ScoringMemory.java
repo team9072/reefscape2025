@@ -19,7 +19,7 @@ public class ScoringMemory {
 
   private void memorizePositionInternal(ScoringPosition position) {
     memorizedPosition = position;
-    if (position.isBranch()) {
+    if (position.isBranch() || position.isTrough()) {
       memorizedCoralPosition = position;
     }
 
