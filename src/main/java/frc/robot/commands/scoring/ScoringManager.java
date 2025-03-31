@@ -2,6 +2,7 @@ package frc.robot.commands.scoring;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.elevator.Elevator;
@@ -14,9 +15,20 @@ public class ScoringManager {
   private final Elevator elevator;
   private final CoralPlacer coralPlacer;
 
+  private boolean trustSensors = true;
+  private final Trigger hasObjectAssumeFalse;
+  private final Trigger hasObjectAssumeTrue;
+
   public ScoringManager(Elevator elevator, CoralPlacer coralPlacer) {
     this.elevator = elevator;
     this.coralPlacer = coralPlacer;
+
+    hasObjectAssumeFalse = coralPlacer.hasObject.and(() -> trustSensors);
+    hasObjectAssumeTrue = coralPlacer.hasObject.or(() -> !trustSensors);
+  }
+
+  public Command untrustAllSensors() {
+    return Commands.runOnce(() -> trustSensors = false);
   }
 
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
@@ -131,13 +143,13 @@ public class ScoringManager {
       // Score Algae
       Command delayCommand =
           Commands.sequence(
-              Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(1));
+              Commands.waitUntil(hasObjectAssumeFalse.negate()), Commands.waitSeconds(1));
 
       command = delayCommand.deadlineFor(coralPlacer.expel());
     } else if (position.isTrough()) {
       Command delayCommand =
           Commands.sequence(
-              Commands.waitUntil(coralPlacer.hasObject.negate()), Commands.waitSeconds(0.5));
+              Commands.waitUntil(hasObjectAssumeFalse.negate()), Commands.waitSeconds(0.5));
 
       command = Commands.sequence(delayCommand.deadlineFor(coralPlacer.expel()), elevatorDown());
     } else {
@@ -147,8 +159,7 @@ public class ScoringManager {
               coralPlacer.scoreAndExpel(),
               elevatorDown()
                   .onlyIf(
-                      coralPlacer
-                          .hasObject
+                      hasObjectAssumeFalse
                           .negate()
                           .and(() -> (position != ScoringPosition.branchL4))));
     }
@@ -193,9 +204,9 @@ public class ScoringManager {
         elevatorDown().until(() -> coralPlacer.atPosition(CoralPlacerPosition.grabPosition)),
         elevator.setPosition(ElevatorPosition.grabPosition),
         Commands.waitUntil(elevator.finishedGrab),
-        Commands.waitUntil(coralPlacer.hasObject).withTimeout(0.2),
+        Commands.waitUntil(hasObjectAssumeFalse).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
-        coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(coralPlacer.hasObject));
+        coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(hasObjectAssumeTrue));
   }
 
   public Command stowHold() {

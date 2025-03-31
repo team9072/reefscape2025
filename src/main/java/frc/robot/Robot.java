@@ -313,6 +313,8 @@ public class Robot {
 
     secondaryController.povRight().onTrue(s.scoring.jogCoralPlacerDown());
 
+    secondaryController.back().onTrue(s.scoring.untrustAllSensors());
+
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
 
