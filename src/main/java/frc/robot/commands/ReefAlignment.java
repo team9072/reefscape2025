@@ -21,10 +21,8 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class ReefAlignment {
-  private static final Distance reefLowerOffsetDistance = Inches.of(6.5);
-  private static final Distance reefL4OffsetDistance = Inches.of(8);
-  private static final Distance algaeL2OffsetDistance = Inches.of(7);
-  private static final Distance algaeL3OffsetDistance = Inches.of(1);
+  private static final Distance reefLowerOffsetDistance = Inches.of(7.75);
+  private static final Distance reefL4OffsetDistance = Inches.of(7.75);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
@@ -71,11 +69,6 @@ public class ReefAlignment {
         return getPoleOffsets(reefLowerOffsetDistance);
       case branchL4:
         return getPoleOffsets(reefL4OffsetDistance);
-
-      case algaeL2:
-        return getSingleOffset(algaeL2OffsetDistance);
-      case algaeL3:
-        return getSingleOffset(algaeL3OffsetDistance);
 
       default:
         return new Transform2d[0];
