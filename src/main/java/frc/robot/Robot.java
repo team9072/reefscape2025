@@ -233,7 +233,8 @@ public class Robot {
         .leftBumper()
         .whileTrue(
             Commands.sequence(
-                s.scoring.clearElevator(), s.intake.intake().alongWith(s.scoring.elevatorDown())));
+                    s.scoring.clearElevator().asProxy(),
+                    s.intake.intake().alongWith(s.scoring.elevatorDown().asProxy()))
                 .alongWith(
                     DriveCommands.joystickDriveAtPercent(
                         s.drive, 0.5, driveXSupplier, driveYSupplier, driveOmegaSupplier)));
