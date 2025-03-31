@@ -57,8 +57,8 @@ public class Drive extends SubsystemBase {
     private final PIDController yController = new PIDController(4, 0.0, 0.1);
     private final PIDController headingController = new PIDController(5, 0.0, 0.1);
 
-    private final Distance positionErrorTolerance = Inches.of(0.5);
-    private final Angle headingErrorTolerance = Degrees.of(0.5);
+    private final Distance positionErrorTolerance = Inches.of(0.85);
+    private final Angle headingErrorTolerance = Degrees.of(0.85);
 
     private final Drive drive;
 
