@@ -55,6 +55,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import java.util.Set;
+import java.util.function.DoubleSupplier;
 
 public class Robot {
   public static class Subsystems {
@@ -219,12 +220,12 @@ public class Robot {
 
   private void configureBindings() {
     /** Driver Controls */
+    DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
+    DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
+    DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
+
     s.drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            s.drive,
-            () -> -mainController.getLeftY(),
-            () -> -mainController.getLeftX(),
-            () -> -mainController.getRightX()));
+        DriveCommands.joystickDrive(s.drive, driveXSupplier, driveYSupplier, driveOmegaSupplier));
 
     mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
@@ -233,6 +234,9 @@ public class Robot {
         .whileTrue(
             Commands.sequence(
                 s.scoring.clearElevator(), s.intake.intake().alongWith(s.scoring.elevatorDown())));
+                .alongWith(
+                    DriveCommands.joystickDriveAtPercent(
+                        s.drive, 0.5, driveXSupplier, driveYSupplier, driveOmegaSupplier)));
 
     mainController.rightBumper().whileTrue(s.intake.reverse());
 
@@ -242,16 +246,12 @@ public class Robot {
             scoringMemory::getMemorizedPosition, scoreTrigger.negate()));
 
     Trigger alignTrigger = mainController.leftTrigger();
-
     alignTrigger.onTrue(
         s.scoring.scoringActionOnTrigger(
             scoringMemory::getMemorizedPosition, alignTrigger.negate()));
     alignTrigger.whileTrue(
         ReefAlignment.driveReefAligned(
-            s.drive,
-            () -> -mainController.getLeftY(),
-            () -> -mainController.getLeftX(),
-            scoringMemory::getMemorizedPosition));
+            s.drive, driveXSupplier, driveYSupplier, scoringMemory::getMemorizedPosition));
 
     mainController.a().onTrue(scoringMemory.memorizePosition(ScoringPosition.troughL1));
     mainController.x().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL2));

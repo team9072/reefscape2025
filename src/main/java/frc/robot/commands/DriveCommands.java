@@ -32,7 +32,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.OptionalDouble;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -127,27 +126,25 @@ public class DriveCommands {
   }
 
   /**
-   * Field relative drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-   * absolute rotation with a joystick.
+   * Field relative drive command using two joysticks (controlling linear and angular velocities).
+   * This command allows you to only run at a percantage of the default speed.
    */
-  public static Command joystickDriveAtAngle(
+  public static Command joystickDriveAtPercent(
       Drive drive,
+      double speedPercent,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      Supplier<Rotation2d> rotationSupplier,
-      Supplier<OptionalDouble> speedPercentOverrideSupplier) {
-
-    DrivePid driveController = drive.getPid();
-
-    // Construct command
+      DoubleSupplier omegaSupplier) {
     return Commands.run(
         () -> {
-          ChassisSpeeds speeds =
-              getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
-                  .plus(driveController.getHeadingCorrection(rotationSupplier.get()));
-
-          drive.runVelocity(speeds);
+          drive.runVelocity(
+              getJoystickSpeeds(
+                  drive,
+                  xSupplier.getAsDouble(),
+                  ySupplier.getAsDouble(),
+                  omegaSupplier.getAsDouble(),
+                  DEFAULT_DRIVE_TRANSLATION_SPEED_PERCENTAGE * speedPercent,
+                  DEFAULT_DRIVE_ROTATION_SPEED_PERCENTAGE * speedPercent));
         },
         drive);
   }
@@ -162,8 +159,19 @@ public class DriveCommands {
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
-    return joystickDriveAtAngle(
-        drive, xSupplier, ySupplier, rotationSupplier, () -> OptionalDouble.empty());
+
+    DrivePid driveController = drive.getPid();
+
+    // Construct command
+    return Commands.run(
+        () -> {
+          ChassisSpeeds speeds =
+              getJoystickSpeeds(drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0)
+                  .plus(driveController.getHeadingCorrection(rotationSupplier.get()));
+
+          drive.runVelocity(speeds);
+        },
+        drive);
   }
 
   /**
