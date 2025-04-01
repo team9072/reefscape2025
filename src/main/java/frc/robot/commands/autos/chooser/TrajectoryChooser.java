@@ -38,7 +38,24 @@ class TrajectoryChooser<V extends AutoPathSegment> implements Sendable {
             .filter((entry) -> filterPredicate.test(entry.getValue()))
             .map(Map.Entry::getKey);
     options = keys.toArray((size) -> new String[size + 1]);
+
     options[options.length - 1] = NONE_NAME;
+    Arrays.sort(
+        options,
+        (a, b) -> {
+          boolean aNone = a == NONE_NAME;
+          boolean bNone = b == NONE_NAME;
+
+          if (aNone && bNone) {
+            return 0;
+          } else if (aNone) {
+            return 1;
+          } else if (bNone) {
+            return -1;
+          } else {
+            return a.compareTo(b);
+          }
+        });
   }
 
   public void select(String selectStr) {
