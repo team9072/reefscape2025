@@ -16,6 +16,8 @@ import frc.robot.commands.ReefAlignment;
 import frc.robot.commands.scoring.ScoringManager;
 import frc.robot.commands.scoring.ScoringMemory;
 import frc.robot.commands.scoring.ScoringPosition;
+import frc.robot.commands.utils.RumbleCommands;
+import frc.robot.commands.utils.RumbleCommands.Rumble;
 import frc.robot.commands.utils.TapHold;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
@@ -224,6 +226,12 @@ public class Robot {
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
     DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
     double intakeDrivePercent = 0.45;
+    Rumble mainControllerRumble = new Rumble(0.75);
+
+    s.intake
+        .coralStaged
+        .debounce(0.05)
+        .onTrue(RumbleCommands.rumble(mainController, mainControllerRumble).withTimeout(0.5));
 
     s.drive.setDefaultCommand(
         DriveCommands.joystickDrive(s.drive, driveXSupplier, driveYSupplier, driveOmegaSupplier));
