@@ -118,8 +118,10 @@ public class AutoSequences {
       AutoTrajectory scoreTrajectory, ScoringPosition position, AutoTrajectory nextTrajectory) {
     return Commands.sequence(
         clearRotationOverride(),
-        completeAlign(scoreTrajectory),
-        s.scoring.scoringActionAuto(position),
+        completeAlign(scoreTrajectory).deadlineFor(s.scoring.prepareElevatorAuto(position)),
+        s.scoring
+            .scoringActionAuto(position)
+            .deadlineFor(completeAlign(scoreTrajectory).repeatedly()),
         Commands.parallel(s.scoring.elevatorDown(), pathCommandOrNone(nextTrajectory)));
   }
 
