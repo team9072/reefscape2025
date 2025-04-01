@@ -27,7 +27,9 @@ public class ElevatorConstants {
     grabPosition(Rotations.of(-0.55)),
     readyPosition(Rotations.of(1.1)),
 
-    reefTroughPosition(Rotations.of(1.2)),
+    reefTroughPosition(Rotations.of(2.6)),
+    troughClearPosition(Rotations.of(3.4)),
+
     reefL2Position(Rotations.of(1.65)),
     reefL3Position(Rotations.of(5.05)),
     reefL4Position(Rotations.of(10.3)),

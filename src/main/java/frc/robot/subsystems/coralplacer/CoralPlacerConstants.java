@@ -30,7 +30,7 @@ public class CoralPlacerConstants {
     preScoreHoldPositionL4(Rotations.of(-0.05)),
 
     scorePosition(Rotations.of(0.14)),
-    scoreTroughPosition(Rotations.of(0.02)),
+    scoreTroughPosition(Rotations.of(0.1)),
 
     grabReefAlgaePosition(Rotations.of(0.0)),
     grabGroundAlgaePosition(Rotations.of(0.1)),
@@ -101,5 +101,5 @@ public class CoralPlacerConstants {
   public static final double rollerGrabDutyCycle = 0.3;
 
   public static final Current rollerReverseTorque = Amps.of(-100);
-  public static final double rollerReverseDutyCycle = 0.25;
+  public static final double rollerReverseDutyCycle = 0.15;
 }

@@ -153,7 +153,14 @@ public class ScoringManager {
           Commands.sequence(
               Commands.waitUntil(hasObjectAssumeFalse.negate()), Commands.waitSeconds(0.5));
 
-      command = Commands.sequence(delayCommand.deadlineFor(coralPlacer.expel()), elevatorDown());
+      command =
+          Commands.sequence(
+              delayCommand.deadlineFor(coralPlacer.expel()),
+              elevator.setPosition(ElevatorPosition.troughClearPosition),
+              coralPlacer
+                  .setPosition(CoralPlacerPosition.grabPosition)
+                  .until(coralPlacer.pastScorePosition),
+              elevatorDown());
     } else {
       // Score coral
       command =
@@ -163,7 +170,7 @@ public class ScoringManager {
                   .onlyIf(
                       hasObjectAssumeFalse
                           .negate()
-                          .and(() -> (position != ScoringPosition.branchL4))));
+                          .and(() -> position != ScoringPosition.branchL4)));
     }
 
     return Commands.sequence(prepareElevator(position, isAuto), command);
