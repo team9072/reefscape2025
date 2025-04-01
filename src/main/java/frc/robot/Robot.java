@@ -223,6 +223,7 @@ public class Robot {
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
     DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
+    double intakeDrivePercent = 0.45;
 
     s.drive.setDefaultCommand(
         DriveCommands.joystickDrive(s.drive, driveXSupplier, driveYSupplier, driveOmegaSupplier));
@@ -237,7 +238,11 @@ public class Robot {
                     s.intake.intake().alongWith(s.scoring.elevatorDown().asProxy()))
                 .alongWith(
                     DriveCommands.joystickDriveAtPercent(
-                        s.drive, 0.5, driveXSupplier, driveYSupplier, driveOmegaSupplier)));
+                        s.drive,
+                        intakeDrivePercent,
+                        driveXSupplier,
+                        driveYSupplier,
+                        driveOmegaSupplier)));
 
     mainController.rightBumper().whileTrue(s.intake.reverse());
 
@@ -286,7 +291,16 @@ public class Robot {
 
     secondaryController
         .b()
-        .onTrue(s.scoring.prepareElevator(ScoringPosition.algaeGround))
+        .onTrue(
+            s.scoring
+                .prepareElevator(ScoringPosition.algaeGround)
+                .alongWith(
+                    DriveCommands.joystickDriveAtPercent(
+                        s.drive,
+                        intakeDrivePercent,
+                        driveXSupplier,
+                        driveYSupplier,
+                        driveOmegaSupplier)))
         .onFalse(s.scoring.scoringAction(ScoringPosition.algaeGround));
 
     secondaryController.x().onTrue(s.scoring.unstuckCoralPlacer());
