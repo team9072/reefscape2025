@@ -30,7 +30,7 @@ public class ElevatorConstants {
     reefTroughPosition(Rotations.of(2.6)),
     troughClearPosition(Rotations.of(3.4)),
 
-    reefL2Position(Rotations.of(1.65)),
+    reefL2Position(Rotations.of(1.3)),
     reefL3Position(Rotations.of(5.05)),
     reefL4Position(Rotations.of(10.3)),
 
