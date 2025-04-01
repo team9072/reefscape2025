@@ -55,7 +55,7 @@ public class Drive extends SubsystemBase {
   public static class DrivePid {
     private final PIDController xController = new PIDController(4, 0.0, 0.1);
     private final PIDController yController = new PIDController(4, 0.0, 0.1);
-    private final PIDController headingController = new PIDController(5, 0.0, 0.1);
+    private final PIDController headingController = new PIDController(4, 0.0, 0.1);
 
     private final Distance positionErrorTolerance = Inches.of(0.85);
     private final Angle headingErrorTolerance = Degrees.of(0.85);
@@ -152,9 +152,6 @@ public class Drive extends SubsystemBase {
           new Pose2d(),
           VecBuilder.fill(0.1, 0.1, 0.1),
           VecBuilder.fill(1000, 1000, 1000));
-
-  private final Distance positionVisionTolerance = Inches.of(1.5);
-  private final Angle headingVisionTolerance = Degrees.of(1);
 
   public Drive(
       GyroIO gyroIO,
@@ -383,19 +380,6 @@ public class Drive extends SubsystemBase {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    double positionError =
-        getPose().getTranslation().getDistance(visionRobotPoseMeters.getTranslation());
-
-    boolean headingWithinTolerance =
-        visionRobotPoseMeters
-            .getRotation()
-            .getMeasure()
-            .isNear(getRotation().getMeasure(), headingVisionTolerance);
-
-    if (positionError < positionVisionTolerance.in(Meters) && headingWithinTolerance) {
-      return;
-    }
-
     poseEstimator.addVisionMeasurement(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }

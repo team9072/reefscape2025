@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 public class ReefAlignment {
   private static final Distance reefLowerOffsetDistance = Inches.of(7.75);
-  private static final Distance reefL4OffsetDistance = Inches.of(7.75);
+  private static final Distance reefL4OffsetDistance = Inches.of(8.25);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
