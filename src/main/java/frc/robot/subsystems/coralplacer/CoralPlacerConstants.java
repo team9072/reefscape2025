@@ -27,7 +27,7 @@ public class CoralPlacerConstants {
 
     holdPosition(Rotations.of(-0.24)),
     preScoreHoldPosition(Rotations.of(-0.1)),
-    preScoreHoldPositionL4(Rotations.of(-0.05)),
+    preScoreHoldPositionL4(Rotations.of(-0.1)),
 
     scorePosition(Rotations.of(0.14)),
     scoreTroughPosition(Rotations.of(0.1)),

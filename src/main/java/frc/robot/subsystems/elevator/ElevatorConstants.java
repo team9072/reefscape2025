@@ -32,7 +32,7 @@ public class ElevatorConstants {
 
     reefL2Position(Rotations.of(1.3)),
     reefL3Position(Rotations.of(5.05)),
-    reefL4Position(Rotations.of(10.3)),
+    reefL4Position(Rotations.of(9.5)),
 
     algaeL2Position(Rotations.of(2.35)),
     algaeL3Position(Rotations.of(5.5)),
