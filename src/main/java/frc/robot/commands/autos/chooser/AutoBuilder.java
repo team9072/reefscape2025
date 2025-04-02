@@ -46,11 +46,17 @@ public class AutoBuilder extends LoggedNetworkInput {
   public AutoBuilder(String key) {
     this.key = key;
     ManagedChooser<PreloadTrajectory> preloadChooser =
-        new ManagedChooser<>(getKey("Preload"), PreloadTrajectory.values(), null);
+        new ManagedChooser<>(
+            getKey("Preload"), PreloadTrajectory.values(), null, PreloadTrajectory.C1S_B);
     ManagedChooser<IntakeTrajectory> p2Chooser =
-        new ManagedChooser<>(getKey("Second Piece"), IntakeTrajectory.values(), preloadChooser);
+        new ManagedChooser<>(
+            getKey("Second Piece"),
+            IntakeTrajectory.values(),
+            preloadChooser,
+            IntakeTrajectory.B_S2_A);
     ManagedChooser<IntakeTrajectory> p3Chooser =
-        new ManagedChooser<>(getKey("Third Piece"), IntakeTrajectory.values(), p2Chooser);
+        new ManagedChooser<>(
+            getKey("Third Piece"), IntakeTrajectory.values(), p2Chooser, IntakeTrajectory.A_S1_B);
 
     choosers = List.of(preloadChooser, p2Chooser, p3Chooser);
 

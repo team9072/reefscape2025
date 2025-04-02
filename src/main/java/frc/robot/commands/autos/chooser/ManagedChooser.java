@@ -24,10 +24,13 @@ public class ManagedChooser<V extends Enum<V> & AutoPathSegment> {
   private AutoPathSegment priorTrajectory;
   private ManagedChooser<?> priorChooser;
 
-  public ManagedChooser(String key, V[] trajectories, ManagedChooser<?> priorChooser) {
+  public ManagedChooser(
+      String key, V[] trajectories, ManagedChooser<?> priorChooser, V defaultTrajectory) {
     this.key = key;
     this.chooser = new TrajectoryChooser<V>(trajectories);
     this.priorChooser = priorChooser;
+
+    chooser.select(defaultTrajectory);
 
     if (priorChooser != null) {
       updateFilters(true);
