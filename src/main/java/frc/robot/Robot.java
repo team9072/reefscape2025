@@ -20,6 +20,9 @@ import frc.robot.commands.utils.RumbleCommands;
 import frc.robot.commands.utils.RumbleCommands.Rumble;
 import frc.robot.commands.utils.TapHold;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.climber.Climber;
+import frc.robot.subsystems.climber.ClimberIO;
+import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
@@ -64,6 +67,7 @@ public class Robot {
     // Subsystems
     public final Drive drive;
     public final Intake intake;
+    public final Climber climber;
     public final Vision vision;
     public final QuestNav questNav;
 
@@ -76,12 +80,14 @@ public class Robot {
         CoralPlacerPivot coralPlacerPivot,
         CoralPlacerRollers coralPlacerRollers,
         Elevator elevator,
+        Climber climber,
         Vision vision,
         QuestNav questNav) {
       this.drive = drive;
       this.intake = intake;
       this.vision = vision;
       this.questNav = questNav;
+      this.climber = climber;
 
       scoring = new ScoringManager(elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
     }
@@ -102,6 +108,7 @@ public class Robot {
     final CoralPlacerPivot coralPlacerPivot;
     final CoralPlacerRollers coralPlacerRollers;
     final Elevator elevator;
+    final Climber climber;
     final Vision vision;
     final QuestNav questNav;
 
@@ -134,6 +141,8 @@ public class Robot {
                 new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
+
+        climber = new Climber(new ClimberIOTalonFX());
 
         vision =
             new Vision(
@@ -172,6 +181,8 @@ public class Robot {
 
         elevator = new Elevator(new ElevatorIOSim());
 
+        climber = new Climber(new ClimberIO() {});
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -197,6 +208,8 @@ public class Robot {
 
         elevator = new Elevator(new ElevatorIO() {});
 
+        climber = new Climber(new ClimberIO() {});
+
         intake =
             new Intake(
                 new PivotIO() {},
@@ -213,7 +226,14 @@ public class Robot {
 
     s =
         new Subsystems(
-            drive, intake, coralPlacerPivot, coralPlacerRollers, elevator, vision, questNav);
+            drive,
+            intake,
+            coralPlacerPivot,
+            coralPlacerRollers,
+            elevator,
+            climber,
+            vision,
+            questNav);
     autos = new Autos(s);
     scoringMemory = new ScoringMemory(ScoringPosition.branchL4);
 
