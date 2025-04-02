@@ -24,7 +24,7 @@ public class AutoSequences {
 
   private final DrivePid driveController;
 
-  private final Rotation2d reefSafeAngle = new Rotation2d(Degrees.of(40));
+  private final Rotation2d reefSafeAngle = new Rotation2d(Degrees.of(-45));
   private Rotation2d rotationOverride = null;
 
   public AutoSequences(Robot.Subsystems s) {
@@ -182,12 +182,14 @@ public class AutoSequences {
     intakeTrajectory.chain(scoreTrajectory);
 
     anyActive(intakeTrajectory, scoreTrajectory)
+        .or(scoreTrajectory.recentlyDone().and(() -> nextTrajectory == null))
         .and(s.intake.coralStaged)
         .and(() -> !(grabbedCoral.get() || stagedCoral.get()))
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> stagedCoral.set(true)),
                 grabAtSafeRotation(scoreTrajectory),
+                s.scoring.prepareElevatorAuto(scoringPosition).until(scoreTrajectory.done()),
                 Commands.runOnce(() -> grabbedCoral.set(true))));
 
     scoreTrajectory.active().onTrue(overrideFinalPose(scoreTrajectory, reefSafeAngle));
