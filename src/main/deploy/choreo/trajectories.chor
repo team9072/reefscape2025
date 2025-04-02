@@ -11,6 +11,13 @@
      "val":7.22
     }
    },
+   "IntakeMaxAccel":{
+    "dimension":"LinAcc",
+    "var":{
+     "exp":"1.5 m / s ^ 2",
+     "val":1.5
+    }
+   },
    "IntakeMaxVelocity":{
     "dimension":"LinVel",
     "var":{
@@ -140,8 +147,8 @@
    "SpikePushDistance":{
     "dimension":"Length",
     "var":{
-     "exp":"16 in",
-     "val":0.4064
+     "exp":"17 in",
+     "val":0.4318
     }
    },
    "SpikeX":{

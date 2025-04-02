@@ -132,6 +132,10 @@ public class AutoSequences {
         clearRotationOverride());
   }
 
+  public Command resetState() {
+    return Commands.parallel(clearRotationOverride());
+  }
+
   public void scorePreload(
       ScoringPosition scoringPosition,
       AutoTrajectory preloadTrajectory,
