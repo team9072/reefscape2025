@@ -313,11 +313,18 @@ public class Robot {
 
     secondaryController
         .a()
-        .onTrue(s.scoring.prepareElevator(ScoringPosition.algaeL2))
+        .onTrue(
+            s.scoring
+                .prepareElevator(ScoringPosition.algaeL2)
+                .alongWith(scoringMemory.memorizePosition(ScoringPosition.algaeL2)))
         .onFalse(s.scoring.scoringAction(ScoringPosition.algaeL2));
+
     secondaryController
         .y()
-        .onTrue(s.scoring.prepareElevator(ScoringPosition.algaeL2))
+        .onTrue(
+            s.scoring
+                .prepareElevator(ScoringPosition.algaeL2)
+                .alongWith(scoringMemory.memorizePosition(ScoringPosition.algaeL3)))
         .onFalse(s.scoring.scoringAction(ScoringPosition.algaeL3));
 
     secondaryController

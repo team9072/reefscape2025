@@ -22,7 +22,7 @@ public class ElevatorConstants {
    * constructor determines how far up the elevator starts, which is subtracted from each position.
    */
   public enum ElevatorPosition {
-    groundPickupPosition(Rotations.of(-0.55)),
+    groundPickupPosition(Rotations.of(-0.2)),
 
     grabPosition(Rotations.of(-0.55)),
     readyPosition(Rotations.of(1.1)),

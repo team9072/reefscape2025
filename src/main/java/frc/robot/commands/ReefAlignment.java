@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 public class ReefAlignment {
   private static final Distance reefLowerOffsetDistance = Inches.of(7.75);
   private static final Distance reefL4OffsetDistance = Inches.of(8.25);
+  private static final Distance reefAlgaeOffsetDistance = Inches.of(15);
 
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
@@ -69,6 +70,9 @@ public class ReefAlignment {
         return getPoleOffsets(reefLowerOffsetDistance);
       case branchL4:
         return getPoleOffsets(reefL4OffsetDistance);
+
+      case algaeL2, algaeL3:
+        return getSingleOffset(reefAlgaeOffsetDistance);
 
       default:
         return new Transform2d[0];
