@@ -54,6 +54,10 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
+
+    // Load apriltag layout and other constants on initialization, not upon seeing a tag
+    @SuppressWarnings("unused")
+    var _aprilTagLayout = VisionConstants.aprilTagLayout;
   }
 
   @Override
