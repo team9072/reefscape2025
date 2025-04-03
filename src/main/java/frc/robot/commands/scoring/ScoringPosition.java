@@ -15,7 +15,7 @@ public enum ScoringPosition {
   algaeL3(ElevatorPosition.algaeL3Position),
 
   processor(ElevatorPosition.groundPickupPosition),
-  barge(ElevatorPosition.reefL4Position);
+  barge(ElevatorPosition.scoreBargePosition);
 
   public final ElevatorPosition elevatorPosition;
 
