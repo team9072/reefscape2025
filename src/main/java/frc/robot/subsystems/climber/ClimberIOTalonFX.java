@@ -21,6 +21,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import edu.wpi.first.units.measure.Angle;
@@ -40,6 +41,7 @@ public class ClimberIOTalonFX implements ClimberIO {
   private final StatusSignal<Current> currentAmps;
 
   private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0);
+  private final VoltageOut manualControlRequest = new VoltageOut(0);
 
   public ClimberIOTalonFX() {
     motor = ClimberConstants.canId.getTalon();
@@ -89,5 +91,10 @@ public class ClimberIOTalonFX implements ClimberIO {
   @Override
   public void setPosition(Angle positon) {
     motor.setControl(positionRequest.withPosition(positon));
+  }
+
+  @Override
+  public void setVoltage(Voltage voltage) {
+    motor.setControl(manualControlRequest.withOutput(voltage));
   }
 }

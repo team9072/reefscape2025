@@ -1,23 +1,31 @@
 package frc.robot.subsystems.climber;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class ClimberConstants {
   public enum ClimberPosition {
-    stowPosition(Rotations.of(-0.5)),
-    deployPosition(Rotations.of(-0.25)),
-    climbPosition(Rotations.of(-0.5));
+    stowPosition(Rotations.of(0)),
+    deployPosition(Rotations.of(2.5)),
+    climbPosition(Rotations.of(0));
 
     public final Angle angle;
+    public static final Angle tolerance = Degrees.of(2);
 
     ClimberPosition(Angle angle) {
       this.angle = angle;
+    }
+
+    public boolean withinTolerance(Angle angle) {
+      return this.angle.isNear(angle, tolerance);
     }
   }
 
@@ -32,9 +40,9 @@ public class ClimberConstants {
   public static final double rampVelocity = 1;
   public static final double rampAcceleration = 1;
 
-  public static final double gearboxReduction = 4 * 4 * 9;
-  public static final double ropeReduction = 6.7;
-  public static final double motorReduction = gearboxReduction * ropeReduction;
+  public static final double motorReduction = 4 * 4 * 9;
+
+  public static Voltage absManualControlVoltage = Volts.of(12);
 
   public static final String canBus = TunerConstants.kCANBus.getName();
   public static final CanID canId = new CanID(21, canBus);

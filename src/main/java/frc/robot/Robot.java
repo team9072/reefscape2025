@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
@@ -367,6 +369,10 @@ public class Robot {
     secondaryController.povRight().onTrue(s.scoring.jogCoralPlacerDown());
 
     secondaryController.back().onTrue(s.scoring.untrustAllSensors());
+
+    s.climber.setDefaultCommand(
+        ClimbCommands.manualControl(
+            s, () -> MathUtil.applyDeadband(secondaryController.getRightY(), 0.1)));
 
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
