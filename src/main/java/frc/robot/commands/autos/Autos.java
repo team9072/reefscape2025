@@ -7,8 +7,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
 import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
+import frc.robot.commands.autos.AutoPathSegments.IntakeTrajectory;
+import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
 import frc.robot.commands.autos.chooser.AutoBuilder;
 import frc.robot.commands.autos.sequences.SequenceBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,10 +26,16 @@ public class Autos {
   public Autos(Robot.Subsystems s) {
     autoBuilder = new AutoBuilder("Auto Builder");
     sequenceBuilder = new SequenceBuilder(s);
+
+    // FIXME: quick fix to not have autos fail, fix for real later plz
+    update();
   }
 
   public void update() {
-    updateCache(autoBuilder.getTrajectories(), false);
+    updateCache(
+        new ArrayList<>(
+            List.of(PreloadTrajectory.C1S_B, IntakeTrajectory.B_S2_A, IntakeTrajectory.A_S1_B)),
+        false);
   }
 
   public Command selectedAuto() {
