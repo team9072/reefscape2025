@@ -35,6 +35,7 @@ public class CoralPlacerConstants {
     grabReefAlgaePosition(Rotations.of(0.0)),
     grabGroundAlgaePosition(Rotations.of(0.1)),
     grabGroundCoralPosition(Rotations.of(0.125)),
+    algaeStowPosition(Rotations.of(-0.215)),
 
     scoreBargePosition(Rotations.of(-0.18)),
     scoreProcessorPosition(Rotations.of(0.03)),

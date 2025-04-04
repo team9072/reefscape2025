@@ -140,7 +140,7 @@ public class AutoSequences {
       ScoringPosition scoringPosition,
       AutoTrajectory preloadTrajectory,
       AutoTrajectory nextTrajectory) {
-    preloadTrajectory.active().onTrue(s.scoring.stowHold());
+    preloadTrajectory.active().onTrue(s.scoring.stowAlgae());
 
     preloadTrajectory.atTimeBeforeEnd(0.5).onTrue(s.scoring.prepareElevatorAuto(scoringPosition));
 

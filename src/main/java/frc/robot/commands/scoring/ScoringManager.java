@@ -88,7 +88,9 @@ public class ScoringManager {
               : CoralPlacerPosition.scoreProcessorPosition;
 
       CoralPlacerPosition coralPlacerHold =
-          isBarge ? CoralPlacerPosition.holdPosition : CoralPlacerPosition.scoreProcessorPosition;
+          isBarge
+              ? CoralPlacerPosition.algaeStowPosition
+              : CoralPlacerPosition.scoreProcessorPosition;
 
       command =
           Commands.sequence(
@@ -220,8 +222,8 @@ public class ScoringManager {
         coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(hasObjectAssumeTrue));
   }
 
-  public Command stowHold() {
-    final CoralPlacerPosition coralPlacerGoal = CoralPlacerPosition.holdPosition;
+  public Command stowAlgae() {
+    final CoralPlacerPosition coralPlacerGoal = CoralPlacerPosition.algaeStowPosition;
 
     return Commands.sequence(
         clearElevatorIfNeeded(coralPlacerGoal),

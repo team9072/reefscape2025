@@ -348,7 +348,7 @@ public class Robot {
     secondaryController.x().onTrue(s.scoring.unstuckCoralPlacer());
 
     TapHold algaeControl = new TapHold(secondaryController.rightTrigger(), 0.5);
-    algaeControl.tap.onTrue(s.scoring.stowHold());
+    algaeControl.tap.onTrue(s.scoring.stowAlgae());
 
     Trigger scoreBargeTrigger = algaeControl.hold;
     scoreBargeTrigger.onTrue(
