@@ -27,9 +27,6 @@ public class Autos {
   public Autos(Robot.Subsystems s) {
     autoBuilder = new AutoBuilder("Auto Builder");
     sequenceBuilder = new SequenceBuilder(s);
-
-    // FIXME: quick fix to not have autos fail, fix for real later plz
-    update();
   }
 
   public void update() {

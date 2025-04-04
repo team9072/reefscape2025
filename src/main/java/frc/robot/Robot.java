@@ -244,7 +244,9 @@ public class Robot {
   }
 
   private void configureBindings() {
-    RobotModeTriggers.disabled().whileTrue(Commands.run(autos::update).ignoringDisable(true));
+    Command generateAutos = Commands.run(autos::update).ignoringDisable(true).repeatedly();
+    RobotModeTriggers.disabled().whileTrue(generateAutos);
+    generateAutos.schedule();
 
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
