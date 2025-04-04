@@ -94,7 +94,7 @@ public class CoralPlacerConstants {
   public static final RollerConstants roller =
       new RollerConstants(rollerCanId)
           .withNeutralMode(NeutralModeValue.Coast)
-          .withStatorCurrentLimit(Amps.of(200))
+          .withStatorCurrentLimit(Amps.of(170))
           .withBaseCurrentLimit(Amps.of(65))
           .withSpikeCurrentLimit(Amps.of(75), Seconds.of(1));
 
