@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.littletonrobotics.junction.Logger;
+
 public class Autos {
   private final AutoBuilder autoBuilder;
   private final SequenceBuilder sequenceBuilder;
@@ -62,5 +64,9 @@ public class Autos {
       pathsAtGeneration = List.of();
       generatedCommand = Commands.none();
     }
+
+    Logger.recordOutput("Autos/AllianceAtGeneration", allianceAtGeneration.map((alliance) -> alliance.name()).orElse("None"));
+    Logger.recordOutput("Autos/PathsAtGeneration", pathsAtGeneration.stream().map((path) -> path.displayName()).toArray(String[]::new));
+    Logger.recordOutput("Autos/GeneratedCommand", generatedCommand.getName());
   }
 }
