@@ -8,6 +8,7 @@ import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
 import java.util.ArrayList;
 import java.util.List;
 import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.LogTable.LogValue;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.littletonrobotics.junction.networktables.LoggedNetworkInput;
@@ -33,7 +34,15 @@ public class AutoBuilder extends LoggedNetworkInput {
 
         private <E extends Enum<E> & AutoPathSegment> void setChooserFromLog(
             ManagedChooser<E> chooser, LogTable table) {
-          chooser.selectedTrajectory = table.get(chooser.key, chooser.selectedTrajectory);
+          LogValue nameValue = table.get(chooser.key);
+          if (nameValue == null) {
+            return;
+          }
+
+          String name =
+              nameValue.getString(
+                  chooser.selectedTrajectory == null ? null : chooser.selectedTrajectory.name());
+          chooser.selectedTrajectory = Enum.valueOf(chooser.vClass, name);
         }
 
         public void fromLog(LogTable table) {
@@ -47,16 +56,25 @@ public class AutoBuilder extends LoggedNetworkInput {
     this.key = key;
     ManagedChooser<PreloadTrajectory> preloadChooser =
         new ManagedChooser<>(
-            getKey("Preload"), PreloadTrajectory.values(), null, PreloadTrajectory.C1S_B);
+            getKey("Preload"),
+            PreloadTrajectory.values(),
+            null,
+            PreloadTrajectory.C1S_B,
+            PreloadTrajectory.class);
     ManagedChooser<IntakeTrajectory> p2Chooser =
         new ManagedChooser<>(
             getKey("Second Piece"),
             IntakeTrajectory.values(),
             preloadChooser,
-            IntakeTrajectory.B_S2_A);
+            IntakeTrajectory.B_S2_A,
+            IntakeTrajectory.class);
     ManagedChooser<IntakeTrajectory> p3Chooser =
         new ManagedChooser<>(
-            getKey("Third Piece"), IntakeTrajectory.values(), p2Chooser, IntakeTrajectory.A_S1_B);
+            getKey("Third Piece"),
+            IntakeTrajectory.values(),
+            p2Chooser,
+            IntakeTrajectory.A_S1_B,
+            IntakeTrajectory.class);
 
     choosers = List.of(preloadChooser, p2Chooser, p3Chooser);
 

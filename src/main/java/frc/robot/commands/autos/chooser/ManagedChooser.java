@@ -20,15 +20,21 @@ public class ManagedChooser<V extends Enum<V> & AutoPathSegment> {
   public final String key;
   private final TrajectoryChooser<V> chooser;
   public V selectedTrajectory;
+  public final Class<V> vClass;
 
   private AutoPathSegment priorTrajectory;
   private ManagedChooser<?> priorChooser;
 
   public ManagedChooser(
-      String key, V[] trajectories, ManagedChooser<?> priorChooser, V defaultTrajectory) {
+      String key,
+      V[] trajectories,
+      ManagedChooser<?> priorChooser,
+      V defaultTrajectory,
+      Class<V> vClass) {
     this.key = key;
     this.chooser = new TrajectoryChooser<V>(trajectories);
     this.priorChooser = priorChooser;
+    this.vClass = vClass;
 
     chooser.select(defaultTrajectory);
 
