@@ -252,7 +252,7 @@ public class Robot {
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
     DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
-    double intakeDrivePercent = 0.45;
+    double intakeDrivePercent = 0.5;
     Rumble mainControllerRumble = new Rumble(0.75);
 
     s.intake
