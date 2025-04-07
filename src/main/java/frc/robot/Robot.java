@@ -21,7 +21,6 @@ import frc.robot.commands.scoring.ScoringMemory;
 import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.commands.utils.RumbleCommands;
 import frc.robot.commands.utils.RumbleCommands.Rumble;
-import frc.robot.commands.utils.TapHold;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.climber.Climber;
 import frc.robot.subsystems.climber.ClimberIO;
@@ -63,6 +62,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class Robot {
@@ -248,6 +248,12 @@ public class Robot {
     RobotModeTriggers.disabled().whileTrue(generateAutos);
     generateAutos.schedule();
 
+    s.intake
+        .coralStaged
+        .debounce(0.1)
+        .and(s.scoring.hasObjectAssumeTrue.negate())
+        .onTrue(s.scoring.grabCoral());
+
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
@@ -281,27 +287,57 @@ public class Robot {
 
     mainController.rightBumper().whileTrue(s.intake.reverse());
 
-    Trigger scoreTrigger = mainController.rightTrigger();
-    scoreTrigger.onTrue(
-        s.scoring.scoringActionOnTrigger(
-            scoringMemory::getMemorizedPosition, scoreTrigger.negate()));
-
     Trigger alignTrigger = mainController.leftTrigger();
     alignTrigger.onTrue(
         s.scoring.scoringActionOnTrigger(
             scoringMemory::getMemorizedPosition, alignTrigger.negate()));
     alignTrigger.whileTrue(
         ReefAlignment.driveReefAligned(
-            s.drive, driveXSupplier, driveYSupplier, scoringMemory::getMemorizedPosition));
+            s.drive,
+            driveXSupplier,
+            driveYSupplier,
+            driveOmegaSupplier,
+            scoringMemory::getMemorizedPosition));
 
-    mainController.a().onTrue(scoringMemory.memorizePosition(ScoringPosition.troughL1));
-    mainController.x().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL2));
-    mainController.b().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL3));
-    mainController.y().onTrue(scoringMemory.memorizePosition(ScoringPosition.branchL4));
+    BooleanSupplier positionModifier = mainController.povDown();
+    Trigger scoreTrigger = mainController.rightTrigger();
+    scoreTrigger.onTrue(
+        s.scoring.scoringActionOnTrigger(
+            () ->
+                positionModifier.getAsBoolean()
+                    ? ScoringPosition.barge
+                    : scoringMemory.getMemorizedPosition(),
+            scoreTrigger.negate()));
 
-    // D-Pad is mapped to back buttons
     mainController
-        .povDown()
+        .a()
+        .onTrue(
+            scoringMemory
+                .memorizeEither(ScoringPosition.troughL1, ScoringPosition.algaeL2, positionModifier)
+                .alongWith(
+                    s.scoring.scoringAction(ScoringPosition.algaeL2).onlyIf(positionModifier)));
+    mainController
+        .x()
+        .onTrue(
+            Commands.either(
+                s.scoring.scoringAction(ScoringPosition.algaeGround),
+                scoringMemory.memorizePosition(ScoringPosition.branchL2),
+                positionModifier));
+    mainController
+        .b()
+        .onTrue(
+            scoringMemory.memorizeEither(
+                ScoringPosition.branchL3, ScoringPosition.processor, positionModifier));
+    mainController
+        .y()
+        .onTrue(
+            scoringMemory
+                .memorizeEither(ScoringPosition.branchL4, ScoringPosition.algaeL3, positionModifier)
+                .alongWith(
+                    s.scoring.scoringAction(ScoringPosition.algaeL3).onlyIf(positionModifier)));
+
+    mainController
+        .povUp()
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
     // Schedule a new command so the old one gets interrupted
@@ -314,45 +350,6 @@ public class Robot {
         .rightBumper()
         .whileTrue(s.intake.setPosition(PivotPosition.stow).andThen(s.intake.reverse()));
     secondaryController.leftTrigger().whileTrue(s.scoring.elevatorDown());
-
-    secondaryController
-        .a()
-        .onTrue(
-            s.scoring
-                .prepareElevator(ScoringPosition.algaeL2)
-                .alongWith(scoringMemory.memorizePosition(ScoringPosition.algaeL2)))
-        .onFalse(s.scoring.scoringAction(ScoringPosition.algaeL2));
-
-    secondaryController
-        .y()
-        .onTrue(
-            s.scoring
-                .prepareElevator(ScoringPosition.algaeL2)
-                .alongWith(scoringMemory.memorizePosition(ScoringPosition.algaeL3)))
-        .onFalse(s.scoring.scoringAction(ScoringPosition.algaeL3));
-
-    secondaryController
-        .b()
-        .onTrue(
-            s.scoring
-                .prepareElevator(ScoringPosition.algaeGround)
-                .alongWith(
-                    DriveCommands.joystickDriveAtPercent(
-                        s.drive,
-                        intakeDrivePercent,
-                        driveXSupplier,
-                        driveYSupplier,
-                        driveOmegaSupplier)))
-        .onFalse(s.scoring.scoringAction(ScoringPosition.algaeGround));
-
-    secondaryController.x().onTrue(s.scoring.unstuckCoralPlacer());
-
-    TapHold algaeControl = new TapHold(secondaryController.rightTrigger(), 0.5);
-    algaeControl.tap.onTrue(s.scoring.stowAlgae());
-
-    Trigger scoreBargeTrigger = algaeControl.hold;
-    scoreBargeTrigger.onTrue(
-        s.scoring.scoringActionOnTrigger(ScoringPosition.barge, scoreBargeTrigger.negate()));
 
     Trigger scoreProcessorTrigger = secondaryController.leftBumper();
     scoreProcessorTrigger.onTrue(

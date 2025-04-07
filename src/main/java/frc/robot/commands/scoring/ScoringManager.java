@@ -16,8 +16,8 @@ public class ScoringManager {
   private final CoralPlacer coralPlacer;
 
   private boolean trustSensors = true;
-  private final Trigger hasObjectAssumeFalse;
-  private final Trigger hasObjectAssumeTrue;
+  public final Trigger hasObjectAssumeFalse;
+  public final Trigger hasObjectAssumeTrue;
   public final Trigger coralPlacerHasObject;
 
   public ScoringManager(Elevator elevator, CoralPlacer coralPlacer) {
