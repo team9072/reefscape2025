@@ -33,12 +33,23 @@ public class CoralPlacerRollers extends SubsystemBase {
   }
 
   private void setIdle() {
-    rollerIO.setTorque(
-        CoralPlacerConstants.rollerGrabTorque, CoralPlacerConstants.rollerGrabDutyCycle);
+    rollerIO.stop();
+  }
+
+  public Command hold() {
+    return runEnd(
+        () ->
+            rollerIO.setTorque(
+                CoralPlacerConstants.rollerHoldTorque, CoralPlacerConstants.rollerHoldDutyCycle),
+        this::setIdle);
   }
 
   public Command grab() {
-    return runEnd(this::setIdle, this::setIdle);
+    return runEnd(
+        () ->
+            rollerIO.setTorque(
+                CoralPlacerConstants.rollerGrabTorque, CoralPlacerConstants.rollerGrabDutyCycle),
+        this::setIdle);
   }
 
   public Command reverse() {
@@ -48,9 +59,5 @@ public class CoralPlacerRollers extends SubsystemBase {
                 CoralPlacerConstants.rollerReverseTorque,
                 CoralPlacerConstants.rollerReverseDutyCycle),
         this::setIdle);
-  }
-
-  public Command neutral() {
-    return runEnd(rollerIO::stop, this::setIdle);
   }
 }

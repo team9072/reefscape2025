@@ -26,7 +26,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -74,7 +73,7 @@ public class CoralPlacerIOTalonFX implements CoralPlacerIO {
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.withStatorCurrentLimit(CoralPlacerConstants.statorCurrentLimit);
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.MotorOutput.NeutralMode = CoralPlacerConstants.neutralMode;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     config.SoftwareLimitSwitch.withForwardSoftLimitThreshold(CoralPlacerConstants.maxAngle);

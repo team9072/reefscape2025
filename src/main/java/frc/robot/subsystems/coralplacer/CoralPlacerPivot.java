@@ -19,6 +19,7 @@ public class CoralPlacerPivot extends SubsystemBase {
 
   private MutAngle jogOffset = Rotations.mutable(0);
   private CoralPlacerPosition lastPosition = CoralPlacerPosition.stowPosition;
+  private boolean lastWasAlgae = false;
 
   public final Trigger pastScorePosition =
       new Trigger(
@@ -32,6 +33,9 @@ public class CoralPlacerPivot extends SubsystemBase {
               atPosition(CoralPlacerPosition.scorePosition)
                   || coralPlacerInputs.position.lt(
                       getModifiedAngle(CoralPlacerPosition.scorePosition.angle)));
+
+  public final Trigger clearsTop =
+      new Trigger(() -> coralPlacerInputs.position.gt(CoralPlacerConstants.topHitMaxAngle));
 
   public final Trigger atLowVelocity =
       new Trigger(
@@ -60,7 +64,7 @@ public class CoralPlacerPivot extends SubsystemBase {
   }
 
   private void setPositionWithJog() {
-    if (false) {
+    if (lastWasAlgae) {
       coralPlacerIO.setPositionAlgae(getModifiedAngle(lastPosition.angle));
     } else {
       coralPlacerIO.setPosition(getModifiedAngle(lastPosition.angle));
@@ -72,12 +76,21 @@ public class CoralPlacerPivot extends SubsystemBase {
     setPositionWithJog();
   }
 
-  public Command setPosition(CoralPlacerPosition position) {
+  public Command setPosition(CoralPlacerPosition position, boolean algaeSpeed) {
     return run(() -> {
           jogOffset.mut_replace(Rotations.zero());
+          lastWasAlgae = algaeSpeed;
           setPositionWithJog(position);
         })
         .until(() -> atPosition(position));
+  }
+
+  public Command setPosition(CoralPlacerPosition position) {
+    return setPosition(position, false);
+  }
+
+  public Command setPositionAlgae(CoralPlacerPosition position) {
+    return setPosition(position, true);
   }
 
   public Command jog(Angle offsetAngle) {

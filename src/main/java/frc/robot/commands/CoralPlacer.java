@@ -17,6 +17,7 @@ public class CoralPlacer {
 
   public final Trigger pastScorePosition;
   public final Trigger clearsReef;
+  public final Trigger clearsTop;
 
   public final Trigger hasObject;
 
@@ -24,6 +25,7 @@ public class CoralPlacer {
     this.pivot = pivot;
     pastScorePosition = pivot.pastScorePosition;
     clearsReef = pivot.clearsReef;
+    clearsTop = pivot.clearsTop;
 
     this.rollers = rollers;
     this.hasObject = rollers.hasObject;
@@ -45,6 +47,10 @@ public class CoralPlacer {
     return pivot.setPosition(position);
   }
 
+  public Command setPositionAlgae(CoralPlacerPosition position) {
+    return pivot.setPositionAlgae(position);
+  }
+
   public Command jog(Angle offsetAngle) {
     return pivot.jog(offsetAngle);
   }
@@ -53,10 +59,14 @@ public class CoralPlacer {
     return rollers.grab().until(hasObject);
   }
 
-  public Command grabWhile(BooleanSupplier shouldGrab) {
+  public Command hold() {
+    return rollers.hold();
+  }
+
+  public Command holdWhile(BooleanSupplier shouldGrab) {
     return Commands.sequence(
-            rollers.neutral().until(shouldGrab),
-            rollers.grab().until(new Trigger(shouldGrab).negate().debounce(1)))
+            Commands.waitUntil(shouldGrab),
+            rollers.hold().until(new Trigger(shouldGrab).negate().debounce(1)))
         .repeatedly();
   }
 
@@ -66,31 +76,45 @@ public class CoralPlacer {
 
   public Command scoreAndExpel() {
     return Commands.parallel(
-            rollers.neutral(),
             pivot.setPosition(CoralPlacerPosition.scorePosition),
             Commands.sequence(Commands.waitSeconds(0.2), Commands.waitUntil(pivot.atLowVelocity)))
         .andThen(rollers.reverse())
         .until(pastScorePosition);
   }
 
-  public boolean wouldCrossCupHitZone(CoralPlacerPosition position) {
-    boolean currentlyInZone =
-        CoralPlacerConstants.cupHitMaxAngle.gt(pivot.position())
-            && CoralPlacerConstants.cupHitMinAngle.lt(pivot.position());
+  public Command clearTop() {
+    return setPosition(CoralPlacerPosition.holdPosition).until(clearsTop).unless(clearsTop);
+  }
+
+  private boolean wouldCrossZone(CoralPlacerPosition goal, Angle maxAngle, Angle minAngle) {
+    boolean currentlyInZone = pivot.position().lt(maxAngle) && pivot.position().gt(minAngle);
     if (currentlyInZone) {
       return true;
     }
 
-    if (CoralPlacerConstants.cupHitMaxAngle.lt(pivot.position())
-        && CoralPlacerConstants.cupHitMinAngle.gt(position.angle)) {
+    boolean goalInZone = goal.angle.lt(maxAngle) && goal.angle.gt(minAngle);
+    if (goalInZone) {
       return true;
     }
 
-    if (CoralPlacerConstants.cupHitMinAngle.gt(pivot.position())
-        && CoralPlacerConstants.cupHitMaxAngle.lt(position.angle)) {
+    if (pivot.position().lt(minAngle) && goal.angle.gt(maxAngle)) {
+      return true;
+    }
+
+    if (pivot.position().gt(maxAngle) && goal.angle.lt(minAngle)) {
       return true;
     }
 
     return false;
+  }
+
+  public boolean wouldCrossCupHitZone(CoralPlacerPosition goal) {
+    return wouldCrossZone(
+        goal, CoralPlacerConstants.cupHitMaxAngle, CoralPlacerConstants.cupHitMinAngle);
+  }
+
+  public boolean wouldCrossTopHitZone(CoralPlacerPosition goal) {
+    return wouldCrossZone(
+        goal, CoralPlacerConstants.topHitMaxAngle, CoralPlacerConstants.topHitMinAngle);
   }
 }

@@ -33,11 +33,11 @@ public class CoralPlacerConstants {
     scoreTroughPosition(Rotations.of(0.1)),
 
     grabReefAlgaePosition(Rotations.of(0.0)),
-    grabGroundAlgaePosition(Rotations.of(0.1)),
+    grabGroundAlgaePosition(Rotations.of(0.11)),
     grabGroundCoralPosition(Rotations.of(0.125)),
     algaeStowPosition(Rotations.of(-0.215)),
 
-    scoreBargePosition(Rotations.of(-0.18)),
+    scoreBargePosition(Rotations.of(-0.35)),
     scoreProcessorPosition(Rotations.of(0.03)),
 
     unstuckPosition(Rotations.of(-0.56));
@@ -53,8 +53,11 @@ public class CoralPlacerConstants {
     }
   }
 
-  public static final Angle cupHitMaxAngle = Rotations.of(0.14);
-  public static final Angle cupHitMinAngle = Rotations.of(0.248);
+  public static final Angle cupHitMaxAngle = Rotations.of(0.248);
+  public static final Angle cupHitMinAngle = Rotations.of(0.14);
+
+  public static final Angle topHitMaxAngle = Rotations.of(-0.26);
+  public static final Angle topHitMinAngle = Rotations.of(-1);
 
   public static final Current currentLimit = Amps.of(40);
   public static final Current statorCurrentLimit = Amps.of(60);
@@ -65,7 +68,7 @@ public class CoralPlacerConstants {
   public static final double motorReduction = rotorToSensor * sensorToMechanism;
 
   public static final Angle maxAngle = Rotations.of(0.255);
-  public static final Angle minAngle = Rotations.of(-0.32);
+  public static final Angle minAngle = Rotations.of(-0.4);
 
   public static final double kG = -0.07;
   public static final double kP = 100.0;
@@ -95,13 +98,16 @@ public class CoralPlacerConstants {
   public static final RollerConstants roller =
       new RollerConstants(rollerCanId)
           .withNeutralMode(NeutralModeValue.Coast)
-          .withStatorCurrentLimit(Amps.of(170))
-          .withBaseCurrentLimit(Amps.of(65))
-          .withSpikeCurrentLimit(Amps.of(75), Seconds.of(1));
+          .withStatorCurrentLimit(Amps.of(130))
+          .withBaseCurrentLimit(Amps.of(30))
+          .withSpikeCurrentLimit(Amps.of(40), Seconds.of(1));
 
-  public static final Current rollerGrabTorque = Amps.of(200);
-  public static final double rollerGrabDutyCycle = 0.3;
+  public static final Current rollerHoldTorque = Amps.of(140);
+  public static final double rollerHoldDutyCycle = 0.3;
+
+  public static final Current rollerGrabTorque = Amps.of(170);
+  public static final double rollerGrabDutyCycle = 0.6;
 
   public static final Current rollerReverseTorque = Amps.of(-100);
-  public static final double rollerReverseDutyCycle = 0.15;
+  public static final double rollerReverseDutyCycle = 0.5;
 }

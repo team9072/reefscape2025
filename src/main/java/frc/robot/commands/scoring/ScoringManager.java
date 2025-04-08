@@ -30,7 +30,7 @@ public class ScoringManager {
   }
 
   public void runRollersWhile(BooleanSupplier shouldRunRollers) {
-    coralPlacer.rollers().setDefaultCommand(coralPlacer.grabWhile(shouldRunRollers));
+    coralPlacer.rollers().setDefaultCommand(coralPlacer.holdWhile(shouldRunRollers));
   }
 
   public Command untrustAllSensors() {
@@ -40,7 +40,7 @@ public class ScoringManager {
   /** Returns the elevator to the ready position, and prepares the coral placer for a grab */
   public Command elevatorDown() {
     return Commands.sequence(
-        clearElevatorIfNeeded(CoralPlacerPosition.grabPosition),
+        clearElevatorIfNeeded(ElevatorPosition.grabPosition, CoralPlacerPosition.grabPosition),
         Commands.parallel(
             elevator.setPosition(ElevatorPosition.readyPosition),
             Commands.sequence(
@@ -57,13 +57,19 @@ public class ScoringManager {
    * of the staging zone
    */
   public Command clearElevator() {
-    return elevator.clearCoral();
+    return Commands.sequence(coralPlacer.clearTop(), elevator.clearCoral());
   }
 
-  private Command clearElevatorIfNeeded(CoralPlacerPosition coralPlacerPosition) {
-    return elevator
-        .clearCoral()
-        .onlyIf(() -> coralPlacer.wouldCrossCupHitZone(coralPlacerPosition));
+  private Command clearElevatorIfNeeded(
+      ElevatorPosition elevatorPosition, CoralPlacerPosition coralPlacerPosition) {
+    return Commands.sequence(
+        coralPlacer
+            .clearTop()
+            .unless(
+                () ->
+                    elevatorPosition == ElevatorPosition.scoreBargePosition
+                        && elevator.atPosition(ElevatorPosition.scoreBargePosition)),
+        elevator.clearCoral().onlyIf(() -> coralPlacer.wouldCrossCupHitZone(coralPlacerPosition)));
   }
 
   private Command prepareElevator(ScoringPosition position, boolean isAuto) {
@@ -99,11 +105,11 @@ public class ScoringManager {
       command =
           Commands.sequence(
               coralPlacer
-                  .setPosition(coralPlacerHold)
+                  .setPositionAlgae(coralPlacerHold)
                   .unless(() -> isBarge && elevator.atPosition(position.elevatorPosition))
                   .until(() -> !isBarge && !coralPlacer.wouldCrossCupHitZone(coralPlacerHold)),
               elevator.setPosition(position.elevatorPosition),
-              coralPlacer.setPosition(coralPlacerGoal));
+              coralPlacer.setPositionAlgae(coralPlacerGoal));
     } else {
       // Score coral
       final boolean isL4 = position == ScoringPosition.branchL4;
@@ -127,7 +133,9 @@ public class ScoringManager {
               coralPlacer.setPosition(coralPlacerGoal));
     }
 
-    return Commands.sequence(clearElevatorIfNeeded(coralPlacerGoal), command)
+    return Commands.sequence(
+            clearElevatorIfNeeded(position.elevatorPosition, coralPlacerGoal), command)
+        .deadlineFor(coralPlacer.hold().onlyIf(position::isAlgae))
         .unless(
             () ->
                 elevator.atPosition(position.elevatorPosition)
@@ -200,7 +208,7 @@ public class ScoringManager {
     // If the trigger returned true before the command exited normally, return instead of scoring
     return Commands.sequence(
         prepareElevator(position).until(scoreOrCancel),
-        Commands.waitUntil(scoreOrCancel),
+        Commands.waitUntil(scoreOrCancel).deadlineFor(coralPlacer.hold().onlyIf(position::isAlgae)),
         scoringAction(position)
             .onlyIf(() -> position.isTrough() || elevator.atPosition(position.elevatorPosition)));
   }
@@ -228,11 +236,12 @@ public class ScoringManager {
 
   public Command stowAlgae() {
     final CoralPlacerPosition coralPlacerGoal = CoralPlacerPosition.algaeStowPosition;
+    final ElevatorPosition elevatorGoal = ElevatorPosition.readyPosition;
 
     return Commands.sequence(
-        clearElevatorIfNeeded(coralPlacerGoal),
-        coralPlacer.setPosition(coralPlacerGoal),
-        elevator.setPosition(ElevatorPosition.readyPosition));
+        clearElevatorIfNeeded(elevatorGoal, coralPlacerGoal),
+        coralPlacer.setPositionAlgae(coralPlacerGoal),
+        elevator.setPosition(elevatorGoal));
   }
 
   public Command unstuckCoralPlacer() {

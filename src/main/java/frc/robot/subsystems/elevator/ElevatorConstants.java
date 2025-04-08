@@ -37,7 +37,6 @@ public class ElevatorConstants {
     algaeL2Position(Rotations.of(2.35)),
     algaeL3Position(Rotations.of(5.5)),
 
-    clearBargePosition(Rotations.of(4.95)),
     scoreBargePosition(Rotations.of(10.3));
 
     public static final Angle grabZoneMax = Rotations.of(1.75);

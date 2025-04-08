@@ -328,8 +328,13 @@ public class Robot {
     mainController
         .b()
         .onTrue(
-            scoringMemory.memorizeEither(
-                ScoringPosition.branchL3, ScoringPosition.processor, algaeModifier));
+            scoringMemory
+                .memorizeEither(ScoringPosition.branchL3, ScoringPosition.processor, algaeModifier)
+                .alongWith(
+                    s.scoring
+                        .scoringActionOnTrigger(
+                            ScoringPosition.processor, mainController.b().negate())
+                        .onlyIf(algaeModifier)));
     mainController
         .y()
         .onTrue(
