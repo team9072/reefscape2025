@@ -41,6 +41,15 @@ public enum ScoringPosition {
     }
   }
 
+  public boolean isAlgae() {
+    switch (this) {
+      case processor, barge, algaeGround, algaeL2, algaeL3:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   public boolean isTrough() {
     switch (this) {
       case troughL1:

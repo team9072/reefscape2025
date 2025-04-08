@@ -252,7 +252,9 @@ public class Robot {
         .coralStaged
         .debounce(0.1)
         .and(s.scoring.hasObjectAssumeTrue.negate())
-        .onTrue(s.scoring.grabCoral());
+        .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
+
+    s.scoring.runRollersWhile(() -> scoringMemory.getMemorizedPosition().isAlgae());
 
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
@@ -299,12 +301,12 @@ public class Robot {
             driveOmegaSupplier,
             scoringMemory::getMemorizedPosition));
 
-    BooleanSupplier positionModifier = mainController.povDown();
+    BooleanSupplier algaeModifier = mainController.povDown();
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
         s.scoring.scoringActionOnTrigger(
             () ->
-                positionModifier.getAsBoolean()
+                algaeModifier.getAsBoolean()
                     ? ScoringPosition.barge
                     : scoringMemory.getMemorizedPosition(),
             scoreTrigger.negate()));
@@ -313,28 +315,27 @@ public class Robot {
         .a()
         .onTrue(
             scoringMemory
-                .memorizeEither(ScoringPosition.troughL1, ScoringPosition.algaeL2, positionModifier)
-                .alongWith(
-                    s.scoring.scoringAction(ScoringPosition.algaeL2).onlyIf(positionModifier)));
+                .memorizeEither(ScoringPosition.troughL1, ScoringPosition.algaeL2, algaeModifier)
+                .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL2).onlyIf(algaeModifier)));
     mainController
         .x()
         .onTrue(
-            Commands.either(
-                s.scoring.scoringAction(ScoringPosition.algaeGround),
-                scoringMemory.memorizePosition(ScoringPosition.branchL2),
-                positionModifier));
+            scoringMemory
+                .memorizeEither(
+                    ScoringPosition.branchL2, ScoringPosition.algaeGround, algaeModifier)
+                .alongWith(
+                    s.scoring.scoringAction(ScoringPosition.algaeGround).onlyIf(algaeModifier)));
     mainController
         .b()
         .onTrue(
             scoringMemory.memorizeEither(
-                ScoringPosition.branchL3, ScoringPosition.processor, positionModifier));
+                ScoringPosition.branchL3, ScoringPosition.processor, algaeModifier));
     mainController
         .y()
         .onTrue(
             scoringMemory
-                .memorizeEither(ScoringPosition.branchL4, ScoringPosition.algaeL3, positionModifier)
-                .alongWith(
-                    s.scoring.scoringAction(ScoringPosition.algaeL3).onlyIf(positionModifier)));
+                .memorizeEither(ScoringPosition.branchL4, ScoringPosition.algaeL3, algaeModifier)
+                .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL3).onlyIf(algaeModifier)));
 
     mainController
         .povUp()

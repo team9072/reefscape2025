@@ -9,6 +9,7 @@ import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
 import frc.robot.subsystems.coralplacer.CoralPlacerPivot;
 import frc.robot.subsystems.coralplacer.CoralPlacerRollers;
+import java.util.function.BooleanSupplier;
 
 public class CoralPlacer {
   private final CoralPlacerPivot pivot;
@@ -26,12 +27,6 @@ public class CoralPlacer {
 
     this.rollers = rollers;
     this.hasObject = rollers.hasObject;
-
-    rollers.setDefaultCommand(
-        Commands.sequence(
-                rollers.neutral().until(hasObject),
-                rollers.grab().until(hasObject.negate().debounce(1)))
-            .repeatedly());
   }
 
   public Subsystem pivot() {
@@ -56,6 +51,13 @@ public class CoralPlacer {
 
   public Command grabObject() {
     return rollers.grab().until(hasObject);
+  }
+
+  public Command grabWhile(BooleanSupplier shouldGrab) {
+    return Commands.sequence(
+            rollers.neutral().until(shouldGrab),
+            rollers.grab().until(new Trigger(shouldGrab).negate().debounce(1)))
+        .repeatedly();
   }
 
   public Command expel() {

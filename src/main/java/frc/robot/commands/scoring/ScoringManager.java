@@ -29,6 +29,10 @@ public class ScoringManager {
     hasObjectAssumeTrue = coralPlacer.hasObject.or(() -> !trustSensors);
   }
 
+  public void runRollersWhile(BooleanSupplier shouldRunRollers) {
+    coralPlacer.rollers().setDefaultCommand(coralPlacer.grabWhile(shouldRunRollers));
+  }
+
   public Command untrustAllSensors() {
     return Commands.runOnce(() -> trustSensors = false);
   }
