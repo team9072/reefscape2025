@@ -19,6 +19,8 @@ public class RobotRunner extends LoggedRobot {
   private final Robot m_robotContainer;
 
   public RobotRunner() {
+    super(Constants.robotPeriodSecs);
+
     // Record metadata
     Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -63,6 +65,7 @@ public class RobotRunner extends LoggedRobot {
     Logger.start();
 
     m_robotContainer = new Robot();
+    CommandScheduler.getInstance().setPeriod(getPeriod());
   }
 
   @Override
