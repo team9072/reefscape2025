@@ -147,38 +147,41 @@ public class ReefAlignment {
     DrivePid driveController = drive.getPid();
 
     return Commands.run(
-        () -> {
-          Pose2d closestReef = findClosestReef(drive.getPose());
-          Optional<Pose2d> closestOffset =
-              findClosestOffset(drive.getPose(), closestReef, positionSupplier.get());
+            () -> {
+              Pose2d closestReef = findClosestReef(drive.getPose());
+              Optional<Pose2d> closestOffset =
+                  findClosestOffset(drive.getPose(), closestReef, positionSupplier.get());
 
-          double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
+              double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
-          ChassisSpeeds speeds;
+              ChassisSpeeds speeds;
 
-          if (closestOffset.isPresent()) {
-            speeds =
-                DriveCommands.getJoystickSpeeds(
-                    drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
+              if (closestOffset.isPresent()) {
+                speeds =
+                    DriveCommands.getJoystickSpeeds(
+                        drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
 
-            speeds =
-                speeds.plus(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                        // If no offset was found, just align to the reef
-                        getReefAlignSpeeds(
-                            closestOffset.orElse(drive.getPose()), driveController, joystickValue),
-                        drive.getRotation()));
-          } else {
-            speeds =
-                DriveCommands.getJoystickSpeeds(
-                    drive,
-                    xSupplier.getAsDouble(),
-                    ySupplier.getAsDouble(),
-                    omegaSupplier.getAsDouble());
-          }
+                speeds =
+                    speeds.plus(
+                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                            // If no offset was found, just align to the reef
+                            getReefAlignSpeeds(
+                                closestOffset.orElse(drive.getPose()),
+                                driveController,
+                                joystickValue),
+                            drive.getRotation()));
+              } else {
+                speeds =
+                    DriveCommands.getJoystickSpeeds(
+                        drive,
+                        xSupplier.getAsDouble(),
+                        ySupplier.getAsDouble(),
+                        omegaSupplier.getAsDouble());
+              }
 
-          drive.runVelocity(speeds);
-        },
-        drive);
+              drive.runVelocity(speeds);
+            },
+            drive)
+        .withName("AlignToReef");
   }
 }
