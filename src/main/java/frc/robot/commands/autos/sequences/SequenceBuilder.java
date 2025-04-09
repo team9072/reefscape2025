@@ -58,11 +58,7 @@ public class SequenceBuilder {
       nextPath = handlePathSegment(scoringPosition, path, routine, nextPath);
     }
 
-    routine
-        .active()
-        .onTrue(
-            Commands.sequence(
-                autoSequences.resetState(), nextPath.resetOdometry(), nextPath.cmd()));
+    routine.active().onTrue(Commands.sequence(nextPath.resetOdometry(), nextPath.cmd()));
 
     return routine;
   }
@@ -100,9 +96,11 @@ public class SequenceBuilder {
       AutoRoutine routine,
       AutoTrajectory nextPath) {
     AutoTrajectory intakeTrajectory = routine.trajectory(trajectory.getSplit(0).get());
-    AutoTrajectory scoreTrajectory = routine.trajectory(trajectory.getSplit(1).get());
+    AutoTrajectory prepareTrajectory = routine.trajectory(trajectory.getSplit(1).get());
+    AutoTrajectory scoreTrajectory = routine.trajectory(trajectory.getSplit(2).get());
 
-    autoSequences.intakeAndScore(scoringPosition, intakeTrajectory, scoreTrajectory, nextPath);
+    autoSequences.intakeAndScore(
+        routine, scoringPosition, intakeTrajectory, prepareTrajectory, scoreTrajectory, nextPath);
 
     return intakeTrajectory;
   }

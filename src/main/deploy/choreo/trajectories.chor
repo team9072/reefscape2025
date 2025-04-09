@@ -105,15 +105,15 @@
    "ReefMaxAccel":{
     "dimension":"LinAcc",
     "var":{
-     "exp":"1.5 m / s ^ 2",
-     "val":1.5
+     "exp":"2 m / s ^ 2",
+     "val":2.0
     }
    },
    "ReefPrepareOffset":{
     "dimension":"Length",
     "var":{
-     "exp":"0.7 m",
-     "val":0.7
+     "exp":"8 in",
+     "val":0.2032
     }
    },
    "ReefSafeDistance":{

@@ -249,8 +249,8 @@ public class Robot {
     RobotModeTriggers.disabled().whileTrue(generateAutos);
     generateAutos.schedule();
 
-    s.intake
-        .coralStaged
+    RobotModeTriggers.teleop()
+        .and(s.intake.coralStaged)
         .debounce(0.1)
         .and(s.scoring.hasObjectAssumeTrue.negate())
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));

@@ -1,8 +1,7 @@
 package frc.robot.commands.autos.sequences;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -10,8 +9,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Robot;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
@@ -23,9 +22,6 @@ public class AutoSequences {
   private final Robot.Subsystems s;
 
   private final DrivePid driveController;
-
-  private final Rotation2d reefSafeAngle = new Rotation2d(Degrees.of(-45));
-  private Rotation2d rotationOverride = null;
 
   public AutoSequences(Robot.Subsystems s) {
     driveController = s.drive.getPid();
@@ -47,51 +43,21 @@ public class AutoSequences {
     return autoFactory;
   }
 
-  private Trigger anyActive(AutoTrajectory trajectory, AutoTrajectory... trajectories) {
-    Trigger trigger = trajectory.active();
-    for (int i = 0; i < trajectories.length; i++) {
-      trigger = trigger.or(trajectories[i].active());
-    }
-    return trigger;
-  }
-
   private void drivePath(SwerveSample sample) {
     ChassisSpeeds targetSpeeds = sample.getChassisSpeeds();
 
     Pose2d samplePose = new Pose2d(sample.x, sample.y, Rotation2d.fromRadians(sample.heading));
-    if (rotationOverride != null) {
-      samplePose = new Pose2d(samplePose.getTranslation(), rotationOverride);
-    }
 
     targetSpeeds = targetSpeeds.plus(driveController.getPoseCorrection(samplePose));
 
     s.drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
   }
 
-  private Command setRotationOverride(Rotation2d override) {
-    return Commands.runOnce(() -> rotationOverride = override);
-  }
-
-  private Command clearRotationOverride() {
-    return setRotationOverride(null);
-  }
-
-  private Command overrideFinalPose(AutoTrajectory trajectory, Rotation2d offset) {
-    return setRotationOverride(trajectory.getFinalPose().get().getRotation().plus(offset));
-  }
-
   private Command drivePose(Pose2d targetPose) {
     return Commands.run(
             () -> {
-              Pose2d currentTargetPose = targetPose;
-
-              if (rotationOverride != null) {
-                currentTargetPose =
-                    new Pose2d(currentTargetPose.getTranslation(), rotationOverride);
-              }
-
               ChassisSpeeds targetSpeeds =
-                  ReefAlignment.getReefAlignSpeeds(currentTargetPose, driveController);
+                  ReefAlignment.getReefAlignSpeeds(targetPose, driveController);
 
               s.drive.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));
@@ -105,35 +71,20 @@ public class AutoSequences {
   }
 
   private Command pathCommandOrNone(AutoTrajectory nullableTrajectory) {
-    Command baseCommand = clearRotationOverride();
-
     if (nullableTrajectory == null) {
-      return baseCommand;
+      return Commands.none();
     }
 
-    return baseCommand.alongWith(nullableTrajectory.cmd());
+    return nullableTrajectory.cmd();
   }
 
   private Command scoreAtEnd(
       AutoTrajectory scoreTrajectory, ScoringPosition position, AutoTrajectory nextTrajectory) {
     return Commands.sequence(
-        clearRotationOverride(),
-        completeAlign(scoreTrajectory).deadlineFor(s.scoring.prepareElevatorAuto(position)),
         s.scoring
             .scoringActionAuto(position)
             .deadlineFor(completeAlign(scoreTrajectory).repeatedly()),
         Commands.parallel(s.scoring.elevatorDown(), pathCommandOrNone(nextTrajectory)));
-  }
-
-  private Command grabAtSafeRotation(AutoTrajectory scoreTrajectory) {
-    return Commands.sequence(
-        overrideFinalPose(scoreTrajectory, reefSafeAngle),
-        s.scoring.grabCoral(),
-        clearRotationOverride());
-  }
-
-  public Command resetState() {
-    return Commands.parallel(clearRotationOverride());
   }
 
   public void scorePreload(
@@ -148,12 +99,23 @@ public class AutoSequences {
   }
 
   public void intakeAndScore(
+      AutoRoutine routine,
       ScoringPosition scoringPosition,
       AutoTrajectory intakeTrajectory,
+      AutoTrajectory prepareTrajectory,
       AutoTrajectory scoreTrajectory,
       AutoTrajectory nextTrajectory) {
     final AtomicBoolean stagedCoral = new AtomicBoolean(false);
     final AtomicBoolean grabbedCoral = new AtomicBoolean(false);
+
+    routine
+        .active()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  stagedCoral.set(false);
+                  grabbedCoral.set(false);
+                }));
 
     intakeTrajectory
         .active()
@@ -173,32 +135,38 @@ public class AutoSequences {
                       stagedCoral.set(true);
                       grabbedCoral.set(true);
                     }),
-                scoreTrajectory.cmd()));
+                prepareTrajectory.cmd()));
 
     intakeTrajectory
         .active()
         .and(s.intake.coralInPassthrough.or(s.intake.coralStaged))
-        .onTrue(scoreTrajectory.cmd());
-    intakeTrajectory.chain(scoreTrajectory);
+        .onTrue(prepareTrajectory.cmd());
+    intakeTrajectory.chain(prepareTrajectory);
 
-    anyActive(intakeTrajectory, scoreTrajectory)
-        .or(scoreTrajectory.recentlyDone().and(() -> nextTrajectory == null))
+    routine
+        .anyActive(intakeTrajectory, prepareTrajectory)
+        .or(prepareTrajectory.recentlyDone())
         .and(s.intake.coralStaged)
         .and(() -> !(grabbedCoral.get() || stagedCoral.get()))
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(() -> stagedCoral.set(true)),
-                grabAtSafeRotation(scoreTrajectory),
-                s.scoring.prepareElevatorAuto(scoringPosition).until(scoreTrajectory.done()),
+                s.scoring.grabCoral(),
                 Commands.runOnce(() -> grabbedCoral.set(true))));
 
-    scoreTrajectory.active().onTrue(overrideFinalPose(scoreTrajectory, reefSafeAngle));
+    prepareTrajectory.done().and(routine.idle()).onTrue(DriveCommands.stop(s.drive));
 
-    scoreTrajectory.done().and(() -> !stagedCoral.get()).onTrue(pathCommandOrNone(nextTrajectory));
+    prepareTrajectory
+        .recentlyDone()
+        .debounce(1.5)
+        .and(() -> !stagedCoral.get())
+        .onTrue(pathCommandOrNone(nextTrajectory));
 
-    scoreTrajectory
+    prepareTrajectory
         .recentlyDone()
         .and(grabbedCoral::get)
-        .onTrue(scoreAtEnd(scoreTrajectory, scoringPosition, nextTrajectory));
+        .onTrue(scoreTrajectory.cmd().deadlineFor(s.scoring.prepareElevatorAuto(scoringPosition)));
+
+    scoreTrajectory.done().onTrue(scoreAtEnd(scoreTrajectory, scoringPosition, nextTrajectory));
   }
 }

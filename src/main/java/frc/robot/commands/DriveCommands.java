@@ -174,6 +174,10 @@ public class DriveCommands {
         drive);
   }
 
+  public static Command stop(Drive drive) {
+    return drive.runOnce(drive::stop);
+  }
+
   /**
    * @param drive
    * @return
