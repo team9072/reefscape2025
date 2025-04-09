@@ -244,7 +244,8 @@ public class Robot {
   }
 
   private void configureBindings() {
-    Command generateAutos = Commands.run(autos::update).ignoringDisable(true).repeatedly();
+    Command generateAutos =
+        Commands.run(autos::update).ignoringDisable(true).withName("GenerateAutos");
     RobotModeTriggers.disabled().whileTrue(generateAutos);
     generateAutos.schedule();
 

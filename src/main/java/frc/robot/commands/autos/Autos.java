@@ -53,7 +53,7 @@ public class Autos {
     boolean dsValid = DriverStation.isDisabled() && DriverStation.getAlliance().isPresent();
     if (dsValid || force) {
       allianceAtGeneration = DriverStation.getAlliance();
-      pathsAtGeneration = pathSegments;
+      pathsAtGeneration = List.copyOf(pathSegments);
       generatedCommand = sequenceBuilder.buildRoutine(pathSegments).cmd();
     } else {
       allianceAtGeneration = Optional.empty();
