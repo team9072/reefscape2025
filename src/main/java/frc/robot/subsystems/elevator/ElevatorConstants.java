@@ -55,7 +55,7 @@ public class ElevatorConstants {
     }
   }
 
-  public static final Current currentLimit = Amps.of(70);
+  public static final Current currentLimit = Amps.of(120);
   public static final Current statorLimit = Amps.of(120);
 
   public static final Angle minDistance = Rotations.of(-0.55);
@@ -65,8 +65,8 @@ public class ElevatorConstants {
   public static final double kV = 0;
   public static final double kG = 0.47;
 
-  public static final double rampVelocity = 30;
-  public static final double rampAcceleration = 100;
+  public static final double rampVelocity = 36;
+  public static final double rampAcceleration = 200;
 
   public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.5 / 2);
