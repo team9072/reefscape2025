@@ -56,7 +56,8 @@ public class CoralPlacer {
   }
 
   public Command grabObject() {
-    return rollers.grab().until(hasObject);
+    return Commands.sequence(Commands.waitUntil(hasObject), Commands.waitSeconds(1))
+        .deadlineFor(rollers.grab());
   }
 
   public Command hold() {

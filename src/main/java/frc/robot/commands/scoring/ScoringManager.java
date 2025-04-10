@@ -2,6 +2,7 @@ package frc.robot.commands.scoring;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants.CoralPlacerPosition;
@@ -86,7 +87,7 @@ public class ScoringManager {
                   : CoralPlacerPosition.grabReefAlgaePosition;
 
       command =
-          Commands.sequence(
+          Commands.parallel(
               coralPlacer.setPosition(coralPlacerGoal),
               elevator.setPosition(position.elevatorPosition));
     } else if (position.isAlgaeScore()) {
@@ -217,11 +218,13 @@ public class ScoringManager {
    * Creates a command to raise up the elevator (prepare) and then score the coral. Once the
    * `scoreOrCancel` supplier returns true, the robot will score the coral if it is ready.
    */
-  public Command scoringActionOnTrigger(
+  public Command selfCancellingScoringActionOnTrigger(
       Supplier<ScoringPosition> positionSupplier, BooleanSupplier scoreOrCancel) {
     return Commands.defer(
-        () -> scoringActionOnTrigger(positionSupplier.get(), scoreOrCancel),
-        Set.of(elevator, coralPlacer.pivot(), coralPlacer.rollers()));
+            () ->
+                new ScheduleCommand(scoringActionOnTrigger(positionSupplier.get(), scoreOrCancel)),
+            Set.of())
+        .withInterruptBehavior(null);
   }
 
   public Command grabCoral() {

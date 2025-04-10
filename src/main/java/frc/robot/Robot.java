@@ -292,7 +292,7 @@ public class Robot {
 
     Trigger alignTrigger = mainController.leftTrigger();
     alignTrigger.onTrue(
-        s.scoring.scoringActionOnTrigger(
+        s.scoring.selfCancellingScoringActionOnTrigger(
             scoringMemory::getMemorizedPosition, alignTrigger.negate()));
     alignTrigger.whileTrue(
         ReefAlignment.driveReefAligned(
@@ -305,7 +305,7 @@ public class Robot {
     BooleanSupplier algaeModifier = mainController.povDown();
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
-        s.scoring.scoringActionOnTrigger(
+        s.scoring.selfCancellingScoringActionOnTrigger(
             () ->
                 algaeModifier.getAsBoolean()
                     ? ScoringPosition.barge
