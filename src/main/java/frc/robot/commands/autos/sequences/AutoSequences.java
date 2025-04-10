@@ -10,7 +10,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
-import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
 import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.subsystems.drive.Drive.DrivePid;
@@ -154,12 +153,11 @@ public class AutoSequences {
                 s.scoring.grabCoral(),
                 Commands.runOnce(() -> grabbedCoral.set(true))));
 
-    prepareTrajectory.done().and(routine.idle()).onTrue(DriveCommands.stop(s.drive));
-
     prepareTrajectory
         .recentlyDone()
         .debounce(1.5)
         .and(() -> !stagedCoral.get())
+        .and(() -> nextTrajectory != null)
         .onTrue(pathCommandOrNone(nextTrajectory));
 
     prepareTrajectory
