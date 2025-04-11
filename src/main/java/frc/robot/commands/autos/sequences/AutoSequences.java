@@ -80,6 +80,7 @@ public class AutoSequences {
   private Command scoreAtEnd(
       AutoTrajectory scoreTrajectory, ScoringPosition position, AutoTrajectory nextTrajectory) {
     return Commands.sequence(
+        completeAlign(scoreTrajectory).deadlineFor(s.scoring.prepareElevatorAuto(position)),
         s.scoring
             .scoringActionAuto(position)
             .deadlineFor(completeAlign(scoreTrajectory).repeatedly()),
@@ -92,7 +93,12 @@ public class AutoSequences {
       AutoTrajectory nextTrajectory) {
     preloadTrajectory.active().onTrue(s.scoring.stowAlgae());
 
-    preloadTrajectory.atTimeBeforeEnd(0.5).onTrue(s.scoring.prepareElevatorAuto(scoringPosition));
+    preloadTrajectory
+        .atTimeBeforeEnd(0.5)
+        .onTrue(
+            s.scoring
+                .prepareElevatorAuto(scoringPosition)
+                .alongWith(s.intake.setPosition(PivotPosition.deploy)));
 
     preloadTrajectory.done().onTrue(scoreAtEnd(preloadTrajectory, scoringPosition, nextTrajectory));
   }
@@ -142,9 +148,9 @@ public class AutoSequences {
         .onTrue(prepareTrajectory.cmd());
     intakeTrajectory.chain(prepareTrajectory);
 
-    routine
-        .anyActive(intakeTrajectory, prepareTrajectory)
-        .or(prepareTrajectory.recentlyDone())
+    prepareTrajectory
+        .recentlyDone()
+        .or(routine.anyActive(intakeTrajectory, prepareTrajectory))
         .and(s.intake.coralStaged)
         .and(() -> !(grabbedCoral.get() || stagedCoral.get()))
         .onTrue(
