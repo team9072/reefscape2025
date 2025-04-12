@@ -251,7 +251,7 @@ public class Robot {
 
     RobotModeTriggers.teleop()
         .and(s.intake.coralStaged)
-        .debounce(0.1)
+        .debounce(0.05)
         .and(s.scoring.hasObjectAssumeTrue.negate())
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
