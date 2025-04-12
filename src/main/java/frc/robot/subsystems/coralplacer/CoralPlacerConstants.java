@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -33,7 +34,7 @@ public class CoralPlacerConstants {
     scoreTroughPosition(Rotations.of(0.1)),
 
     grabReefAlgaePosition(Rotations.of(0.0)),
-    grabGroundAlgaePosition(Rotations.of(0.11)),
+    grabGroundAlgaePosition(Rotations.of(0.127)),
     grabGroundCoralPosition(Rotations.of(0.125)),
     algaeStowPosition(Rotations.of(-0.215)),
 
@@ -98,16 +99,17 @@ public class CoralPlacerConstants {
   public static final RollerConstants roller =
       new RollerConstants(rollerCanId)
           .withNeutralMode(NeutralModeValue.Coast)
+          .withInvert(InvertedValue.Clockwise_Positive)
           .withStatorCurrentLimit(Amps.of(130))
           .withBaseCurrentLimit(Amps.of(30))
           .withSpikeCurrentLimit(Amps.of(40), Seconds.of(1));
 
-  public static final Current rollerHoldTorque = Amps.of(140);
-  public static final double rollerHoldDutyCycle = 0.3;
+  public static final Current rollerHoldTorque = Amps.of(40);
+  public static final double rollerHoldDutyCycle = 0.25;
 
-  public static final Current rollerGrabTorque = Amps.of(170);
+  public static final Current rollerGrabTorque = Amps.of(70);
   public static final double rollerGrabDutyCycle = 0.6;
 
   public static final Current rollerReverseTorque = Amps.of(-100);
-  public static final double rollerReverseDutyCycle = 0.5;
+  public static final double rollerReverseDutyCycle = 0.2;
 }

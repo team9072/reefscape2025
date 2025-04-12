@@ -9,12 +9,12 @@ public enum ScoringPosition {
   branchL3(ElevatorPosition.reefL3Position),
   branchL4(ElevatorPosition.reefL4Position),
 
-  coralGround(ElevatorPosition.groundPickupPosition),
-  algaeGround(ElevatorPosition.groundPickupPosition),
+  coralGround(ElevatorPosition.groundPickupCoralPosition),
+  algaeGround(ElevatorPosition.groundPickupAlgaePosition),
   algaeL2(ElevatorPosition.algaeL2Position),
   algaeL3(ElevatorPosition.algaeL3Position),
 
-  processor(ElevatorPosition.groundPickupPosition),
+  processor(ElevatorPosition.groundPickupCoralPosition),
   barge(ElevatorPosition.scoreBargePosition);
 
   public final ElevatorPosition elevatorPosition;

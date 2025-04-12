@@ -22,9 +22,10 @@ public class ElevatorConstants {
    * constructor determines how far up the elevator starts, which is subtracted from each position.
    */
   public enum ElevatorPosition {
-    groundPickupPosition(Rotations.of(-0.2)),
+    groundPickupCoralPosition(Rotations.of(-0.2)),
+    groundPickupAlgaePosition(Rotations.of(0.574)),
 
-    grabPosition(Rotations.of(-0.55)),
+    grabPosition(Rotations.of(-0.1)),
     readyPosition(Rotations.of(1.1)),
 
     reefTroughPosition(Rotations.of(2.6)),
@@ -34,8 +35,8 @@ public class ElevatorConstants {
     reefL3Position(Rotations.of(5.05)),
     reefL4Position(Rotations.of(9.5)),
 
-    algaeL2Position(Rotations.of(2.35)),
-    algaeL3Position(Rotations.of(5.5)),
+    algaeL2Position(Rotations.of(2.4)),
+    algaeL3Position(Rotations.of(5.6)),
 
     scoreBargePosition(Rotations.of(10.3));
 
