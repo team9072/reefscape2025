@@ -279,7 +279,7 @@ public class Robot {
         .whileTrue(
             Commands.sequence(
                     s.scoring.clearElevator().asProxy(),
-                    s.intake.intake().alongWith(s.scoring.elevatorDown().asProxy()))
+                    s.intake.intake().alongWith(s.scoring.prepForGrab().asProxy()))
                 .alongWith(
                     DriveCommands.joystickDriveAtPercent(
                         s.drive,

@@ -258,6 +258,10 @@ public class ScoringManager {
     return elevator.setPosition(position);
   }
 
+  public Command prepForGrab() {
+    return elevatorDown().unless(hasObjectAssumeTrue);
+  }
+
   public Command jogCoralPlacerUp() {
     return coralPlacer.jog(CoralPlacerPosition.jogAmmount.unaryMinus());
   }
