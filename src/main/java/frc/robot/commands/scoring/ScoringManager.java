@@ -30,8 +30,8 @@ public class ScoringManager {
     hasObjectAssumeTrue = coralPlacer.hasObject.or(() -> !trustSensors);
   }
 
-  public void runRollersWhile(BooleanSupplier shouldRunRollers) {
-    coralPlacer.rollers().setDefaultCommand(coralPlacer.holdWhile(shouldRunRollers));
+  public void runRollers(BooleanSupplier doAlgaeSpeed) {
+    coralPlacer.rollers().setDefaultCommand(coralPlacer.holdObject(doAlgaeSpeed));
   }
 
   public Command untrustAllSensors() {
@@ -88,8 +88,12 @@ public class ScoringManager {
 
       command =
           Commands.parallel(
-              coralPlacer.setPosition(coralPlacerGoal),
-              elevator.setPosition(position.elevatorPosition));
+                  coralPlacer.setPosition(coralPlacerGoal),
+                  elevator.setPosition(position.elevatorPosition))
+              .beforeStarting(
+                  coralPlacer
+                      .setPosition(coralPlacerGoal)
+                      .onlyIf(() -> position == ScoringPosition.algaeGround));
     } else if (position.isAlgaeScore()) {
       // Prepare to score algae
       final boolean isBarge = position == ScoringPosition.barge;
@@ -136,7 +140,7 @@ public class ScoringManager {
 
     return Commands.sequence(
             clearElevatorIfNeeded(position.elevatorPosition, coralPlacerGoal), command)
-        .deadlineFor(coralPlacer.hold().onlyIf(position::isAlgae))
+        .deadlineFor(coralPlacer.holdAlgae().onlyIf(position::isAlgae))
         .unless(
             () ->
                 elevator.atPosition(position.elevatorPosition)
@@ -157,7 +161,7 @@ public class ScoringManager {
 
     if (position.isObjectIntake()) {
       // Prepare for grabbing algae
-      command = coralPlacer.grabObject();
+      command = coralPlacer.grabAlgae();
     } else if (position.isAlgaeScore()) {
       // Score Algae
       Command delayCommand =
@@ -209,7 +213,8 @@ public class ScoringManager {
     // If the trigger returned true before the command exited normally, return instead of scoring
     return Commands.sequence(
         prepareElevator(position).until(scoreOrCancel),
-        Commands.waitUntil(scoreOrCancel).deadlineFor(coralPlacer.hold().onlyIf(position::isAlgae)),
+        Commands.waitUntil(scoreOrCancel)
+            .deadlineFor(coralPlacer.holdAlgae().onlyIf(position::isAlgae)),
         scoringAction(position)
             .onlyIf(() -> position.isTrough() || elevator.atPosition(position.elevatorPosition)));
   }
@@ -234,7 +239,9 @@ public class ScoringManager {
         Commands.waitUntil(elevator.finishedGrab),
         Commands.waitUntil(hasObjectAssumeFalse).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
-        coralPlacer.setPosition(CoralPlacerPosition.holdPosition).onlyIf(hasObjectAssumeTrue));
+        Commands.parallel(
+                coralPlacer.setPosition(CoralPlacerPosition.holdPosition), coralPlacer.holdCoral())
+            .onlyIf(hasObjectAssumeTrue));
   }
 
   public Command stowAlgae() {

@@ -24,7 +24,7 @@ import frc.robot.util.CanID;
 public class CoralPlacerConstants {
   public enum CoralPlacerPosition {
     stowPosition(Rotations.of(0.25)),
-    grabPosition(Rotations.of(0.25)),
+    grabPosition(Rotations.of(0.26)),
 
     holdPosition(Rotations.of(-0.24)),
     preScoreHoldPosition(Rotations.of(-0.1)),
@@ -94,7 +94,7 @@ public class CoralPlacerConstants {
   public static final CanID pivotEncoderCanId = new CanID(5, canBus);
   public static final CanID rollerCanId = new CanID(16, canBus);
 
-  public static final int beamBreakDioId = 6;
+  public static final int beamBreakDioId = 9;
 
   public static final RollerConstants roller =
       new RollerConstants(rollerCanId)
@@ -104,11 +104,14 @@ public class CoralPlacerConstants {
           .withBaseCurrentLimit(Amps.of(30))
           .withSpikeCurrentLimit(Amps.of(40), Seconds.of(1));
 
-  public static final Current rollerHoldTorque = Amps.of(40);
-  public static final double rollerHoldDutyCycle = 0.25;
+  public static final Current rollerHoldAlgaeTorque = Amps.of(40);
+  public static final double rollerHoldAlgaeDutyCycle = 0.25;
 
-  public static final Current rollerGrabTorque = Amps.of(70);
-  public static final double rollerGrabDutyCycle = 0.6;
+  public static final Current rollerHoldCoralTorque = Amps.of(35);
+  public static final double rollerHoldCoralDutyCycle = 0.1;
+
+  public static final Current rollerGrabAlgaeTorque = Amps.of(70);
+  public static final double rollerGrabAlgaeDutyCycle = 0.6;
 
   public static final Current rollerReverseTorque = Amps.of(-100);
   public static final double rollerReverseDutyCycle = 0.2;

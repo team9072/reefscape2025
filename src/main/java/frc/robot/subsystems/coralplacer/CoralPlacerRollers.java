@@ -36,19 +36,30 @@ public class CoralPlacerRollers extends SubsystemBase {
     rollerIO.stop();
   }
 
-  public Command hold() {
+  public Command holdAlgae() {
     return runEnd(
         () ->
             rollerIO.setTorque(
-                CoralPlacerConstants.rollerHoldTorque, CoralPlacerConstants.rollerHoldDutyCycle),
+                CoralPlacerConstants.rollerHoldAlgaeTorque,
+                CoralPlacerConstants.rollerHoldAlgaeDutyCycle),
         this::setIdle);
   }
 
-  public Command grab() {
+  public Command holdCoral() {
     return runEnd(
         () ->
             rollerIO.setTorque(
-                CoralPlacerConstants.rollerGrabTorque, CoralPlacerConstants.rollerGrabDutyCycle),
+                CoralPlacerConstants.rollerHoldCoralTorque,
+                CoralPlacerConstants.rollerHoldCoralDutyCycle),
+        this::setIdle);
+  }
+
+  public Command grabAlgae() {
+    return runEnd(
+        () ->
+            rollerIO.setTorque(
+                CoralPlacerConstants.rollerGrabAlgaeTorque,
+                CoralPlacerConstants.rollerGrabAlgaeDutyCycle),
         this::setIdle);
   }
 

@@ -55,19 +55,24 @@ public class CoralPlacer {
     return pivot.jog(offsetAngle);
   }
 
-  public Command grabObject() {
+  public Command grabAlgae() {
     return Commands.sequence(Commands.waitUntil(hasObject), Commands.waitSeconds(1))
-        .deadlineFor(rollers.grab());
+        .deadlineFor(rollers.grabAlgae());
   }
 
-  public Command hold() {
-    return rollers.hold();
+  public Command holdAlgae() {
+    return rollers.holdAlgae();
   }
 
-  public Command holdWhile(BooleanSupplier shouldGrab) {
-    return Commands.sequence(
-            Commands.waitUntil(shouldGrab),
-            rollers.hold().until(new Trigger(shouldGrab).negate().debounce(1)))
+  public Command holdCoral() {
+    return rollers.holdCoral();
+  }
+
+  public Command holdObject(BooleanSupplier doAlgaeSpeed) {
+    return Commands.either(
+            rollers.holdAlgae().until(new Trigger(doAlgaeSpeed).negate().debounce(1)),
+            rollers.holdCoral().until(new Trigger(doAlgaeSpeed)),
+            doAlgaeSpeed)
         .repeatedly();
   }
 

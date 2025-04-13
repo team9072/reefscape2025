@@ -255,7 +255,7 @@ public class Robot {
         .and(s.scoring.hasObjectAssumeTrue.negate())
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
-    s.scoring.runRollersWhile(() -> scoringMemory.getMemorizedPosition().isAlgae());
+    s.scoring.runRollers(() -> scoringMemory.getMemorizedPosition().isAlgae());
 
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();

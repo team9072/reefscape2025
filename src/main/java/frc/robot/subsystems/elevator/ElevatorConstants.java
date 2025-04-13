@@ -25,7 +25,7 @@ public class ElevatorConstants {
     groundPickupCoralPosition(Rotations.of(-0.2)),
     groundPickupAlgaePosition(Rotations.of(0.574)),
 
-    grabPosition(Rotations.of(-0.1)),
+    grabPosition(Rotations.of(-0.15)),
     readyPosition(Rotations.of(1.1)),
 
     reefTroughPosition(Rotations.of(2.6)),
