@@ -113,7 +113,7 @@ public class ScoringManager {
                   .setPositionAlgae(coralPlacerHold)
                   .unless(() -> isBarge && elevator.atPosition(position.elevatorPosition))
                   .until(() -> !isBarge && !coralPlacer.wouldCrossCupHitZone(coralPlacerHold)),
-              elevator.setPosition(position.elevatorPosition),
+              elevator.setPositionAlgae(position.elevatorPosition),
               coralPlacer.setPositionAlgae(coralPlacerGoal));
     } else {
       // Score coral

@@ -34,7 +34,7 @@ public class CoralPlacerConstants {
     scoreTroughPosition(Rotations.of(0.1)),
 
     grabReefAlgaePosition(Rotations.of(0.0)),
-    grabGroundAlgaePosition(Rotations.of(0.127)),
+    grabGroundAlgaePosition(Rotations.of(0.134)),
     grabGroundCoralPosition(Rotations.of(0.125)),
     algaeStowPosition(Rotations.of(-0.215)),
 
@@ -110,7 +110,7 @@ public class CoralPlacerConstants {
   public static final Current rollerHoldCoralTorque = Amps.of(35);
   public static final double rollerHoldCoralDutyCycle = 0.1;
 
-  public static final Current rollerGrabAlgaeTorque = Amps.of(70);
+  public static final Current rollerGrabAlgaeTorque = Amps.of(90);
   public static final double rollerGrabAlgaeDutyCycle = 0.6;
 
   public static final Current rollerReverseTorque = Amps.of(-100);

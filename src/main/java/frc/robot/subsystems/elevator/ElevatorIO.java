@@ -35,4 +35,6 @@ public interface ElevatorIO {
   public default void setVoltage(Voltage voltage) {}
 
   public default void setPosition(Angle position) {}
+
+  public default void setPositionSlow(Angle position) {}
 }

@@ -12,6 +12,7 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -33,6 +34,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   private final VoltageOut voltageRequest = new VoltageOut(Volts.of(0));
   private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(Rotations.of(0));
+  private final DynamicMotionMagicVoltage slowPositionRequest =
+      new DynamicMotionMagicVoltage(
+          0, ElevatorConstants.rampVelocity, ElevatorConstants.rampAccelerationSlow, 0);
 
   public ElevatorIOTalonFX() {
     primaryMotor = ElevatorConstants.primaryMotorCanId.getTalon();
@@ -105,5 +109,10 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   @Override
   public void setPosition(Angle position) {
     primaryMotor.setControl(positionRequest.withPosition(position));
+  }
+
+  @Override
+  public void setPositionSlow(Angle position) {
+    primaryMotor.setControl(slowPositionRequest.withPosition(position));
   }
 }

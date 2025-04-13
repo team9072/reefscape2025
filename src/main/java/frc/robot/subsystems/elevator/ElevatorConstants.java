@@ -42,7 +42,7 @@ public class ElevatorConstants {
 
     public static final Angle grabZoneMax = Rotations.of(1.75);
 
-    public static final Distance linearTolerance = Inches.of(1);
+    public static final Distance linearTolerance = Inches.of(1.5);
     public static final Angle tolerance = distanceToDrumRotation(linearTolerance, drumRadius);
 
     public Angle angle;
@@ -68,6 +68,7 @@ public class ElevatorConstants {
 
   public static final double rampVelocity = 36;
   public static final double rampAcceleration = 200;
+  public static final double rampAccelerationSlow = 40;
 
   public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.5 / 2);

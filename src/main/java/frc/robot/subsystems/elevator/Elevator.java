@@ -42,6 +42,14 @@ public class Elevator extends SubsystemBase {
             position == ElevatorPosition.grabPosition ? finishedGrab : () -> atPosition(position)));
   }
 
+  public Command setPositionAlgae(ElevatorPosition position) {
+
+    return Commands.sequence(
+        runOnce(() -> elevatorIO.setPositionSlow(position.angle)),
+        Commands.waitUntil(
+            position == ElevatorPosition.grabPosition ? finishedGrab : () -> atPosition(position)));
+  }
+
   public Command clearCoral() {
     return setPosition(ElevatorPosition.readyPosition).until(clearsCoral).unless(clearsCoral);
   }
