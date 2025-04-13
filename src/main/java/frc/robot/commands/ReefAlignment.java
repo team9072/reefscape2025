@@ -153,27 +153,18 @@ public class ReefAlignment {
 
     return Commands.run(
             () -> {
-              ScoringPosition targetedPosition = positionSupplier.get();
-
               Pose2d closestReef = findClosestReef(drive.getPose());
               Optional<Pose2d> closestOffset =
-                  findClosestOffset(drive.getPose(), closestReef, targetedPosition);
+                  findClosestOffset(drive.getPose(), closestReef, positionSupplier.get());
 
               double joystickValue = Math.hypot(xSupplier.getAsDouble(), ySupplier.getAsDouble());
 
               ChassisSpeeds speeds;
 
               if (closestOffset.isPresent()) {
-                if (targetedPosition == ScoringPosition.algaeL2
-                    || targetedPosition == ScoringPosition.algaeL3) {
-                  speeds =
-                      DriveCommands.getJoystickSpeedsRobotRelative(
-                          drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
-                } else {
-                  speeds =
-                      DriveCommands.getJoystickSpeeds(
-                          drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
-                }
+                speeds =
+                    DriveCommands.getJoystickSpeeds(
+                        drive, xSupplier.getAsDouble(), ySupplier.getAsDouble(), 0);
 
                 speeds =
                     speeds.plus(

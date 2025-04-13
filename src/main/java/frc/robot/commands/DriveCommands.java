@@ -65,8 +65,8 @@ public class DriveCommands {
         .getTranslation();
   }
 
-  /** Get the robot relative ChassisSpeeds for a specified drivetrain from human inputs */
-  public static ChassisSpeeds getJoystickSpeedsRobotRelative(
+  /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
+  public static ChassisSpeeds getJoystickSpeeds(
       Drive drive,
       double x,
       double y,
@@ -88,34 +88,9 @@ public class DriveCommands {
                 * maxTranslationSpeedPercent,
             omega * drive.getMaxAngularSpeedRadPerSec() * maxRotationSpeedPercent);
 
-    return speeds;
-  }
-
-  /** Get the robot relative ChassisSpeeds for a specified drivetrain from human inputs */
-  public static ChassisSpeeds getJoystickSpeedsRobotRelative(
-      Drive drive, double x, double y, double omega) {
-    return getJoystickSpeedsRobotRelative(
-        drive,
-        x,
-        y,
-        omega,
-        DEFAULT_DRIVE_TRANSLATION_SPEED_PERCENTAGE,
-        DEFAULT_DRIVE_ROTATION_SPEED_PERCENTAGE);
-  }
-
-  /** Get the ChassisSpeeds for a specified drivetrain from human inputs */
-  public static ChassisSpeeds getJoystickSpeeds(
-      Drive drive,
-      double x,
-      double y,
-      double omega,
-      double maxTranslationSpeedPercent,
-      double maxRotationSpeedPercent) {
-
     // Convert to field relative speeds & send command
     return ChassisSpeeds.fromFieldRelativeSpeeds(
-        getJoystickSpeedsRobotRelative(
-            drive, x, y, omega, maxTranslationSpeedPercent, maxRotationSpeedPercent),
+        speeds,
         getIsFlipped() ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation());
   }
 
