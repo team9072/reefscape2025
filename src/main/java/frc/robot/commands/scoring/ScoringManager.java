@@ -239,7 +239,7 @@ public class ScoringManager {
         Commands.waitUntil(elevator.finishedGrab),
         Commands.waitUntil(hasObjectAssumeFalse).withTimeout(0.2),
         elevator.setPosition(ElevatorPosition.readyPosition),
-        Commands.parallel(
+        Commands.deadline(
                 coralPlacer.setPosition(CoralPlacerPosition.holdPosition), coralPlacer.holdCoral())
             .onlyIf(hasObjectAssumeTrue));
   }
