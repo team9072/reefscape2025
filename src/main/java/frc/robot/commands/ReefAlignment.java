@@ -25,6 +25,9 @@ public class ReefAlignment {
   private static final Distance reefL4OffsetDistance = Inches.of(8.25);
   private static final Distance reefAlgaeOffsetDistance = Inches.of(15);
 
+  private static final Translation2d robotRelatveOffset =
+      new Translation2d(Meters.zero(), Inches.of(-1.25));
+
   private static final Translation2d blueReefCenter = new Translation2d(4.489323, 4.0259);
   private static final Translation2d redReefCenter = new Translation2d(13.058902, 4.0259);
 
@@ -42,11 +45,13 @@ public class ReefAlignment {
     return new Transform2d[] {
       new Transform2d(
           new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero())
-              .plus(poleOffset),
+              .plus(poleOffset)
+              .plus(robotRelatveOffset),
           Rotation2d.k180deg),
       new Transform2d(
           new Translation2d(reefBaseOffsetDistance.plus(reefOffset), Meters.zero())
-              .minus(poleOffset),
+              .minus(poleOffset)
+              .plus(robotRelatveOffset),
           Rotation2d.k180deg),
     };
   }

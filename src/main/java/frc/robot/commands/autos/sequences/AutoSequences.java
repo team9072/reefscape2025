@@ -145,8 +145,8 @@ public class AutoSequences {
     intakeTrajectory
         .active()
         .and(s.intake.coralInPassthrough.or(s.intake.coralStaged))
-        .onTrue(prepareTrajectory.cmd());
-    intakeTrajectory.chain(prepareTrajectory);
+        .or(intakeTrajectory.done())
+        .onTrue(Commands.sequence(prepareTrajectory.cmd(), completeAlign(prepareTrajectory)));
 
     prepareTrajectory
         .recentlyDone()
