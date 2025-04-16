@@ -356,7 +356,7 @@ public class Robot {
     secondaryController
         .rightBumper()
         .whileTrue(s.intake.setPosition(PivotPosition.stow).andThen(s.intake.reverse()));
-    secondaryController.leftTrigger().whileTrue(s.scoring.elevatorDown());
+    secondaryController.leftTrigger().onTrue(s.scoring.elevatorDown());
 
     Trigger scoreProcessorTrigger = secondaryController.leftBumper();
     scoreProcessorTrigger.onTrue(
