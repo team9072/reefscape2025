@@ -68,10 +68,12 @@ public class CoralPlacer {
     return rollers.holdCoral();
   }
 
-  public Command holdObject(BooleanSupplier doAlgaeSpeed) {
+  public Command holdObject(BooleanSupplier shouldRunCoral, BooleanSupplier doAlgaeSpeed) {
     return Commands.either(
             rollers.holdAlgae().until(new Trigger(doAlgaeSpeed).negate().debounce(1)),
-            rollers.holdCoral().until(new Trigger(doAlgaeSpeed)),
+            Commands.either(
+                    rollers.holdCoral().onlyWhile(shouldRunCoral), Commands.none(), shouldRunCoral)
+                .until(doAlgaeSpeed),
             doAlgaeSpeed)
         .repeatedly();
   }

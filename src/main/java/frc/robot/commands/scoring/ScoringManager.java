@@ -31,7 +31,9 @@ public class ScoringManager {
   }
 
   public void runRollers(BooleanSupplier doAlgaeSpeed) {
-    coralPlacer.rollers().setDefaultCommand(coralPlacer.holdObject(doAlgaeSpeed));
+    coralPlacer
+        .rollers()
+        .setDefaultCommand(coralPlacer.holdObject(hasObjectAssumeTrue, doAlgaeSpeed));
   }
 
   public Command untrustAllSensors() {
