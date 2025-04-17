@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
 import frc.robot.commands.autos.AutoPathSegments.AutoPathSegment;
+import frc.robot.commands.autos.AutoPathSegments.IntakeTrajectory;
 import frc.robot.commands.autos.AutoPathSegments.PreloadTrajectory;
 import frc.robot.commands.autos.chooser.AutoBuilder;
 import frc.robot.commands.autos.sequences.SequenceBuilder;
@@ -29,7 +30,10 @@ public class Autos {
   }
 
   public void update() {
-    updateCache(new ArrayList<>(List.of(PreloadTrajectory.Center_G)), false);
+    updateCache(
+        new ArrayList<>(
+            List.of(PreloadTrajectory.C1S_B, IntakeTrajectory.B_S2_A, IntakeTrajectory.A_S1_B)),
+        false);
   }
 
   public Command selectedAuto() {
