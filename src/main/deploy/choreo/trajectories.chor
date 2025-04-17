@@ -293,6 +293,20 @@
      "val":3.141592653589793
     }
    },
+   "CenterStraight":{
+    "x":{
+     "exp":"CageStraightX",
+     "val":7.22
+    },
+    "y":{
+     "exp":"4.026 m",
+     "val":4.026
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
    "D":{
     "x":{
      "exp":"ReefCenter.x + (cos(R5Angle - 180 deg) * ReefL4OffsetDistance) + (cos(R5Angle - 90 deg) * (PoleOffset - PoleSideOffset))",

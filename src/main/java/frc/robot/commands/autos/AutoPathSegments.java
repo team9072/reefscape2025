@@ -40,7 +40,9 @@ public class AutoPathSegments {
     // C1S_A(StartingPosition.C1S, ReefPole.A),
     // C6S_A(StartingPosition.C6S, ReefPole.A),
     // C6S_B(StartingPosition.C6S, ReefPole.B),
-    C1S_B(StartingPosition.C1S, ReefPole.B);
+    C1S_B(StartingPosition.C1S, ReefPole.B),
+
+    Center_G(StartingPosition.Center, ReefPole.G);
 
     public final StartingPosition startingPosition;
     public final ReefPole endingPole;

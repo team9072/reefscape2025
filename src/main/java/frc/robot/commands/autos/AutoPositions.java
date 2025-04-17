@@ -62,7 +62,8 @@ public class AutoPositions {
     C3S("Alliance Right Cage"),
     C4S("Opposite Left Cage"),
     C5S("Opposite Center Cage"),
-    C6S("Opposite Right Cage");
+    C6S("Opposite Right Cage"),
+    Center("Center");
 
     public final String displayName;
 
