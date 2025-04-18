@@ -56,7 +56,7 @@ public class ElevatorConstants {
     }
   }
 
-  public static final Current currentLimit = Amps.of(120);
+  public static final Current currentLimit = Amps.of(100);
   public static final Current statorLimit = Amps.of(120);
 
   public static final Angle minDistance = Rotations.of(-0.55);
