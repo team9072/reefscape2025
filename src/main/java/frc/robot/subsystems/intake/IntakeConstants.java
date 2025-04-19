@@ -33,13 +33,13 @@ public class IntakeConstants {
       new RollerConstants(rollerCanId)
           .withInvert(InvertedValue.Clockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
-          .withSpikeCurrentLimit(Amps.of(70), Seconds.of(0.2))
-          .withStatorCurrentLimit(Amps.of(500));
+          .withSpikeCurrentLimit(Amps.of(60), Seconds.of(0.2))
+          .withStatorCurrentLimit(Amps.of(120));
 
   public static RollerConstants pasthrough =
       new RollerConstants(passthroughCanId)
           .withInvert(InvertedValue.CounterClockwise_Positive)
           .withBaseCurrentLimit(Amps.of(20))
-          .withSpikeCurrentLimit(Amps.of(70), Seconds.of(0.2))
-          .withStatorCurrentLimit(Amps.of(500));
+          .withSpikeCurrentLimit(Amps.of(60), Seconds.of(0.2))
+          .withStatorCurrentLimit(Amps.of(120));
 }
