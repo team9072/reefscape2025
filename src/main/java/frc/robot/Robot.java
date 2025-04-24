@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -104,6 +105,10 @@ public class Robot {
   private final Subsystems s;
   private final frc.robot.commands.autos.Autos autos;
   private final ScoringMemory scoringMemory;
+
+  private final SendableChooser<String> modeChooser = new SendableChooser<>();
+  private final Trigger driverMode = new Trigger(() -> modeChooser.getSelected().equals("driver"));
+  private final Trigger demoMode = new Trigger(() -> modeChooser.getSelected().equals("demo"));
 
   public Robot() {
     final Drive drive;
@@ -244,18 +249,38 @@ public class Robot {
   }
 
   private void configureBindings() {
+    modeChooser.addOption("Advenced Driver Controls", "driver");
+    modeChooser.setDefaultOption("Demo Controls", "demo");
+
+    modeChooser.onChange(
+        (_mode) -> {
+          s.drive.removeDefaultCommand();
+          s.intake.removeDefaultCommand();
+          s.climber.removeDefaultCommand();
+
+          if (driverMode.getAsBoolean()) {
+            driverBindings();
+          } else {
+            demoBindings();
+          }
+        });
+
     Command generateAutos =
         Commands.run(autos::update).ignoringDisable(true).withName("GenerateAutos");
     RobotModeTriggers.disabled().whileTrue(generateAutos);
     generateAutos.schedule();
+  }
 
+  private void driverBindings() {
     RobotModeTriggers.teleop()
+        .and(driverMode)
         .and(s.intake.coralStaged)
         .debounce(0.05)
         .and(s.scoring.hasObjectAssumeTrue.negate())
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
-    s.scoring.runRollers(() -> scoringMemory.getMemorizedPosition().isAlgae());
+    s.scoring.runRollers(
+        () -> scoringMemory.getMemorizedPosition().isAlgae() && driverMode.getAsBoolean());
 
     /** Driver Controls */
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
@@ -266,16 +291,21 @@ public class Robot {
 
     s.intake
         .coralStaged
+        .and(driverMode)
         .debounce(0.05)
         .onTrue(RumbleCommands.rumble(mainController, mainControllerRumble).withTimeout(0.5));
 
     s.drive.setDefaultCommand(
         DriveCommands.joystickDrive(s.drive, driveXSupplier, driveYSupplier, driveOmegaSupplier));
 
-    mainController.start().onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
+    mainController
+        .start()
+        .and(driverMode)
+        .onTrue(DriveCommands.zeroGyro(s.drive).ignoringDisable(true));
 
     mainController
         .leftBumper()
+        .and(driverMode)
         .whileTrue(
             Commands.sequence(
                     s.scoring.clearElevator().asProxy(),
@@ -288,9 +318,9 @@ public class Robot {
                         driveYSupplier,
                         driveOmegaSupplier)));
 
-    mainController.rightBumper().whileTrue(s.intake.reverse());
+    mainController.rightBumper().and(driverMode).whileTrue(s.intake.reverse());
 
-    Trigger alignTrigger = mainController.leftTrigger();
+    Trigger alignTrigger = mainController.leftTrigger().and(driverMode);
     alignTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
             scoringMemory::getMemorizedPosition, alignTrigger.negate()));
@@ -302,8 +332,8 @@ public class Robot {
             driveOmegaSupplier,
             scoringMemory::getMemorizedPosition));
 
-    BooleanSupplier algaeModifier = mainController.povDown();
-    Trigger scoreTrigger = mainController.rightTrigger();
+    BooleanSupplier algaeModifier = mainController.povDown().and(driverMode);
+    Trigger scoreTrigger = mainController.rightTrigger().and(driverMode);
     scoreTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
             () ->
@@ -314,12 +344,14 @@ public class Robot {
 
     mainController
         .a()
+        .and(driverMode)
         .onTrue(
             scoringMemory
                 .memorizeEither(ScoringPosition.troughL1, ScoringPosition.algaeL2, algaeModifier)
                 .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL2).onlyIf(algaeModifier)));
     mainController
         .x()
+        .and(driverMode)
         .onTrue(
             scoringMemory
                 .memorizeEither(
@@ -328,6 +360,7 @@ public class Robot {
                     s.scoring.scoringAction(ScoringPosition.algaeGround).onlyIf(algaeModifier)));
     mainController
         .b()
+        .and(driverMode)
         .onTrue(
             scoringMemory
                 .memorizeEither(ScoringPosition.branchL3, ScoringPosition.processor, algaeModifier)
@@ -338,6 +371,7 @@ public class Robot {
                         .onlyIf(algaeModifier)));
     mainController
         .y()
+        .and(driverMode)
         .onTrue(
             scoringMemory
                 .memorizeEither(ScoringPosition.branchL4, ScoringPosition.algaeL3, algaeModifier)
@@ -345,20 +379,23 @@ public class Robot {
 
     mainController
         .povUp()
+        .and(driverMode)
         .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
 
     // Schedule a new command so the old one gets interrupted
     mainController
         .povLeft()
+        .and(driverMode)
         .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
 
     /** Operator Controls */
     secondaryController
         .rightBumper()
+        .and(driverMode)
         .whileTrue(s.intake.setPosition(PivotPosition.stow).andThen(s.intake.reverse()));
     secondaryController.leftTrigger().onTrue(s.scoring.elevatorDown());
 
-    Trigger scoreProcessorTrigger = secondaryController.leftBumper();
+    Trigger scoreProcessorTrigger = secondaryController.leftBumper().and(driverMode);
     scoreProcessorTrigger.onTrue(
         s.scoring.scoringActionOnTrigger(
             ScoringPosition.processor, scoreProcessorTrigger.negate()));
@@ -366,15 +403,16 @@ public class Robot {
     // Elevator unstuck
     secondaryController
         .povDown()
+        .and(driverMode)
         .onTrue(s.scoring.unstuckElevator(ElevatorPosition.reefL3Position));
     secondaryController.povUp().onTrue(s.scoring.unstuckElevator(ElevatorPosition.reefL4Position));
 
     // Coral Placer jog
-    secondaryController.povLeft().onTrue(s.scoring.jogCoralPlacerUp());
+    secondaryController.povLeft().and(driverMode).onTrue(s.scoring.jogCoralPlacerUp());
 
-    secondaryController.povRight().onTrue(s.scoring.jogCoralPlacerDown());
+    secondaryController.povRight().and(driverMode).onTrue(s.scoring.jogCoralPlacerDown());
 
-    secondaryController.back().onTrue(s.scoring.untrustAllSensors());
+    secondaryController.back().and(driverMode).onTrue(s.scoring.untrustAllSensors());
 
     s.climber.setDefaultCommand(
         ClimbCommands.manualControl(
@@ -397,7 +435,32 @@ public class Robot {
                 () -> s.drive.runVelocity(new ChassisSpeeds(-sysIdController.getLeftY(), 0, 0))));*/
   }
 
+  private void demoBindings() {
+    DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
+    DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
+    DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
+
+    s.drive.setDefaultCommand(
+        DriveCommands.joystickDriveAtPercent(
+            s.drive, 0.2, driveXSupplier, driveYSupplier, driveOmegaSupplier));
+
+    s.intake.setDefaultCommand(s.intake.setPosition(PivotPosition.deploy));
+
+    RobotModeTriggers.teleop()
+        .and(demoMode)
+        .and(s.intake.coralStaged)
+        .debounce(0.05)
+        .and(s.scoring.hasObjectAssumeFalse.negate())
+        .onTrue(
+            Commands.sequence(
+                s.scoring.grabCoral(),
+                s.scoring.scoringAction(ScoringPosition.troughL1),
+                s.scoring.elevatorDown()));
+
+    mainController.b().and(demoMode).whileTrue(s.intake.intake());
+  }
+
   public Command getAutonomousCommand() {
-    return autos.selectedAuto();
+    return Commands.none(); // autos.selectedAuto();
   }
 }
