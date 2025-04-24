@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
@@ -74,6 +75,7 @@ public class Robot {
     public final Climber climber;
     public final Vision vision;
     public final QuestNav questNav;
+    public final Elevator elevator;
 
     // State
     public final ScoringManager scoring;
@@ -92,6 +94,7 @@ public class Robot {
       this.vision = vision;
       this.questNav = questNav;
       this.climber = climber;
+      this.elevator = elevator;
 
       scoring = new ScoringManager(elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
     }
@@ -257,6 +260,7 @@ public class Robot {
           s.drive.removeDefaultCommand();
           s.intake.removeDefaultCommand();
           s.climber.removeDefaultCommand();
+          s.elevator.removeDefaultCommand();
 
           if (driverMode.getAsBoolean()) {
             driverBindings();
@@ -264,6 +268,8 @@ public class Robot {
             demoBindings();
           }
         });
+
+    SmartDashboard.putData("Demo Mode Chooser", modeChooser);
 
     Command generateAutos =
         Commands.run(autos::update).ignoringDisable(true).withName("GenerateAutos");
@@ -458,6 +464,9 @@ public class Robot {
                 s.scoring.elevatorDown()));
 
     mainController.b().and(demoMode).whileTrue(s.intake.intake());
+    mainController.a().and(demoMode).whileTrue(s.intake.reverse());
+
+    s.elevator.setDefaultCommand(s.scoring.elevatorDown());
   }
 
   public Command getAutonomousCommand() {
