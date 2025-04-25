@@ -55,6 +55,7 @@ import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
+import frc.robot.subsystems.leds.Leds;
 import frc.robot.subsystems.questnav.QuestNav;
 import frc.robot.subsystems.questnav.QuestNavIO;
 import frc.robot.subsystems.questnav.QuestNavIOReal;
@@ -112,6 +113,8 @@ public class Robot {
   private final SendableChooser<String> modeChooser = new SendableChooser<>();
   private final Trigger driverMode = new Trigger(() -> modeChooser.getSelected().equals("driver"));
   private final Trigger demoMode = new Trigger(() -> modeChooser.getSelected().equals("demo"));
+
+  private final Leds leds = new Leds();
 
   public Robot() {
     final Drive drive;
@@ -252,7 +255,7 @@ public class Robot {
   }
 
   private void configureBindings() {
-    modeChooser.addOption("Advenced Driver Controls", "driver");
+    modeChooser.addOption("Advanced Driver Controls", "driver");
     modeChooser.setDefaultOption("Demo Controls", "demo");
 
     modeChooser.onChange(
@@ -261,6 +264,13 @@ public class Robot {
           s.intake.removeDefaultCommand();
           s.climber.removeDefaultCommand();
           s.elevator.removeDefaultCommand();
+
+          leds.removeDefaultCommand();
+          Command c = leds.getCurrentCommand();
+
+          if (c != null) {
+            c.cancel();
+          }
 
           if (driverMode.getAsBoolean()) {
             driverBindings();
@@ -278,6 +288,8 @@ public class Robot {
   }
 
   private void driverBindings() {
+    leds.setDefaultCommand(leds.driverAnimation());
+
     RobotModeTriggers.teleop()
         .and(driverMode)
         .and(s.intake.coralStaged)
@@ -442,6 +454,8 @@ public class Robot {
   }
 
   private void demoBindings() {
+    leds.setDefaultCommand(leds.demoAnimation());
+
     DoubleSupplier driveXSupplier = () -> -mainController.getLeftY();
     DoubleSupplier driveYSupplier = () -> -mainController.getLeftX();
     DoubleSupplier driveOmegaSupplier = () -> -mainController.getRightX();
