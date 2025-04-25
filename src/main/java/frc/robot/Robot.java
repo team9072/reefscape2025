@@ -161,8 +161,8 @@ public class Robot {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOPhotonVision(CameraData.RightCamera),
-                new VisionIOPhotonVision(CameraData.LeftCamera));
+                new VisionIO() {},
+                new VisionIO() {});
 
         questNav = new QuestNav(new QuestNavIOReal(), drive::addVisionMeasurement);
       }
@@ -342,13 +342,6 @@ public class Robot {
     alignTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
             scoringMemory::getMemorizedPosition, alignTrigger.negate()));
-    alignTrigger.whileTrue(
-        ReefAlignment.driveReefAligned(
-            s.drive,
-            driveXSupplier,
-            driveYSupplier,
-            driveOmegaSupplier,
-            scoringMemory::getMemorizedPosition));
 
     BooleanSupplier algaeModifier = mainController.povDown().and(driverMode);
     Trigger scoreTrigger = mainController.rightTrigger().and(driverMode);
