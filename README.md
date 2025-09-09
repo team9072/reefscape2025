@@ -9,4 +9,3 @@ We use [Advantagekit](https://github.com/Mechanical-Advantage/AdvantageKit) for 
 We also have sim implementations for most of the ronot subsystems, however we do not currently have [MapleSim](https://shenzhen-robotics-alliance.github.io/maple-sim/) integration.
 
 ![image](https://github.com/user-attachments/assets/60aabf9d-6343-4375-861a-ba99d43f710b)
-
