@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.generic.beambreak.BeamBreakIO;
@@ -146,6 +145,11 @@ public class Intake extends SubsystemBase {
         IntakeConstants.passthroughTorqueCurrent, IntakeConstants.passthroughTorqueDutyCycle);
   }
 
+  private void runPassthrough() {
+    passthroughIO.setTorque(
+        IntakeConstants.passthroughTorqueCurrent, IntakeConstants.passthroughTorqueDutyCycle);
+  }
+
   private void reverseRollers() {
     if (shouldIntakeSpin()) {
       rollerIO.setTorque(
@@ -159,6 +163,10 @@ public class Intake extends SubsystemBase {
 
   public Command intake() {
     return runEnd(this::intakeRollers, this::stopRollers);
+  }
+
+  public Command intakePassthrough() {
+    return runEnd(this::runPassthrough, this::stopRollers);
   }
 
   public Command reverse() {
@@ -175,12 +183,11 @@ public class Intake extends SubsystemBase {
         .until(() -> position.withinTolerance(pivotInputs.position));
   }
 
-  public Command toggleDeploy() {
-    return Commands.either(
-        setPosition(PivotPosition.deploy),
-        setPosition(PivotPosition.stow),
-        () -> {
-          return (lastSetpoint != PivotPosition.deploy);
-        });
+  public Command deploy() {
+    return setPosition(PivotPosition.deploy);
+  }
+
+  public Command stow() {
+    return setPosition(PivotPosition.stow);
   }
 }

@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -61,7 +60,6 @@ import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -253,7 +251,12 @@ public class Robot {
         .and(s.intake.coralStaged)
         .debounce(0.05)
         .and(s.scoring.hasObjectAssumeTrue.negate())
-        .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
+        .onTrue(
+            Commands.sequence(
+                s.intake.intakePassthrough().withDeadline(Commands.waitSeconds(0.25)),
+                s.scoring
+                    .grabCoral()
+                    .alongWith(s.intake.stow(), scoringMemory.restoreCoralPosition())));
 
     s.scoring.runRollers(() -> scoringMemory.getMemorizedPosition().isAlgae());
 
@@ -278,7 +281,7 @@ public class Robot {
         .leftBumper()
         .whileTrue(
             Commands.sequence(
-                    s.scoring.clearElevator().asProxy(),
+                    s.scoring.clearElevator().asProxy().alongWith(s.intake.deploy()),
                     s.intake.intake().alongWith(s.scoring.prepForGrab().asProxy()))
                 .alongWith(
                     DriveCommands.joystickDriveAtPercent(
@@ -288,7 +291,7 @@ public class Robot {
                         driveYSupplier,
                         driveOmegaSupplier)));
 
-    mainController.rightBumper().whileTrue(s.intake.reverse());
+    mainController.rightBumper().whileTrue(s.intake.deploy().andThen(s.intake.reverse()));
 
     Trigger alignTrigger = mainController.leftTrigger();
     alignTrigger.onTrue(
@@ -344,13 +347,9 @@ public class Robot {
                 .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL3).onlyIf(algaeModifier)));
 
     mainController
-        .povUp()
-        .onTrue(s.scoring.grabCoral().alongWith(scoringMemory.restoreCoralPosition()));
-
-    // Schedule a new command so the old one gets interrupted
-    mainController
         .povLeft()
-        .onTrue(Commands.defer(() -> new ScheduleCommand(s.intake.toggleDeploy()), Set.of()));
+        .onTrue(
+            s.scoring.grabCoral().alongWith(s.intake.stow(), scoringMemory.restoreCoralPosition()));
 
     /** Operator Controls */
     secondaryController
