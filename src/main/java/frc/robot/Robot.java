@@ -52,6 +52,9 @@ import frc.robot.subsystems.intake.PivotConstants.PivotPosition;
 import frc.robot.subsystems.intake.PivotIO;
 import frc.robot.subsystems.intake.PivotIOSim;
 import frc.robot.subsystems.intake.PivotIOTalonFX;
+import frc.robot.subsystems.leds.Leds;
+import frc.robot.subsystems.leds.LedsIO;
+import frc.robot.subsystems.leds.LedsIOCandle;
 import frc.robot.subsystems.questnav.QuestNav;
 import frc.robot.subsystems.questnav.QuestNavIO;
 import frc.robot.subsystems.questnav.QuestNavIOReal;
@@ -60,7 +63,6 @@ import frc.robot.subsystems.vision.VisionConstants.CameraData;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class Robot {
@@ -70,6 +72,7 @@ public class Robot {
     public final Intake intake;
     public final Climber climber;
     public final Vision vision;
+    public final Leds leds;
     public final QuestNav questNav;
 
     // State
@@ -83,12 +86,14 @@ public class Robot {
         Elevator elevator,
         Climber climber,
         Vision vision,
+        Leds leds,
         QuestNav questNav) {
       this.drive = drive;
       this.intake = intake;
-      this.vision = vision;
-      this.questNav = questNav;
       this.climber = climber;
+      this.vision = vision;
+      this.leds = leds;
+      this.questNav = questNav;
 
       scoring = new ScoringManager(elevator, new CoralPlacer(coralPlacerPivot, coralPlacerRollers));
     }
@@ -111,6 +116,7 @@ public class Robot {
     final Elevator elevator;
     final Climber climber;
     final Vision vision;
+    final Leds leds;
     final QuestNav questNav;
 
     switch (Constants.currentMode) {
@@ -151,6 +157,8 @@ public class Robot {
                 new VisionIOPhotonVision(CameraData.RightCamera),
                 new VisionIOPhotonVision(CameraData.LeftCamera));
 
+        leds = new Leds(new LedsIOCandle());
+
         questNav = new QuestNav(new QuestNavIOReal(), drive::addVisionMeasurement);
       }
 
@@ -190,6 +198,8 @@ public class Robot {
                 new VisionIOPhotonVisionSim(CameraData.RightCamera, drive::getPose),
                 new VisionIOPhotonVisionSim(CameraData.LeftCamera, drive::getPose));
 
+        leds = new Leds(new LedsIO() {});
+
         questNav = new QuestNav(new QuestNavIO() {}, drive::addVisionMeasurement);
       }
 
@@ -221,6 +231,8 @@ public class Robot {
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {}, new VisionIO() {});
 
+        leds = new Leds(new LedsIO() {});
+
         questNav = new QuestNav(new QuestNavIO() {}, drive::addVisionMeasurement);
       }
     }
@@ -234,9 +246,10 @@ public class Robot {
             elevator,
             climber,
             vision,
+            leds,
             questNav);
     autos = new Autos(s);
-    scoringMemory = new ScoringMemory(ScoringPosition.branchL4);
+    scoringMemory = new ScoringMemory(leds, ScoringPosition.branchL4);
 
     configureBindings();
   }
@@ -305,12 +318,13 @@ public class Robot {
             driveOmegaSupplier,
             scoringMemory::getMemorizedPosition));
 
-    BooleanSupplier algaeModifier = mainController.povDown();
+    new Trigger(mainController.povRight()).onTrue(scoringMemory.toggleAlgaeMode());
+
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
             () ->
-                algaeModifier.getAsBoolean()
+                scoringMemory.inAlgaeMode()
                     ? ScoringPosition.barge
                     : scoringMemory.getMemorizedPosition(),
             scoreTrigger.negate()));
@@ -319,32 +333,39 @@ public class Robot {
         .a()
         .onTrue(
             scoringMemory
-                .memorizeEither(ScoringPosition.troughL1, ScoringPosition.algaeL2, algaeModifier)
-                .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL2).onlyIf(algaeModifier)));
+                .memorizeCoralAlgae(ScoringPosition.troughL1, ScoringPosition.algaeL2)
+                .alongWith(
+                    s.scoring
+                        .scoringAction(ScoringPosition.algaeL2)
+                        .onlyIf(scoringMemory::inAlgaeMode)));
     mainController
         .x()
         .onTrue(
             scoringMemory
-                .memorizeEither(
-                    ScoringPosition.branchL2, ScoringPosition.algaeGround, algaeModifier)
+                .memorizeCoralAlgae(ScoringPosition.branchL2, ScoringPosition.algaeGround)
                 .alongWith(
-                    s.scoring.scoringAction(ScoringPosition.algaeGround).onlyIf(algaeModifier)));
+                    s.scoring
+                        .scoringAction(ScoringPosition.algaeGround)
+                        .onlyIf(scoringMemory::inAlgaeMode)));
     mainController
         .b()
         .onTrue(
             scoringMemory
-                .memorizeEither(ScoringPosition.branchL3, ScoringPosition.processor, algaeModifier)
+                .memorizeCoralAlgae(ScoringPosition.branchL3, ScoringPosition.processor)
                 .alongWith(
                     s.scoring
                         .scoringActionOnTrigger(
                             ScoringPosition.processor, mainController.b().negate())
-                        .onlyIf(algaeModifier)));
+                        .onlyIf(scoringMemory::inAlgaeMode)));
     mainController
         .y()
         .onTrue(
             scoringMemory
-                .memorizeEither(ScoringPosition.branchL4, ScoringPosition.algaeL3, algaeModifier)
-                .alongWith(s.scoring.scoringAction(ScoringPosition.algaeL3).onlyIf(algaeModifier)));
+                .memorizeCoralAlgae(ScoringPosition.branchL4, ScoringPosition.algaeL3)
+                .alongWith(
+                    s.scoring
+                        .scoringAction(ScoringPosition.algaeL3)
+                        .onlyIf(scoringMemory::inAlgaeMode)));
 
     mainController
         .povLeft()
