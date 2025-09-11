@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 public class CanID {
@@ -30,5 +31,9 @@ public class CanID {
 
   public CANcoder getCancoder() {
     return new CANcoder(deviceId, busName);
+  }
+
+  public CANdle getCandle() {
+    return new CANdle(deviceId, busName);
   }
 }
