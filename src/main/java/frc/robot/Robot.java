@@ -330,7 +330,7 @@ public class Robot {
             scoreTrigger.negate()));
 
     mainController
-        .a()
+        .x()
         .onTrue(
             scoringMemory
                 .memorizeCoralAlgae(ScoringPosition.troughL1, ScoringPosition.algaeL2)
@@ -339,7 +339,7 @@ public class Robot {
                         .scoringAction(ScoringPosition.algaeL2)
                         .onlyIf(scoringMemory::inAlgaeMode)));
     mainController
-        .x()
+        .a()
         .onTrue(
             scoringMemory
                 .memorizeCoralAlgae(ScoringPosition.branchL2, ScoringPosition.algaeGround)
