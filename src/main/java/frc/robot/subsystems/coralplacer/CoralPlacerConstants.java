@@ -78,7 +78,7 @@ public class CoralPlacerConstants {
 
   public static final double rampVelocity = 2;
   public static final double rampVelocityRemoveAlgae = 1;
-  public static final double rampAcceleration = 5;
+  public static final double rampAcceleration = 3.5;
 
   public static final Distance armLength = Inches.of(5);
   public static final Mass armMass = Pounds.of(1.3);

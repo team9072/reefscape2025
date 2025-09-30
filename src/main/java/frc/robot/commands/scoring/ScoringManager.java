@@ -188,7 +188,8 @@ public class ScoringManager {
       // Score coral
       command =
           Commands.sequence(
-              coralPlacer.scoreAndExpel(), elevatorDown().onlyIf(hasObjectAssumeFalse.negate()));
+              coralPlacer.scoreAndExpel(),
+              elevatorDown().beforeStarting(Commands.waitUntil(hasObjectAssumeFalse.negate())));
     }
 
     return Commands.sequence(prepareElevator(position, isAuto), command);
