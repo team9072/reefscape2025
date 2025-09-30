@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -293,16 +294,18 @@ public class Robot {
     mainController
         .leftBumper()
         .whileTrue(
-            Commands.sequence(
-                    s.scoring.clearElevator().asProxy().alongWith(s.intake.deploy()),
-                    s.intake.intake().alongWith(s.scoring.prepForGrab().asProxy()))
-                .alongWith(
-                    DriveCommands.joystickDriveAtPercent(
-                        s.drive,
-                        intakeDrivePercent,
-                        driveXSupplier,
-                        driveYSupplier,
-                        driveOmegaSupplier)));
+            Commands.parallel(
+                Commands.sequence(
+                    s.intake.deploy(),
+                    Commands.waitUntil(s.scoring.isElevatorClear()),
+                    s.intake.intake()),
+                new ScheduleCommand(s.scoring.prepForGrab()),
+                DriveCommands.joystickDriveAtPercent(
+                    s.drive,
+                    intakeDrivePercent,
+                    driveXSupplier,
+                    driveYSupplier,
+                    driveOmegaSupplier)));
 
     mainController.rightBumper().whileTrue(s.intake.deploy().andThen(s.intake.reverse()));
 

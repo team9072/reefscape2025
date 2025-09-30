@@ -55,12 +55,8 @@ public class ScoringManager {
                 coralPlacer.setPosition(CoralPlacerPosition.grabPosition))));
   }
 
-  /**
-   * Returns the elevator to the ready position. The command only runs until the elevator is clear
-   * of the staging zone
-   */
-  public Command clearElevator() {
-    return Commands.sequence(coralPlacer.clearTop(), elevator.clearCoral());
+  public Trigger isElevatorClear() {
+    return elevator.clearsCoral;
   }
 
   private Command clearElevatorIfNeeded(
