@@ -4,14 +4,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ClimbCommands;
 import frc.robot.commands.CoralPlacer;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.ReefAlignment;
@@ -22,9 +20,6 @@ import frc.robot.commands.scoring.ScoringPosition;
 import frc.robot.commands.utils.RumbleCommands;
 import frc.robot.commands.utils.RumbleCommands.Rumble;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.climber.Climber;
-import frc.robot.subsystems.climber.ClimberIO;
-import frc.robot.subsystems.climber.ClimberIOTalonFX;
 import frc.robot.subsystems.coralplacer.CoralPlacerConstants;
 import frc.robot.subsystems.coralplacer.CoralPlacerIO;
 import frc.robot.subsystems.coralplacer.CoralPlacerIOSim;
@@ -71,7 +66,6 @@ public class Robot {
     // Subsystems
     public final Drive drive;
     public final Intake intake;
-    public final Climber climber;
     public final Vision vision;
     public final Leds leds;
     public final QuestNav questNav;
@@ -85,13 +79,11 @@ public class Robot {
         CoralPlacerPivot coralPlacerPivot,
         CoralPlacerRollers coralPlacerRollers,
         Elevator elevator,
-        Climber climber,
         Vision vision,
         Leds leds,
         QuestNav questNav) {
       this.drive = drive;
       this.intake = intake;
-      this.climber = climber;
       this.vision = vision;
       this.leds = leds;
       this.questNav = questNav;
@@ -115,7 +107,6 @@ public class Robot {
     final CoralPlacerPivot coralPlacerPivot;
     final CoralPlacerRollers coralPlacerRollers;
     final Elevator elevator;
-    final Climber climber;
     final Vision vision;
     final Leds leds;
     final QuestNav questNav;
@@ -149,8 +140,6 @@ public class Robot {
                 new BeamBreakIODio(CoralPlacerConstants.beamBreakDioId));
 
         elevator = new Elevator(new ElevatorIOTalonFX());
-
-        climber = new Climber(new ClimberIOTalonFX());
 
         vision =
             new Vision(
@@ -191,8 +180,6 @@ public class Robot {
 
         elevator = new Elevator(new ElevatorIOSim());
 
-        climber = new Climber(new ClimberIO() {});
-
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -220,8 +207,6 @@ public class Robot {
 
         elevator = new Elevator(new ElevatorIO() {});
 
-        climber = new Climber(new ClimberIO() {});
-
         intake =
             new Intake(
                 new PivotIO() {},
@@ -240,15 +225,7 @@ public class Robot {
 
     s =
         new Subsystems(
-            drive,
-            intake,
-            coralPlacerPivot,
-            coralPlacerRollers,
-            elevator,
-            climber,
-            vision,
-            leds,
-            questNav);
+            drive, intake, coralPlacerPivot, coralPlacerRollers, elevator, vision, leds, questNav);
     autos = new Autos(s);
     scoringMemory = new ScoringMemory(leds, ScoringPosition.branchL4);
 
@@ -398,10 +375,6 @@ public class Robot {
     secondaryController.povRight().onTrue(s.scoring.jogCoralPlacerDown());
 
     secondaryController.back().onTrue(s.scoring.untrustAllSensors());
-
-    s.climber.setDefaultCommand(
-        ClimbCommands.manualControl(
-            s, () -> MathUtil.applyDeadband(secondaryController.getRightY(), 0.1)));
 
     /** SysId Controls */
     /*sysIdController.leftBumper().onTrue(Commands.runOnce(() -> SignalLogger.start()));
