@@ -229,13 +229,15 @@ public class ScoringManager {
   public Command grabCoral() {
     return Commands.sequence(
         elevatorDown().until(() -> coralPlacer.atPosition(CoralPlacerPosition.grabPosition)),
-        elevator.setPosition(ElevatorPosition.grabPosition),
-        Commands.waitUntil(elevator.finishedGrab),
-        Commands.waitUntil(hasObjectAssumeFalse).withTimeout(0.2),
-        elevator.setPosition(ElevatorPosition.readyPosition),
-        Commands.deadline(
-                coralPlacer.setPosition(CoralPlacerPosition.holdPosition), coralPlacer.holdCoral())
-            .onlyIf(hasObjectAssumeTrue));
+        Commands.sequence(
+                elevator.setPosition(ElevatorPosition.grabPosition),
+                Commands.waitUntil(elevator.finishedGrab),
+                Commands.waitUntil(hasObjectAssumeFalse).withTimeout(0.2),
+                elevator.setPosition(ElevatorPosition.readyPosition),
+                coralPlacer
+                    .setPosition(CoralPlacerPosition.holdPosition)
+                    .onlyIf(hasObjectAssumeTrue))
+            .alongWith(coralPlacer.holdCoral()));
   }
 
   public Command stowAlgae() {

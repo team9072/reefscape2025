@@ -369,6 +369,10 @@ public class Robot {
     secondaryController.povUp().onTrue(s.scoring.unstuckElevator(ElevatorPosition.reefL4Position));
 
     // Coral Placer jog
+    mainController.povUp().onTrue(s.scoring.jogCoralPlacerUp());
+
+    mainController.povDown().onTrue(s.scoring.jogCoralPlacerDown());
+
     secondaryController.povLeft().onTrue(s.scoring.jogCoralPlacerUp());
 
     secondaryController.povRight().onTrue(s.scoring.jogCoralPlacerDown());

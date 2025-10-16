@@ -22,23 +22,26 @@ public class ElevatorConstants {
    * constructor determines how far up the elevator starts, which is subtracted from each position.
    */
   public enum ElevatorPosition {
-    groundPickupCoralPosition(Rotations.of(-0.2)),
-    groundPickupAlgaePosition(Rotations.of(0.574)),
+    groundPickupCoralPosition(Rotations.of(-0.2 - ElevatorPosition.cupChangedOffset)),
+    groundPickupAlgaePosition(Rotations.of(0.574 - ElevatorPosition.cupChangedOffset)),
 
     grabPosition(Rotations.of(-0.15)),
     readyPosition(Rotations.of(1.1)),
 
-    reefTroughPosition(Rotations.of(2.6)),
-    troughClearPosition(Rotations.of(3.4)),
+    reefTroughPosition(Rotations.of(2.6 - ElevatorPosition.cupChangedOffset)),
+    troughClearPosition(Rotations.of(3.4 - ElevatorPosition.cupChangedOffset)),
 
-    reefL2Position(Rotations.of(1.3)),
-    reefL3Position(Rotations.of(5.05)),
-    reefL4Position(Rotations.of(9.5)),
+    reefL2Position(Rotations.of(1.3 - ElevatorPosition.cupChangedOffset)),
+    reefL3Position(Rotations.of(5.05 - ElevatorPosition.cupChangedOffset)),
+    reefL4Position(Rotations.of(9.5 - ElevatorPosition.cupChangedOffset)),
 
-    algaeL2Position(Rotations.of(2.4)),
-    algaeL3Position(Rotations.of(5.6)),
+    algaeL2Position(Rotations.of(2.4 - ElevatorPosition.cupChangedOffset)),
+    algaeL3Position(Rotations.of(5.6 - ElevatorPosition.cupChangedOffset)),
 
-    scoreBargePosition(Rotations.of(10.3));
+    scoreBargePosition(Rotations.of(10.3 - ElevatorPosition.cupChangedOffset));
+
+    // FIXME: Remove this variable and add offsets once proven tbe good
+    public static final double cupChangedOffset = 0.3;
 
     public static final Angle grabZoneMax = Rotations.of(1.75);
 
