@@ -56,7 +56,7 @@ public class AutoSequences {
     return Commands.run(
             () -> {
               ChassisSpeeds targetSpeeds =
-                  ReefAlignment.getReefAlignSpeeds(targetPose, driveController);
+                  ReefAlignment.getAutoAlignSpeeds(targetPose, driveController);
 
               s.drive.runVelocity(
                   ChassisSpeeds.fromFieldRelativeSpeeds(targetSpeeds, s.drive.getRotation()));

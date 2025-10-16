@@ -60,6 +60,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 public class Robot {
   public static class Subsystems {
@@ -286,28 +287,26 @@ public class Robot {
 
     mainController.rightBumper().whileTrue(s.intake.deploy().andThen(s.intake.reverse()));
 
+    Supplier<ScoringPosition> memorizedPositionOrBarge =
+        () ->
+            scoringMemory.inAlgaeMode()
+                ? ScoringPosition.barge
+                : scoringMemory.getMemorizedPosition();
+
     Trigger alignTrigger = mainController.leftTrigger();
     alignTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
-            scoringMemory::getMemorizedPosition, alignTrigger.negate()));
+            memorizedPositionOrBarge, alignTrigger.negate()));
     alignTrigger.whileTrue(
-        ReefAlignment.driveReefAligned(
-            s.drive,
-            driveXSupplier,
-            driveYSupplier,
-            driveOmegaSupplier,
-            scoringMemory::getMemorizedPosition));
+        ReefAlignment.driveAutoAligned(
+            s.drive, driveXSupplier, driveYSupplier, driveOmegaSupplier, memorizedPositionOrBarge));
 
     new Trigger(mainController.povRight()).onTrue(scoringMemory.toggleAlgaeMode());
 
     Trigger scoreTrigger = mainController.rightTrigger();
     scoreTrigger.onTrue(
         s.scoring.selfCancellingScoringActionOnTrigger(
-            () ->
-                scoringMemory.inAlgaeMode()
-                    ? ScoringPosition.barge
-                    : scoringMemory.getMemorizedPosition(),
-            scoreTrigger.negate()));
+            memorizedPositionOrBarge, scoreTrigger.negate()));
 
     mainController
         .x()
