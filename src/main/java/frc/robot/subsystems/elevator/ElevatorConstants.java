@@ -13,7 +13,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.generated.TunerConstants;
 import frc.robot.util.CanID;
 
 public class ElevatorConstants {
@@ -59,16 +58,15 @@ public class ElevatorConstants {
   public static final Current currentLimit = Amps.of(80);
   public static final Current statorLimit = Amps.of(120);
 
-  public static final Angle minDistance = Rotations.of(-0.55);
+  public static final Angle minDistance = Rotations.of(0.0);
   public static final Angle maxDistance = Rotations.of(10.5);
 
   public static final double kP = 10;
   public static final double kV = 0;
-  public static final double kG = 0.47;
+  public static final double kG = 0.1;
 
   public static final double rampVelocity = 36;
-  public static final double rampAcceleration = 200;
-  public static final double rampAccelerationSlow = 40;
+  public static final double rampAcceleration = 80;
 
   public static final Mass elevatorMass = Pounds.of(25);
   public static final Distance drumRadius = Inches.of(1.5 / 2);
@@ -76,7 +74,7 @@ public class ElevatorConstants {
   public static double motorReduction = 72.0 / 30.0;
   public static final InvertedValue inverted = InvertedValue.Clockwise_Positive;
 
-  public static final String canBus = TunerConstants.kCANBus.getName();
+  public static final String canBus = "Default Name";
   public static final CanID primaryMotorCanId = new CanID(13, canBus);
   public static final CanID secondaryMotorCanId = new CanID(14, canBus);
 

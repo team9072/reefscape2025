@@ -1,24 +1,19 @@
 package frc.robot.subsystems.elevator;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorPosition;
+import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private final ElevatorIO elevatorIO;
   private final ElevatorIOInputsAutoLogged elevatorInputs = new ElevatorIOInputsAutoLogged();
-
-  public final Trigger clearsCoral =
-      new Trigger(
-          () ->
-              ElevatorPosition.readyPosition.withinTolerance(elevatorInputs.rotation)
-                  || ElevatorPosition.readyPosition.angle.lt(elevatorInputs.rotation));
-
-  public final Trigger finishedGrab =
-      new Trigger(() -> elevatorInputs.rotation.lt(ElevatorPosition.grabZoneMax));
+  private Angle desiredRotation = Degrees.of(0.0);
 
   public Elevator(ElevatorIO elevatorIO) {
     this.elevatorIO = elevatorIO;
@@ -30,27 +25,35 @@ public class Elevator extends SubsystemBase {
     Logger.processInputs("Elevator", elevatorInputs);
   }
 
+  private void updateDesiredRotation(Angle rotation) {
+    desiredRotation = rotation;
+
+    if (desiredRotation.gt(ElevatorConstants.maxDistance)) {
+      desiredRotation = ElevatorConstants.maxDistance;
+    }
+
+    if (desiredRotation.lt(ElevatorConstants.minDistance)) {
+      desiredRotation = ElevatorConstants.minDistance;
+    }
+  }
+
   public boolean atPosition(ElevatorPosition position) {
     return position.withinTolerance(elevatorInputs.rotation);
   }
 
   public Command setPosition(ElevatorPosition position) {
-
     return Commands.sequence(
-        runOnce(() -> elevatorIO.setPosition(position.angle)),
-        Commands.waitUntil(
-            position == ElevatorPosition.grabPosition ? finishedGrab : () -> atPosition(position)));
+        startRun(
+            () -> elevatorIO.setPosition(position.angle),
+            () -> updateDesiredRotation(elevatorInputs.rotation)),
+        Commands.waitUntil(() -> atPosition(position)));
   }
 
-  public Command setPositionAlgae(ElevatorPosition position) {
-
-    return Commands.sequence(
-        runOnce(() -> elevatorIO.setPositionSlow(position.angle)),
-        Commands.waitUntil(
-            position == ElevatorPosition.grabPosition ? finishedGrab : () -> atPosition(position)));
-  }
-
-  public Command clearCoral() {
-    return setPosition(ElevatorPosition.readyPosition).until(clearsCoral).unless(clearsCoral);
+  public Command moveJoystick(DoubleSupplier movementSupplier) {
+    return run(
+        () -> {
+          updateDesiredRotation(desiredRotation.plus(Degrees.of(movementSupplier.getAsDouble())));
+          elevatorIO.setPosition(desiredRotation);
+        });
   }
 }
